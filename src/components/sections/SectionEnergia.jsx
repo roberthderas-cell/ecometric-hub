@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import KPICard from '@/components/report/KPICard';
+import EsgAlerts from '@/components/report/EsgAlerts';
 import { calcEnergy } from '@/lib/vsmeDefaults';
 import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -93,6 +94,11 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
             </Pie><Tooltip /></PieChart>
           </ResponsiveContainer>
         </Card>
+      </div>
+
+      {/* ESG Validation Alerts */}
+      <div className="mb-5">
+        <EsgAlerts data={data} sections={['energia']} />
       </div>
 
       <Card className="p-6 mb-5">

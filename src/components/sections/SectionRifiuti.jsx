@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import KPICard from '@/components/report/KPICard';
+import EsgAlerts from '@/components/report/EsgAlerts';
 import { calcWaste } from '@/lib/vsmeDefaults';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
@@ -51,6 +52,11 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
           </ResponsiveContainer>
         </Card>
       )}
+
+      {/* ESG Validation Alerts */}
+      <div className="mb-5">
+        <EsgAlerts data={data} sections={['rifiuti']} />
+      </div>
 
       <Card className="p-6 mb-5">
         <TextArea label="Note e commenti B7" value={ri.noteRi} onChange={(v) => u('noteRi', v)} rows={3} />
