@@ -9,8 +9,13 @@ import SectionAnagrafica from '@/components/sections/SectionAnagrafica';
 import SectionEnergia from '@/components/sections/SectionEnergia';
 import SectionAcqua from '@/components/sections/SectionAcqua';
 import SectionRifiuti from '@/components/sections/SectionRifiuti';
+import SectionInquinamento from '@/components/sections/SectionInquinamento';
+import SectionBiodiversita from '@/components/sections/SectionBiodiversita';
 import SectionPersonale from '@/components/sections/SectionPersonale';
 import SectionGovernance from '@/components/sections/SectionGovernance';
+import SectionB1 from '@/components/sections/SectionB1';
+import SectionB2 from '@/components/sections/SectionB2';
+import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
 import { getSectionCompletion, SECTIONS, DEFAULT_DATA } from '@/lib/vsmeDefaults';
 import { toast } from 'sonner';
@@ -20,8 +25,21 @@ const SECTION_COMPONENTS = {
   en: SectionEnergia,
   ac: SectionAcqua,
   ri: SectionRifiuti,
+  inq: SectionInquinamento,
+  biod: SectionBiodiversita,
   pe: SectionPersonale,
   gov: SectionGovernance,
+  b1: SectionB1,
+  b2: SectionB2,
+  c1: SectionC1,
+  c2: SectionC2,
+  c3: SectionC3,
+  c4: SectionC4,
+  c5: SectionC5,
+  c6: SectionC6,
+  c7: SectionC7,
+  c8: SectionC8,
+  c9: SectionC9,
   dash: SectionDashboard,
 };
 

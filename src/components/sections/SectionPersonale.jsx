@@ -74,7 +74,7 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
       <Card className="p-6 mb-5"><TextArea label="Note B8-B10" value={pe.notePe} onChange={(v) => u('notePe', v)} rows={3} /></Card>
 
       <div className="flex justify-between pt-4">
-        <Button variant="outline" onClick={() => onNavigate('ri')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>
+        <Button variant="outline" onClick={() => onNavigate('biod')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>
         <Button onClick={() => onNavigate('gov')} className="bg-primary gap-2">Avanti <ChevronRight className="w-4 h-4" /></Button>
       </div>
     </div>

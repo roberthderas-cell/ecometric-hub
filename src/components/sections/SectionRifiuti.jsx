@@ -58,7 +58,7 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('ac')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>
-        <Button onClick={() => onNavigate('pe')} className="bg-primary gap-2">Avanti <ChevronRight className="w-4 h-4" /></Button>
+        <Button onClick={() => onNavigate('inq')} className="bg-primary gap-2">Avanti <ChevronRight className="w-4 h-4" /></Button>
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ export default function SectionGovernance({ data, onUpdate, onNavigate }) {
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('pe')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>
-        <Button onClick={() => onNavigate('dash')} className="bg-primary gap-2">Dashboard KPI <ChevronRight className="w-4 h-4" /></Button>
+        <Button onClick={() => onNavigate('b1')} className="bg-primary gap-2">B1 Basi di Preparazione <ChevronRight className="w-4 h-4" /></Button>
       </div>
     </div>
   );
