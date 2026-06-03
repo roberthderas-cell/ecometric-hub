@@ -1,6 +1,7 @@
 // Default VSME data structure
 export const DEFAULT_DATA = {
   ana: { ragione: '', ateco: '', forma: 'SRL', anno: 2025, perimetro: 'individuale', paesi: 'Italia', attivo: '', fatturato: '', fte: '', hc: '', modulo: 'basic', cert: '', sede: '', dimManuale: '' },
+  sedi: { lista: [] },
   en: { elReteN: '', elReteN1: '', elFVN: '', elFVN1: '', kWpFV: '', ispra: '0.211', annoIspra: '2023', scopeMetodo: 'location', goKWhN: '', goEFN: '0', noteEn: '' },
   ac: { scaricoN: '', scaricoN1: '', dipAcquaN: '', dipAcquaN1: '', ricN: '', ricN1: '', noteAc: '' },
   ri: { totN: '', totN1: '', periN: '', periN1: '', recN: '', recN1: '', noteRi: '' },

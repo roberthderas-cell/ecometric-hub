@@ -1,89 +1,103 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, TextArea } from '@/components/report/FormField';
+import { TextInput, SelectField, TextArea } from '@/components/report/FormField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import BiodiversitaMap from '@/components/report/BiodiversitaMap';
+import { Link } from 'react-router-dom';
 
-export default function SectionBiodiversita({ data, onUpdate, onNavigate }) {
+export default function SectionBiodiversita({ data, onUpdate, onNavigate, reportId }) {
   const biod = data?.biod || {};
-  const siti = data?.b5siti?.siti || [];
   const u = (field, value) => onUpdate('biod', field, value);
 
-  const updateSito = (i, key, val) => {
-    const rows = [...siti];
-    rows[i] = { ...rows[i], [key]: val };
-    onUpdate('b5siti', 'siti', rows);
-  };
-
-  const addSito = () => {
-    onUpdate('b5siti', 'siti', [...siti, { sito: '', paese: 'Italia', superficie: '', titolo: 'Posseduto/locato', sensibile: 'Da verificare', regione: '', fonte: 'Natura 2000 / WDPA' }]);
-  };
-
-  const removeSito = (i) => {
-    onUpdate('b5siti', 'siti', siti.filter((_, idx) => idx !== i));
-  };
-
-  // Callback from map: pre-popola un nuovo sito dalla ricerca
-  const handleSitoFound = (sitoData) => {
-    onUpdate('b5siti', 'siti', [...siti, { superficie: '', titolo: 'Posseduto/locato', sensibile: 'Da verificare', ...sitoData }]);
-  };
+  const sedeLegale = data?.ana?.sede || '';
+  const sediOperative = data?.sedi?.lista || [];
 
   const tot = parseFloat(biod.supTot) || 0;
   const imp = parseFloat(biod.supImp) || 0;
   const nat = parseFloat(biod.natM2) || 0;
 
+  const hasSedi = sedeLegale || sediOperative.some(s => s.indirizzo);
+
   return (
     <div>
-      <SectionHeader icon="🌿" title="B5 — Biodiversità" description="Verifica prossimità ad aree Natura 2000 / WDPA direttamente sulla mappa. Metriche uso del suolo." reference="VSME B5 | ESRS E4 | Dir. Habitat 92/43/CEE" />
+      <SectionHeader icon="🌿" title="B5 — Biodiversità" description="Verifica automatica della prossimità delle sedi aziendali ad aree Natura 2000 e WDPA. Le sedi vengono lette dall'Anagrafica." reference="VSME B5 | ESRS E4 | Dir. Habitat 92/43/CEE" />
+
+      {/* AVVISO SE MANCANO SEDI */}
+      {!hasSedi && (
+        <div className="mb-5 p-4 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800 flex items-start gap-3">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="font-bold mb-1">Sedi non ancora inserite</p>
+            <p className="text-xs">Vai nella sezione <strong>Anagrafica</strong> e inserisci la sede legale e le sedi operative con l'indirizzo completo. La mappa le geolocalizza automaticamente.</p>
+            <button onClick={() => onNavigate('ana')} className="mt-2 text-xs font-bold text-amber-700 underline underline-offset-2">
+              → Vai all'Anagrafica
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* MAPPA INTEGRATA */}
       <Card className="p-5 mb-5">
-        <h3 className="font-heading font-bold text-primary text-sm mb-1">🗺️ Mappa Aree Protette — Verifica Siti</h3>
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-heading font-bold text-primary text-sm">🗺️ Mappa Aree Protette — Verifica Sedi Aziendali</h3>
+          {hasSedi && (
+            <button onClick={() => onNavigate('ana')} className="text-xs text-primary hover:underline">
+              ✏️ Modifica sedi →
+            </button>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground mb-3">
-          Cerca l'indirizzo di ogni sede aziendale per visualizzare la prossimità ad aree Natura 2000 e WDPA. Il sito cercato viene aggiunto automaticamente alla tabella sottostante.
+          Le sedi inserite in Anagrafica vengono geolocalizzate automaticamente. Attiva/disattiva i layer Natura 2000 e WDPA per verificare la prossimità alle aree protette (buffer 5 km).
         </p>
-        <BiodiversitaMap onSitoFound={handleSitoFound} />
+        <BiodiversitaMap
+          sedeLegale={sedeLegale}
+          sediOperative={sediOperative}
+        />
       </Card>
 
-      {/* TABELLA SITI */}
-      <Card className="p-6 mb-5">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="font-heading font-bold text-primary text-sm">Siti Aziendali — Prossimità Aree Sensibili</h3>
-          <Button size="sm" variant="outline" onClick={addSito}><Plus className="w-3.5 h-3.5 mr-1" /> Aggiungi manualmente</Button>
-        </div>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 mb-4">
-          ℹ️ I siti cercati sulla mappa vengono aggiunti automaticamente. Completa i campi mancanti (superficie, titolo, sensibile) e imposta "Area sensibile?" dopo aver verificato i layer sulla mappa.
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs border-collapse">
-            <thead><tr className="bg-green-50">
-              {['Sito / Sede', 'Paese', 'Sup. (m²)', 'Titolo', 'Area sensibile?', 'Regione', 'Fonte verifica', ''].map(h => (
-                <th key={h} className="text-left p-2 font-bold text-primary border-b border-green-200">{h}</th>
-              ))}
-            </tr></thead>
-            <tbody>
-              {siti.map((row, i) => (
-                <tr key={i} className="border-b border-green-100">
-                  <td className="p-1.5"><input className="w-full px-2 py-1.5 border border-green-200 rounded text-xs" value={row.sito || ''} onChange={e => updateSito(i, 'sito', e.target.value)} /></td>
-                  <td className="p-1.5"><input className="w-20 px-2 py-1.5 border border-green-200 rounded text-xs" value={row.paese || 'Italia'} onChange={e => updateSito(i, 'paese', e.target.value)} /></td>
-                  <td className="p-1.5"><input type="number" className="w-24 px-2 py-1.5 border border-green-200 rounded text-xs" value={row.superficie || ''} onChange={e => updateSito(i, 'superficie', e.target.value)} /></td>
-                  <td className="p-1.5"><select className="w-full px-2 py-1.5 border border-green-200 rounded text-xs" value={row.titolo || 'Posseduto/locato'} onChange={e => updateSito(i, 'titolo', e.target.value)}>
-                    {['Posseduto/locato', 'Posseduto', 'Locato', 'Gestito'].map(o => <option key={o}>{o}</option>)}
-                  </select></td>
-                  <td className="p-1.5"><select className="w-full px-2 py-1.5 border border-green-200 rounded text-xs" value={row.sensibile || 'Da verificare'} onChange={e => updateSito(i, 'sensibile', e.target.value)}>
-                    {['Da verificare', 'No', 'Si'].map(o => <option key={o}>{o}</option>)}
-                  </select></td>
-                  <td className="p-1.5"><input className="w-32 px-2 py-1.5 border border-green-200 rounded text-xs" value={row.regione || ''} onChange={e => updateSito(i, 'regione', e.target.value)} /></td>
-                  <td className="p-1.5"><input className="w-36 px-2 py-1.5 border border-green-200 rounded text-xs" value={row.fonte || ''} onChange={e => updateSito(i, 'fonte', e.target.value)} /></td>
-                  <td className="p-1.5 w-8"><button onClick={() => removeSito(i)} className="text-red-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button></td>
-                </tr>
-              ))}
-              {!siti.length && <tr><td colSpan="8" className="text-center p-4 text-muted-foreground italic text-xs">Cerca un sito sulla mappa o usa "Aggiungi manualmente".</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </Card>
+      {/* RIEPILOGO SEDI */}
+      {hasSedi && (
+        <Card className="p-5 mb-5">
+          <h3 className="font-heading font-bold text-primary text-sm mb-3">Riepilogo Sedi — Esito Verifica</h3>
+          <div className="space-y-2">
+            {sedeLegale && (
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-red-50 border border-red-100 text-sm">
+                <span className="w-3 h-3 rounded-full bg-red-600 shrink-0" />
+                <div>
+                  <span className="font-bold text-red-800">Sede Legale</span>
+                  <span className="text-xs text-muted-foreground ml-2">{sedeLegale}</span>
+                </div>
+                <SelectField
+                  label=""
+                  value={biod.sensLegale || 'Da verificare'}
+                  onChange={(v) => u('sensLegale', v)}
+                  options={[['Da verificare', 'Da verificare'], ['No', 'No — fuori da aree protette'], ['Si', 'Sì — in/adiacente ad area protetta']]}
+                />
+              </div>
+            )}
+            {sediOperative.filter(s => s.indirizzo).map((s, i) => (
+              <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-100 text-sm">
+                <span className="w-3 h-3 rounded-full bg-blue-600 shrink-0" />
+                <div className="flex-1">
+                  <span className="font-bold text-blue-800">{s.nome || s.tipo}</span>
+                  <span className="text-xs text-muted-foreground ml-2">{s.indirizzo}</span>
+                </div>
+                <SelectField
+                  label=""
+                  value={(biod.sensOp || [])[i] || 'Da verificare'}
+                  onChange={(v) => {
+                    const arr = [...(biod.sensOp || [])];
+                    arr[i] = v;
+                    u('sensOp', arr);
+                  }}
+                  options={[['Da verificare', 'Da verificare'], ['No', 'No'], ['Si', 'Sì']]}
+                />
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {/* METRICHE USO SUOLO */}
       <Card className="p-6 mb-5">
@@ -106,7 +120,7 @@ export default function SectionBiodiversita({ data, onUpdate, onNavigate }) {
 
       <Card className="p-6 mb-5">
         <TextArea label="Nota narrativa B5" value={biod.noteBiod} onChange={(v) => u('noteBiod', v)} rows={4}
-          hint="Descrivi l'esito della verifica: 'Nessun sito è ubicato in prossimità di aree Natura 2000 o IBA (verifica effettuata su mappa EEA).'" />
+          hint="Es.: 'Nessun sito è ubicato in prossimità di aree Natura 2000 o IBA (verifica effettuata su mappa EEA, buffer 5 km).'" />
       </Card>
 
       <div className="flex justify-between pt-4">

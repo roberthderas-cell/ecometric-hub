@@ -2,10 +2,11 @@ import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, SelectField, ComputedValue } from '@/components/report/FormField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Plus, Trash2 } from 'lucide-react';
 
 export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
   const ana = data?.ana || {};
+  const sedi = data?.sedi?.lista || [];
   const u = (field, value) => onUpdate('ana', field, value);
 
   const att = parseFloat(ana.attivo) || 0;
@@ -17,12 +18,26 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
   const catAuto = micro >= 2 ? 'Micro' : small >= 2 ? 'Piccola' : 'Media';
   const cat = (ana.dimManuale && ana.dimManuale !== 'auto') ? ana.dimManuale : catAuto;
 
+  const updateSede = (i, key, val) => {
+    const rows = [...sedi];
+    rows[i] = { ...rows[i], [key]: val };
+    onUpdate('sedi', 'lista', rows);
+  };
+
+  const addSede = () => {
+    onUpdate('sedi', 'lista', [...sedi, { nome: '', indirizzo: '', tipo: 'Operativa', paese: 'Italia' }]);
+  };
+
+  const removeSede = (i) => {
+    onUpdate('sedi', 'lista', sedi.filter((_, idx) => idx !== i));
+  };
+
   return (
     <div>
       <SectionHeader
         icon="🏢"
         title="Anagrafica Impresa"
-        description="Inserisci i dati identificativi e dimensionali. La categoria VSME viene calcolata automaticamente (art. 3 Dir. 2013/34/UE)."
+        description="Inserisci i dati identificativi, le sedi aziendali e i dati dimensionali. Le sedi vengono usate automaticamente nella verifica Biodiversità."
         reference="VSME B1 — Basi per la preparazione"
       />
 
@@ -30,7 +45,6 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Dati Identificativi</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <TextInput label="Ragione Sociale" value={ana.ragione} onChange={(v) => u('ragione', v)} placeholder="Es. Alfa Metalli S.r.l." />
-          <TextInput label="Sede Legale" value={ana.sede} onChange={(v) => u('sede', v)} placeholder="Es. Via Roma 1, Milano" />
           <TextInput label="Codice ATECO / NACE" value={ana.ateco} onChange={(v) => u('ateco', v)} placeholder="Es. 25.62" hint="Camera di Commercio o visura camerale" />
           <SelectField label="Forma Giuridica" value={ana.forma} onChange={(v) => u('forma', v)} options={[['SRL','S.r.l.'],['SPA','S.p.A.'],['SNC','S.n.c.'],['SAS','S.a.s.'],['ALTRO','Altro']]} />
           <SelectField label="Anno di Riferimento" value={String(ana.anno || '2025')} onChange={(v) => u('anno', v)} options={[['2025','2025'],['2024','2024'],['2023','2023'],['2022','2022']]} />
@@ -38,6 +52,67 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
           <TextInput label="Paesi di Operatività" value={ana.paesi} onChange={(v) => u('paesi', v)} placeholder="Es. Italia, Germania" />
           <TextInput label="Certificazioni ESG" value={ana.cert} onChange={(v) => u('cert', v)} placeholder="Nessuna se non applicabile" />
         </div>
+      </Card>
+
+      {/* SEDI AZIENDALI */}
+      <Card className="p-6 mb-5">
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="font-heading font-bold text-primary text-sm">Sedi Aziendali</h3>
+          <Button size="sm" variant="outline" onClick={addSede}><Plus className="w-3.5 h-3.5 mr-1" /> Aggiungi sede</Button>
+        </div>
+        <p className="text-xs text-muted-foreground mb-4">
+          Inserisci la sede legale e tutte le sedi operative. Gli indirizzi saranno geolocalizzati automaticamente nella mappa Biodiversità per la verifica delle aree protette.
+        </p>
+
+        {/* Sede legale (campo rapido) */}
+        <div className="mb-4">
+          <TextInput
+            label="Sede Legale (indirizzo completo)"
+            value={ana.sede}
+            onChange={(v) => u('sede', v)}
+            placeholder="Es. Via Roma 1, 20121 Milano MI"
+            hint="Indirizzo completo per geocoding preciso"
+          />
+        </div>
+
+        {/* Sedi operative */}
+        {sedi.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-2">Sedi Operative</p>
+            {sedi.map((row, i) => (
+              <div key={i} className="flex gap-2 items-center p-3 rounded-lg border border-green-100 bg-green-50/30">
+                <input
+                  className="flex-1 px-2.5 py-1.5 border border-green-200 rounded text-xs focus:border-primary focus:outline-none"
+                  placeholder="Nome sede (es. Stabilimento Nord)"
+                  value={row.nome || ''}
+                  onChange={e => updateSede(i, 'nome', e.target.value)}
+                />
+                <input
+                  className="flex-[2] px-2.5 py-1.5 border border-green-200 rounded text-xs focus:border-primary focus:outline-none"
+                  placeholder="Indirizzo completo (es. Via Verdi 5, 10121 Torino TO)"
+                  value={row.indirizzo || ''}
+                  onChange={e => updateSede(i, 'indirizzo', e.target.value)}
+                />
+                <select
+                  className="px-2.5 py-1.5 border border-green-200 rounded text-xs focus:border-primary focus:outline-none"
+                  value={row.tipo || 'Operativa'}
+                  onChange={e => updateSede(i, 'tipo', e.target.value)}
+                >
+                  {['Operativa', 'Magazzino', 'Ufficio', 'Produzione', 'Logistica'].map(o => <option key={o}>{o}</option>)}
+                </select>
+                <button onClick={() => removeSede(i)} className="text-red-400 hover:text-red-600 shrink-0">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!sedi.length && (
+          <div className="text-xs text-muted-foreground italic text-center py-3 border border-dashed border-border rounded-lg">
+            Nessuna sede operativa aggiunta. Usa "Aggiungi sede" per sedi diverse dalla sede legale.
+          </div>
+        )}
       </Card>
 
       <Card className="p-6 mb-5">
