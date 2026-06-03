@@ -20,6 +20,7 @@ import SectionB2 from '@/components/sections/SectionB2';
 import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
 import { getSectionCompletion, SECTIONS, DEFAULT_DATA, calcESGScore } from '@/lib/vsmeDefaults';
+import EsgMilestone from '@/components/report/EsgMilestone';
 
 const ESG_SNAPSHOT_MIN_DELTA = 2; // salva snapshot solo se il totale cambia di almeno 2 punti
 let lastSnapshotScore = null;
@@ -174,6 +175,8 @@ export default function ReportEditor() {
           {/* Section progress stepper */}
           <SectionProgress data={reportData} activeSection={activeSection} onNavigate={handleNavigate} />
         </header>
+
+        <EsgMilestone score={report.esg_score?.tot ?? 0} />
 
         {/* Content */}
         <main className="flex-1 p-6 md:p-8 max-w-5xl overflow-y-auto">

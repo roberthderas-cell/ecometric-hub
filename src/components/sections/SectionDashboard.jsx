@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
+import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
 import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
@@ -44,6 +45,9 @@ export default function SectionDashboard({ data, reportId }) {
   return (
     <div>
       <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
+
+      {/* AI Coach ESG */}
+      <AiCoach data={data} esg={esg} />
 
       {/* Trend ESG nel tempo */}
       {reportId && <div className="mb-6"><EsgTrendChart reportId={reportId} /></div>}
