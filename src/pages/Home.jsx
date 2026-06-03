@@ -7,9 +7,127 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, FileText, TrendingUp, Leaf, Trash2 } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
+
+const ratingConfig = {
+  Leader:        { color: '#059669', bg: 'from-emerald-500 to-green-400', label: '🏆 Leader' },
+  Avanzato:      { color: '#2563EB', bg: 'from-blue-600 to-blue-400',     label: '⭐ Avanzato' },
+  Buono:         { color: '#0891B2', bg: 'from-cyan-600 to-cyan-400',     label: '✅ Buono' },
+  'In crescita': { color: '#D97706', bg: 'from-amber-500 to-yellow-400',  label: '📈 In crescita' },
+  Base:          { color: '#9CA3AF', bg: 'from-slate-500 to-slate-400',   label: '🌱 Base' },
+};
+
+const statusConfig = {
+  bozza:     { bg: 'bg-slate-100 text-slate-600 border-slate-200',       dot: 'bg-slate-400',   label: 'Bozza' },
+  in_corso:  { bg: 'bg-amber-50 text-amber-700 border-amber-200',        dot: 'bg-amber-400',   label: 'In corso' },
+  completato:{ bg: 'bg-green-50 text-green-700 border-green-200',        dot: 'bg-green-500',   label: 'Completato' },
+};
+
+function StatPill({ icon: Icon, value, label, color }) {
+  return (
+    <div className="flex items-center gap-3 bg-white/8 hover:bg-white/12 transition-colors rounded-2xl px-5 py-3.5">
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
+        <Icon className="w-4 h-4 text-white" />
+      </div>
+      <div>
+        <p className="font-heading font-extrabold text-white text-xl leading-none">{value}</p>
+        <p className="text-white/50 text-[11px] mt-0.5">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function ReportCard({ report, onDelete, index }) {
+  const score = report.esg_score;
+  const rating = score?.rating;
+  const cfg = ratingConfig[rating];
+  const st = statusConfig[report.status] || statusConfig.bozza;
+  const completion = report.completion || 0;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ delay: index * 0.06 }}
+      className="group relative"
+    >
+      <Link to={`/report/${report.id}/ana`}>
+        <Card className="relative overflow-hidden p-0 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer border-border hover:border-primary/30">
+          {/* Top accent bar */}
+          {cfg && (
+            <div className={`h-1 w-full bg-gradient-to-r ${cfg.bg}`} />
+          )}
+
+          <div className="p-5">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-heading font-bold text-base group-hover:text-primary transition-colors truncate">{report.name}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">Anno {report.year} · {report.module === 'comprehensive' ? 'Modulo Completo' : 'Modulo Base'}</p>
+              </div>
+              <span className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ml-2 ${st.bg}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+                {st.label}
+              </span>
+            </div>
+
+            {/* Completion bar */}
+            <div className="mb-4">
+              <div className="flex items-center justify-between mb-1.5">
+                <span className="text-[11px] text-muted-foreground">Completamento</span>
+                <span className="text-[11px] font-bold text-foreground">{completion}%</span>
+              </div>
+              <div className="h-2 bg-muted rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${completion}%` }}
+                  transition={{ duration: 0.8, delay: index * 0.06 + 0.2, ease: 'easeOut' }}
+                  className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
+                />
+              </div>
+            </div>
+
+            {/* ESG Score */}
+            {score?.tot ? (
+              <div className={`flex items-center gap-3 bg-gradient-to-r ${cfg?.bg || 'from-slate-500 to-slate-400'} rounded-xl px-4 py-3`}>
+                <div>
+                  <p className="text-[9px] text-white/70 uppercase tracking-widest">ESG Score</p>
+                  <p className="font-heading font-extrabold text-2xl text-white leading-none">{score.tot}</p>
+                </div>
+                <div className="flex-1 grid grid-cols-3 text-center gap-1">
+                  {[['E', score.E], ['S', score.S], ['G', score.G]].map(([l, v]) => (
+                    <div key={l} className="bg-white/15 rounded-lg py-1">
+                      <p className="text-[8px] text-white/60 uppercase">{l}</p>
+                      <p className="text-xs font-bold text-white">{v}</p>
+                    </div>
+                  ))}
+                </div>
+                <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 bg-muted rounded-xl px-4 py-3 text-xs text-muted-foreground">
+                <BarChart3 className="w-4 h-4" />
+                Inizia a compilare per calcolare lo score ESG
+                <ArrowRight className="w-3.5 h-3.5 ml-auto group-hover:translate-x-1 transition-transform" />
+              </div>
+            )}
+          </div>
+        </Card>
+      </Link>
+
+      {/* Delete button */}
+      <button
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(report.id); }}
+        className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:border-destructive hover:text-destructive text-muted-foreground z-10"
+      >
+        <Trash2 className="w-3.5 h-3.5" />
+      </button>
+    </motion.div>
+  );
+}
 
 export default function Home() {
   const [showNew, setShowNew] = useState(false);
@@ -44,118 +162,161 @@ export default function Home() {
     });
   };
 
-  const statusColors = {
-    bozza: 'bg-slate-100 text-slate-600',
-    in_corso: 'bg-amber-50 text-amber-700',
-    completato: 'bg-green-50 text-green-700',
-  };
-  const statusLabels = { bozza: 'Bozza', in_corso: 'In corso', completato: 'Completato' };
+  const completedCount = reports.filter(r => r.completion === 100).length;
+  const avgScore = reports.filter(r => r.esg_score?.tot).length
+    ? Math.round(reports.filter(r => r.esg_score?.tot).reduce((s, r) => s + r.esg_score.tot, 0) / reports.filter(r => r.esg_score?.tot).length)
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero */}
+
+      {/* ── HERO ─────────────────────────────────────────── */}
       <div className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-700">
-        <div className="absolute inset-0 opacity-5">
-          <svg className="w-full h-full" viewBox="0 0 800 400"><circle cx="650" cy="200" r="180" fill="none" stroke="white" strokeWidth="1"/><circle cx="650" cy="200" r="120" fill="none" stroke="white" strokeWidth="1"/></svg>
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-20 -right-20 w-96 h-96 bg-green-400/5 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-emerald-300/5 rounded-full blur-2xl" />
+          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" viewBox="0 0 800 500">
+            <circle cx="700" cy="250" r="200" fill="none" stroke="white" strokeWidth="1"/>
+            <circle cx="700" cy="250" r="130" fill="none" stroke="white" strokeWidth="1"/>
+            <circle cx="700" cy="250" r="60" fill="none" stroke="white" strokeWidth="1"/>
+          </svg>
         </div>
-        <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-24">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="inline-flex items-center gap-1.5 bg-green-400/12 border border-green-400/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full mb-5">
-              <Leaf className="w-3.5 h-3.5" /> VSME Standard · EFRAG 2024
-            </span>
-            <h1 className="font-heading text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
-              Report di<br />
-              <span className="bg-gradient-to-r from-green-400 to-emerald-300 bg-clip-text text-transparent">Sostenibilità</span>
+
+        <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-20">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
+            <div className="flex flex-wrap items-center gap-2 mb-6">
+              <span className="inline-flex items-center gap-1.5 bg-green-400/12 border border-green-400/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full">
+                <Leaf className="w-3.5 h-3.5" /> VSME Standard · EFRAG 2024
+              </span>
+              <span className="inline-flex items-center gap-1.5 bg-blue-400/10 border border-blue-400/20 text-blue-300 text-xs font-bold px-3 py-1.5 rounded-full">
+                <Sparkles className="w-3.5 h-3.5" /> AI-powered ESG
+              </span>
+            </div>
+
+            <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
+              Il tuo Report<br />
+              <span className="bg-gradient-to-r from-green-400 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
+                ESG Intelligente
+              </span>
             </h1>
-            <p className="text-white/55 text-base max-w-md leading-relaxed mb-8">
-              Costruisci il tuo report VSME per le PMI. Dati ESG strutturati, calcoli automatici, dashboard KPI e export.
+            <p className="text-white/50 text-base md:text-lg max-w-lg leading-relaxed mb-8">
+              L'unica piattaforma italiana per PMI che calcola, valida e ottimizza il tuo score ESG in tempo reale secondo lo standard VSME.
             </p>
-            <Button onClick={() => setShowNew(true)} className="bg-gradient-to-r from-green-500 to-green-400 text-forest-900 font-extrabold px-6 py-3 rounded-xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 transition-all">
-              <Plus className="w-4 h-4 mr-2" /> Nuovo Report
-            </Button>
+
+            <div className="flex flex-wrap items-center gap-3 mb-12">
+              <Button
+                onClick={() => setShowNew(true)}
+                className="bg-gradient-to-r from-green-500 to-emerald-400 text-forest-900 font-extrabold px-6 py-2.5 rounded-xl shadow-lg shadow-green-500/30 hover:shadow-xl hover:shadow-green-500/40 hover:scale-105 transition-all gap-2"
+              >
+                <Plus className="w-4 h-4" /> Nuovo Report
+              </Button>
+              {reports.length > 0 && (
+                <span className="text-white/40 text-sm">{reports.length} report attivi</span>
+              )}
+            </div>
+
+            {/* Stats pills */}
+            <div className="flex flex-wrap gap-3">
+              <StatPill icon={FileText} value={reports.length} label="Report totali" color="bg-green-600/60" />
+              <StatPill icon={Shield} value={completedCount} label="Completati" color="bg-blue-600/60" />
+              {avgScore !== null && <StatPill icon={TrendingUp} value={avgScore} label="Score medio ESG" color="bg-purple-600/60" />}
+              <StatPill icon={Zap} value="VSME" label="Standard EFRAG" color="bg-amber-600/60" />
+            </div>
           </motion.div>
         </div>
       </div>
 
-      {/* Reports list */}
+      {/* ── FEATURES STRIP ───────────────────────────────── */}
+      <div className="border-b border-border bg-card/50">
+        <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {[
+            { icon: '⚡', title: 'Score ESG Live', desc: 'Ricalcolo automatico ad ogni modifica' },
+            { icon: '🎯', title: 'Validazione Intelligente', desc: 'Alert critici e azioni correttive' },
+            { icon: '📊', title: 'Dashboard Avanzata', desc: 'Trend, radar chart e 45 KPI' },
+          ].map((f, i) => (
+            <motion.div
+              key={f.title}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 + i * 0.1 }}
+              className="flex items-center gap-3"
+            >
+              <span className="text-2xl">{f.icon}</span>
+              <div>
+                <p className="text-sm font-bold text-foreground">{f.title}</p>
+                <p className="text-xs text-muted-foreground">{f.desc}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── REPORT LIST ──────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="font-heading text-xl font-bold text-foreground">I tuoi Report</h2>
-          <span className="text-sm text-muted-foreground">{reports.length} report</span>
+          <div>
+            <h2 className="font-heading text-xl font-bold text-foreground">I tuoi Report</h2>
+            <p className="text-sm text-muted-foreground mt-0.5">{reports.length} report · aggiornati automaticamente</p>
+          </div>
+          <Button onClick={() => setShowNew(true)} className="gap-2 bg-primary">
+            <Plus className="w-4 h-4" /> Nuovo
+          </Button>
         </div>
 
         {isLoading ? (
-          <div className="flex items-center justify-center py-20">
+          <div className="flex items-center justify-center py-24">
             <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
           </div>
         ) : reports.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-20">
-            <FileText className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-lg font-heading font-bold text-muted-foreground mb-2">Nessun report ancora</p>
-            <p className="text-sm text-muted-foreground/60 mb-6">Crea il tuo primo report VSME per iniziare</p>
-            <Button onClick={() => setShowNew(true)} variant="outline">
-              <Plus className="w-4 h-4 mr-2" /> Crea il primo report
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
+            <div className="w-20 h-20 bg-muted rounded-3xl flex items-center justify-center mx-auto mb-5">
+              <Leaf className="w-10 h-10 text-primary/40" />
+            </div>
+            <p className="text-lg font-heading font-bold text-foreground mb-2">Inizia la tua journey ESG</p>
+            <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">Crea il primo report VSME e scopri il tuo score ESG in pochi minuti</p>
+            <Button onClick={() => setShowNew(true)} className="gap-2 bg-primary px-6">
+              <Plus className="w-4 h-4" /> Crea il primo report
             </Button>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <AnimatePresence>
-              {reports.map((r, i) => {
-                const score = r.esg_score;
-                return (
-                  <motion.div
-                    key={r.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Link to={`/report/${r.id}/ana`}>
-                      <Card className="p-5 hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group border-green-100 hover:border-green-300">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <h3 className="font-heading font-bold text-base group-hover:text-primary transition-colors">{r.name}</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">Anno {r.year} · {r.module === 'comprehensive' ? 'Completo' : 'Base'}</p>
-                          </div>
-                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${statusColors[r.status] || statusColors.bozza}`}>
-                            {statusLabels[r.status] || 'Bozza'}
-                          </span>
-                        </div>
-                        <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-3">
-                          <div className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full transition-all" style={{ width: `${r.completion || 0}%` }} />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs text-muted-foreground">{r.completion || 0}% completato</span>
-                          {score && <span className="text-xs font-bold text-primary flex items-center gap-1"><TrendingUp className="w-3 h-3" /> ESG {score.tot || '—'}</span>}
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 h-7 w-7 text-muted-foreground hover:text-destructive"
-                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm('Eliminare questo report?')) deleteMutation.mutate(r.id); }}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </Button>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                );
-              })}
+              {reports.map((r, i) => (
+                <ReportCard
+                  key={r.id}
+                  report={r}
+                  index={i}
+                  onDelete={(id) => { if (confirm('Eliminare questo report?')) deleteMutation.mutate(id); }}
+                />
+              ))}
             </AnimatePresence>
           </div>
         )}
       </div>
 
-      {/* New report dialog */}
+      {/* ── NEW REPORT DIALOG ────────────────────────────── */}
       <Dialog open={showNew} onOpenChange={setShowNew}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-heading">Nuovo Report VSME</DialogTitle>
+            <DialogTitle className="font-heading flex items-center gap-2">
+              <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                <Leaf className="w-4 h-4 text-primary" />
+              </span>
+              Nuovo Report VSME
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Nome dell'impresa *</label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Es. Alfa Metalli S.r.l." className="mt-1.5" />
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Es. Alfa Metalli S.r.l."
+                className="mt-1.5"
+                onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+                autoFocus
+              />
             </div>
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Anno di riferimento</label>
@@ -169,7 +330,12 @@ export default function Home() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowNew(false)}>Annulla</Button>
-            <Button onClick={handleCreate} disabled={!name.trim()} className="bg-primary">Crea Report</Button>
+            <Button onClick={handleCreate} disabled={!name.trim() || createMutation.isPending} className="bg-primary gap-2">
+              {createMutation.isPending ? (
+                <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+              ) : <Plus className="w-4 h-4" />}
+              Crea Report
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

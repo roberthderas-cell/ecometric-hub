@@ -3,8 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, Save, ChevronRight } from 'lucide-react';
+import { Home, ChevronRight } from 'lucide-react';
 import ReportSidebar from '@/components/report/ReportSidebar';
+import LiveEsgBadge from '@/components/report/LiveEsgBadge';
+import SectionProgress from '@/components/report/SectionProgress';
 import SectionAnagrafica from '@/components/sections/SectionAnagrafica';
 import SectionEnergia from '@/components/sections/SectionEnergia';
 import SectionAcqua from '@/components/sections/SectionAcqua';
@@ -153,22 +155,24 @@ export default function ReportEditor() {
       />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
-        <header className="sticky top-0 z-40 bg-card/90 backdrop-blur-xl border-b border-border px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm">
-            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors"><Home className="w-4 h-4" /></Link>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40" />
-            <span className="font-heading font-bold text-primary truncate max-w-[200px]">{report.name}</span>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40" />
-            <span className="text-muted-foreground">{currentSec?.icon} {currentSec?.label}</span>
+        <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border px-4 py-2.5 flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm min-w-0">
+              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors shrink-0"><Home className="w-4 h-4" /></Link>
+              <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0" />
+              <span className="font-heading font-bold text-primary truncate max-w-[140px] md:max-w-[220px]">{report.name}</span>
+              <ChevronRight className="w-3 h-3 text-muted-foreground/40 shrink-0 hidden sm:block" />
+              <span className="text-muted-foreground text-xs hidden sm:block">{currentSec?.icon} {currentSec?.label}</span>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <span className={`text-xs font-medium transition-all ${isSaving ? 'text-amber-500' : 'text-green-600'}`}>
+                {isSaving ? '⏳ Salvataggio...' : '✅ Salvato'}
+              </span>
+              <LiveEsgBadge esg={report.esg_score ? { ...report.esg_score } : null} compact />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <span className="text-xs text-muted-foreground">
-              {isSaving ? '⏳ Salvataggio...' : '✅ Salvato'}
-            </span>
-            <span className="bg-green-50 text-green-700 text-xs font-bold px-3 py-1 rounded-full border border-green-200">
-              {report.name}
-            </span>
-          </div>
+          {/* Section progress stepper */}
+          <SectionProgress data={reportData} activeSection={activeSection} onNavigate={handleNavigate} />
         </header>
 
         {/* Content */}
