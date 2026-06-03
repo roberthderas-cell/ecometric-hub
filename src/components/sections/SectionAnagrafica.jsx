@@ -15,7 +15,7 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
   if (att <= 450000) micro++; if (fatt <= 900000) micro++; if (dip <= 10) micro++;
   if (att <= 5000000) small++; if (fatt <= 10000000) small++; if (dip <= 50) small++;
   const catAuto = micro >= 2 ? 'Micro' : small >= 2 ? 'Piccola' : 'Media';
-  const cat = ana.dimManuale || catAuto;
+  const cat = (ana.dimManuale && ana.dimManuale !== 'auto') ? ana.dimManuale : catAuto;
 
   return (
     <div>
@@ -63,7 +63,7 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
             label="Override manuale categoria"
             value={ana.dimManuale || ''}
             onChange={(v) => u('dimManuale', v)}
-            options={[['','— Usa calcolo automatico —'],['Micro','Micro impresa'],['Piccola','Piccola impresa'],['Media','Media impresa']]}
+            options={[['auto','— Usa calcolo automatico —'],['Micro','Micro impresa'],['Piccola','Piccola impresa'],['Media','Media impresa']]}
             hint="Sovrascrive il calcolo automatico"
           />
           <SelectField
