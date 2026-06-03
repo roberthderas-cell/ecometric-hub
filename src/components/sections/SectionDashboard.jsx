@@ -2,10 +2,11 @@ import SectionHeader from '@/components/report/SectionHeader';
 import { Card } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import KPICard from '@/components/report/KPICard';
+import EsgTrendChart from '@/components/report/EsgTrendChart';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
 import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
-export default function SectionDashboard({ data }) {
+export default function SectionDashboard({ data, reportId }) {
   const g = calcEnergy(data);
   const w = calcWaste(data);
   const wa = calcWater(data);
@@ -43,6 +44,9 @@ export default function SectionDashboard({ data }) {
   return (
     <div>
       <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
+
+      {/* Trend ESG nel tempo */}
+      {reportId && <div className="mb-6"><EsgTrendChart reportId={reportId} /></div>}
 
       {/* ESG Score Hero */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-6">

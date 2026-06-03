@@ -18,6 +18,9 @@ import SectionB2 from '@/components/sections/SectionB2';
 import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
 import { getSectionCompletion, SECTIONS, DEFAULT_DATA, calcESGScore } from '@/lib/vsmeDefaults';
+
+const ESG_SNAPSHOT_MIN_DELTA = 2; // salva snapshot solo se il totale cambia di almeno 2 punti
+let lastSnapshotScore = null;
 import { toast } from 'sonner';
 
 const SECTION_COMPONENTS = {
@@ -86,9 +89,24 @@ export default function ReportEditor() {
     setIsSaving(true);
     saveTimer.current = setTimeout(() => {
       const esg_score = calcESGScore(newData);
-      updateMutation.mutate({ data: newData, completion: calcCompletion(newData), esg_score });
+      const completion = calcCompletion(newData);
+      updateMutation.mutate({ data: newData, completion, esg_score });
+      // Save ESG snapshot if score changed significantly
+      const tot = esg_score.tot;
+      if (lastSnapshotScore === null || Math.abs(tot - lastSnapshotScore) >= ESG_SNAPSHOT_MIN_DELTA) {
+        lastSnapshotScore = tot;
+        base44.entities.EsgSnapshot.create({
+          report_id: reportId,
+          esg_tot: tot,
+          esg_e: esg_score.E,
+          esg_s: esg_score.S,
+          esg_g: esg_score.G,
+          rating: esg_score.rating,
+          completion,
+        });
+      }
     }, 1200);
-  }, [reportData, updateMutation, calcCompletion]);
+  }, [reportData, updateMutation, calcCompletion, reportId]);
 
   const handleBulkUpdate = useCallback((sectionId, updates) => {
     const newData = JSON.parse(JSON.stringify(reportData));
@@ -161,6 +179,7 @@ export default function ReportEditor() {
               onUpdate={handleUpdate}
               onBulkUpdate={handleBulkUpdate}
               onNavigate={handleNavigate}
+              reportId={reportId}
             />
           ) : (
             <p className="text-muted-foreground">Sezione non trovata</p>

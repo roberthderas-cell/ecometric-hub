@@ -1,0 +1,38 @@
+{
+  "name": "EsgSnapshot",
+  "type": "object",
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "description": "ID del report di riferimento"
+    },
+    "esg_tot": {
+      "type": "number",
+      "description": "Punteggio ESG totale"
+    },
+    "esg_e": {
+      "type": "number",
+      "description": "Score Ambiente"
+    },
+    "esg_s": {
+      "type": "number",
+      "description": "Score Sociale"
+    },
+    "esg_g": {
+      "type": "number",
+      "description": "Score Governance"
+    },
+    "rating": {
+      "type": "string",
+      "description": "Rating (Base, In crescita, Buono, Avanzato, Leader)"
+    },
+    "completion": {
+      "type": "number",
+      "description": "Percentuale completamento report al momento dello snapshot"
+    }
+  },
+  "required": [
+    "report_id",
+    "esg_tot"
+  ]
+}
