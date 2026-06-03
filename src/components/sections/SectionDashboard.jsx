@@ -7,12 +7,15 @@ import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
 import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
-import { FileDown, Loader2 } from 'lucide-react';
+import { FileDown, Loader2, FlaskConical } from 'lucide-react';
 import { exportReportPDF } from '@/lib/exportPdf';
 import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/components/report/EsgCharts';
+import SimulatorPanel from '@/components/report/SimulatorPanel';
+import { AnimatePresence } from 'framer-motion';
 
 export default function SectionDashboard({ data, reportId, report }) {
   const [exporting, setExporting] = useState(false);
+  const [simOpen, setSimOpen] = useState(false);
   const g   = calcEnergy(data);
   const w   = calcWaste(data);
   const wa  = calcWater(data);
@@ -44,16 +47,29 @@ export default function SectionDashboard({ data, reportId, report }) {
     <div>
       <div className="flex items-start justify-between mb-6 gap-4">
         <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
-        <Button
-          onClick={handleExport}
-          disabled={exporting}
-          className="shrink-0 mt-1 bg-forest-800 hover:bg-forest-700 text-white gap-2 shadow-lg"
-        >
-          {exporting
-            ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
-            : <><FileDown className="w-4 h-4" /> Esporta PDF</>}
-        </Button>
+        <div className="flex gap-2 shrink-0 mt-1">
+          <Button
+            onClick={() => setSimOpen(o => !o)}
+            variant={simOpen ? 'default' : 'outline'}
+            className={`gap-2 shadow ${simOpen ? 'bg-primary text-white' : ''}`}
+          >
+            <FlaskConical className="w-4 h-4" /> Simulatore
+          </Button>
+          <Button
+            onClick={handleExport}
+            disabled={exporting}
+            className="bg-forest-800 hover:bg-forest-700 text-white gap-2 shadow-lg"
+          >
+            {exporting
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
+              : <><FileDown className="w-4 h-4" /> Esporta PDF</>}
+          </Button>
+        </div>
       </div>
+
+      <AnimatePresence>
+        {simOpen && <SimulatorPanel data={data} realEsg={esg} onClose={() => setSimOpen(false)} />}
+      </AnimatePresence>
 
       {/* AI Coach ESG */}
       <AiCoach data={data} esg={esg} />
