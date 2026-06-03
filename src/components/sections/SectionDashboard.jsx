@@ -1,20 +1,34 @@
+import { useState } from 'react';
 import SectionHeader from '@/components/report/SectionHeader';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { motion } from 'framer-motion';
 import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
 import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
 import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import { FileDown, Loader2 } from 'lucide-react';
+import { exportReportPDF } from '@/lib/exportPdf';
 
-export default function SectionDashboard({ data, reportId }) {
-  const g = calcEnergy(data);
-  const w = calcWaste(data);
-  const wa = calcWater(data);
-  const p = calcPersonnel(data);
+export default function SectionDashboard({ data, reportId, report }) {
+  const [exporting, setExporting] = useState(false);
+  const g   = calcEnergy(data);
+  const w   = calcWaste(data);
+  const wa  = calcWater(data);
+  const p   = calcPersonnel(data);
   const esg = calcESGScore(data);
-  const pe = data?.pe || {};
+  const pe  = data?.pe  || {};
   const gov = data?.gov || {};
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      await exportReportPDF({ report: report || { name: 'Report ESG', year: new Date().getFullYear() }, data, esg, g, w, wa, p });
+    } finally {
+      setExporting(false);
+    }
+  };
   const hc = parseInt(pe.hc) || 0;
   const donne = parseFloat(pe.donne) || 0;
 
@@ -44,7 +58,18 @@ export default function SectionDashboard({ data, reportId }) {
 
   return (
     <div>
-      <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
+      <div className="flex items-start justify-between mb-6 gap-4">
+        <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
+        <Button
+          onClick={handleExport}
+          disabled={exporting}
+          className="shrink-0 mt-1 bg-forest-800 hover:bg-forest-700 text-white gap-2 shadow-lg"
+        >
+          {exporting
+            ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
+            : <><FileDown className="w-4 h-4" /> Esporta PDF</>}
+        </Button>
+      </div>
 
       {/* AI Coach ESG */}
       <AiCoach data={data} esg={esg} />
@@ -96,8 +121,8 @@ export default function SectionDashboard({ data, reportId }) {
         </div>
       </div>
 
-      {/* Radar + Charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+      {/* Radar + Charts — wrapped for PDF capture */}
+      <div id="esg-pdf-charts" className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <Card className="p-5">
           <h4 className="font-heading text-sm font-bold text-primary mb-3">Profilo ESG — Radar</h4>
           <ResponsiveContainer width="100%" height={220}>

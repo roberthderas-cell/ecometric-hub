@@ -187,6 +187,7 @@ export default function ReportEditor() {
               onBulkUpdate={handleBulkUpdate}
               onNavigate={handleNavigate}
               reportId={reportId}
+              report={report}
             />
           ) : (
             <p className="text-muted-foreground">Sezione non trovata</p>
