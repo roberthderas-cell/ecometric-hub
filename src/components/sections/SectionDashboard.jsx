@@ -7,9 +7,9 @@ import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
 import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
-import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 import { FileDown, Loader2 } from 'lucide-react';
 import { exportReportPDF } from '@/lib/exportPdf';
+import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/components/report/EsgCharts';
 
 export default function SectionDashboard({ data, reportId, report }) {
   const [exporting, setExporting] = useState(false);
@@ -31,22 +31,6 @@ export default function SectionDashboard({ data, reportId, report }) {
   };
   const hc = parseInt(pe.hc) || 0;
   const donne = parseFloat(pe.donne) || 0;
-
-  const radarData = [
-    { area: 'Ambiente', value: esg.E, fullMark: 100 },
-    { area: 'Sociale', value: esg.S, fullMark: 100 },
-    { area: 'Governance', value: esg.G, fullMark: 100 },
-  ];
-
-  const ghgData = [
-    { name: 'Scope 1', value: parseFloat(g.s1.toFixed(2)), fill: '#D97706' },
-    { name: 'Scope 2', value: parseFloat(g.s2LB.toFixed(2)), fill: '#2563EB' },
-  ];
-
-  const genData = [
-    { name: 'Donne', value: parseFloat(pe.donne) || 0 },
-    { name: 'Uomini', value: parseFloat(pe.uomini) || 0 },
-  ].filter(d => d.value > 0);
 
   const ratingBg = {
     'Leader': 'from-green-600 to-green-500',
@@ -121,29 +105,12 @@ export default function SectionDashboard({ data, reportId, report }) {
         </div>
       </div>
 
-      {/* Radar + Charts — wrapped for PDF capture */}
+      {/* Charts grid — wrapped for PDF capture */}
       <div id="esg-pdf-charts" className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-        <Card className="p-5">
-          <h4 className="font-heading text-sm font-bold text-primary mb-3">Profilo ESG — Radar</h4>
-          <ResponsiveContainer width="100%" height={220}>
-            <RadarChart data={radarData}>
-              <PolarGrid stroke="#E2E8F0" />
-              <PolarAngleAxis dataKey="area" tick={{ fontSize: 11, fontWeight: 600 }} />
-              <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fontSize: 9 }} />
-              <Radar name="ESG" dataKey="value" stroke="#059669" fill="#059669" fillOpacity={0.2} strokeWidth={2} />
-            </RadarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        <Card className="p-5">
-          <h4 className="font-heading text-sm font-bold text-primary mb-3">GHG per Scope (tCO₂eq)</h4>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={ghgData}>
-              <XAxis dataKey="name" fontSize={11} /><YAxis fontSize={10} /><Tooltip />
-              <Bar dataKey="value" radius={[6,6,0,0]}>{ghgData.map((d,i) => <Cell key={i} fill={d.fill} />)}</Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
+        <RadarEsg esg={esg} />
+        <GhgBarChart g={g} />
+        <EnergyMixBar g={g} />
+        <WasteDonut w={w} />
       </div>
 
       {/* KPI Cards grid */}
@@ -210,16 +177,7 @@ export default function SectionDashboard({ data, reportId, report }) {
         ))}
       </div>
 
-      {genData.length > 0 && (
-        <Card className="p-5">
-          <h4 className="font-heading text-sm font-bold text-primary mb-3">Composizione per Genere</h4>
-          <ResponsiveContainer width="100%" height={180}>
-            <PieChart><Pie data={genData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label>
-              <Cell fill="#EC4899" /><Cell fill="#2563EB" />
-            </Pie><Tooltip /></PieChart>
-          </ResponsiveContainer>
-        </Card>
-      )}
+      <GenderDonut pe={pe} />
     </div>
   );
 }
