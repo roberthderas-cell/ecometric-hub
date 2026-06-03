@@ -149,34 +149,50 @@ export default function SectionDashboard({ data, reportId, report }) {
       {/* KPI Cards grid */}
       <h3 className="font-heading font-bold text-sm text-muted-foreground uppercase tracking-wide mb-3 mt-8">🌡️ Clima & Energia</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <KPICard label="Scope 1+2" value={g.tot.toFixed(2)} unit="tCO₂eq" color="amber" />
-        <KPICard label="% Rinnovabile" value={g.pRen.toFixed(1) + '%'} unit="FV" color="green" delay={0.05} />
-        <KPICard label="Energia Totale" value={(g.totKwh / 1000).toFixed(1)} unit="MWh" color="blue" delay={0.1} />
-        <KPICard label="Intensità GHG" value={g.intensity > 0 ? g.intensity.toFixed(2) : '—'} unit="tCO₂eq/M€" delay={0.15} />
+        <KPICard label="Scope 1+2" value={g.tot.toFixed(2)} unit="tCO₂eq" color="amber"
+          description="Somma delle emissioni dirette (Scope 1, da combustibili interni) e indirette (Scope 2, da acquisto di elettricità). Misurate in tonnellate di CO₂ equivalente." />
+        <KPICard label="% Rinnovabile" value={g.pRen.toFixed(1) + '%'} unit="FV" color="green" delay={0.05}
+          description="Quota percentuale dell'energia elettrica proveniente da fonti rinnovabili (es. fotovoltaico) sul totale dei consumi elettrici aziendali." />
+        <KPICard label="Energia Totale" value={(g.totKwh / 1000).toFixed(1)} unit="MWh" color="blue" delay={0.1}
+          description="Consumo energetico complessivo dell'azienda, comprensivo di elettricità da rete, fonti rinnovabili autoprodotte e combustibili fossili. Espresso in MegaWattora." />
+        <KPICard label="Intensità GHG" value={g.intensity > 0 ? g.intensity.toFixed(2) : '—'} unit="tCO₂eq/M€" delay={0.15}
+          description="Rapporto tra le emissioni totali di gas serra (Scope 1+2) e il fatturato aziendale in milioni di euro. Misura l'efficienza climatica per unità di ricavo." />
       </div>
 
       <h3 className="font-heading font-bold text-sm text-muted-foreground uppercase tracking-wide mb-3">💧 Acqua</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <KPICard label="Prelievi" value={wa.tot.toFixed(0)} unit="m³" color="blue" />
-        <KPICard label="Stress idrico" value={wa.high.toFixed(0)} unit="m³" color={wa.high > 0 ? 'amber' : 'default'} />
-        <KPICard label="Consumo netto" value={wa.consumo.toFixed(0)} unit="m³" />
-        <KPICard label="Consumo/dip." value={wa.consumoDip.toFixed(1)} unit="m³/dip." />
+        <KPICard label="Prelievi" value={wa.tot.toFixed(0)} unit="m³" color="blue"
+          description="Volume totale di acqua prelevata da tutte le fonti (rete idrica, acque superficiali, acque sotterranee) nel corso dell'anno di riferimento." />
+        <KPICard label="Stress idrico" value={wa.high.toFixed(0)} unit="m³" color={wa.high > 0 ? 'amber' : 'default'}
+          description="Volume di acqua prelevata da aree classificate ad alto o molto alto rischio di stress idrico secondo le mappe WRI Aqueduct. Valore 0 indica assenza di siti in zone critiche." />
+        <KPICard label="Consumo netto" value={wa.consumo.toFixed(0)} unit="m³"
+          description="Acqua effettivamente consumata: prelievi totali meno i volumi restituiti all'ambiente (scarichi). Rappresenta l'impatto netto sull'approvvigionamento idrico locale." />
+        <KPICard label="Consumo/dip." value={wa.consumoDip.toFixed(1)} unit="m³/dip."
+          description="Consumo idrico netto normalizzato per numero di dipendenti. Utile per confrontare l'efficienza idrica nel tempo o con aziende dello stesso settore." />
       </div>
 
       <h3 className="font-heading font-bold text-sm text-muted-foreground uppercase tracking-wide mb-3">♻️ Rifiuti</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <KPICard label="Rifiuti totali" value={w.tot.toFixed(2)} unit="t" />
-        <KPICard label="Pericolosi" value={w.per.toFixed(2)} unit="t" color={parseFloat(w.per) > 0 ? 'amber' : 'default'} />
-        <KPICard label="% Recupero" value={w.pRec.toFixed(1) + '%'} color="green" />
-        <KPICard label="Smaltimento" value={w.smal.toFixed(2)} unit="t" />
+        <KPICard label="Rifiuti totali" value={w.tot.toFixed(2)} unit="t"
+          description="Massa complessiva di rifiuti prodotti dall'azienda nell'anno, inclusi pericolosi e non pericolosi, destinati a qualsiasi percorso di smaltimento o recupero." />
+        <KPICard label="Pericolosi" value={w.per.toFixed(2)} unit="t" color={parseFloat(w.per) > 0 ? 'amber' : 'default'}
+          description="Quantità di rifiuti classificati come pericolosi ai sensi della normativa europea (Reg. CE 1357/2014). Richiedono gestione specializzata e tracciabilità documentale." />
+        <KPICard label="% Recupero" value={w.pRec.toFixed(1) + '%'} color="green"
+          description="Percentuale dei rifiuti totali avviata a operazioni di recupero (riciclaggio, compostaggio, recupero energetico) anziché a discarica o incenerimento senza recupero." />
+        <KPICard label="Smaltimento" value={w.smal.toFixed(2)} unit="t"
+          description="Quota di rifiuti avviata a smaltimento definitivo (discarica, incenerimento senza recupero energetico). Un valore basso indica una buona gestione circolare." />
       </div>
 
       <h3 className="font-heading font-bold text-sm text-muted-foreground uppercase tracking-wide mb-3">👥 Personale</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <KPICard label="Dipendenti" value={hc || '—'} unit="headcount" color="blue" />
-        <KPICard label="% Donne" value={hc > 0 ? (donne / hc * 100).toFixed(1) + '%' : '—'} />
-        <KPICard label="Gender Pay Gap" value={p.gpg + '%'} color={parseFloat(p.gpg) > 15 ? 'red' : 'default'} />
-        <KPICard label="Indice Frequenza" value={p.IF} unit="×1M ore" />
+        <KPICard label="Dipendenti" value={hc || '—'} unit="headcount" color="blue"
+          description="Numero totale di dipendenti (headcount) al 31/12 dell'anno di riferimento, inclusi contratti a tempo indeterminato, determinato e part-time." />
+        <KPICard label="% Donne" value={hc > 0 ? (donne / hc * 100).toFixed(1) + '%' : '—'}
+          description="Percentuale di lavoratrici donne sul totale dei dipendenti. Indicatore chiave di diversità e inclusione di genere a livello aziendale." />
+        <KPICard label="Gender Pay Gap" value={p.gpg + '%'} color={parseFloat(p.gpg) > 15 ? 'red' : 'default'}
+          description="Divario retributivo di genere: differenza percentuale tra la retribuzione media maschile e femminile. Valori superiori al 15% sono considerati critici secondo le linee guida EU." />
+        <KPICard label="Indice Frequenza" value={p.IF} unit="×1M ore"
+          description="Numero di infortuni sul lavoro per milione di ore lavorate (INAIL). Formula: (N. infortuni / ore lavorate totali) × 1.000.000. Benchmark settore manifatturiero: <20." />
       </div>
 
       <h3 className="font-heading font-bold text-sm text-muted-foreground uppercase tracking-wide mb-3">⚖️ Governance</h3>
