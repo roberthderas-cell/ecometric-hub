@@ -17,7 +17,7 @@ import SectionB1 from '@/components/sections/SectionB1';
 import SectionB2 from '@/components/sections/SectionB2';
 import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
-import { getSectionCompletion, SECTIONS, DEFAULT_DATA } from '@/lib/vsmeDefaults';
+import { getSectionCompletion, SECTIONS, DEFAULT_DATA, calcESGScore } from '@/lib/vsmeDefaults';
 import { toast } from 'sonner';
 
 const SECTION_COMPONENTS = {
@@ -81,11 +81,12 @@ export default function ReportEditor() {
     } else {
       newData[sectionId][field] = value;
     }
-    // Debounced save
+    // Debounced save + live ESG score recalc
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setIsSaving(true);
     saveTimer.current = setTimeout(() => {
-      updateMutation.mutate({ data: newData, completion: calcCompletion(newData) });
+      const esg_score = calcESGScore(newData);
+      updateMutation.mutate({ data: newData, completion: calcCompletion(newData), esg_score });
     }, 1200);
   }, [reportData, updateMutation, calcCompletion]);
 
@@ -96,7 +97,8 @@ export default function ReportEditor() {
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setIsSaving(true);
     saveTimer.current = setTimeout(() => {
-      updateMutation.mutate({ data: newData, completion: calcCompletion(newData) });
+      const esg_score = calcESGScore(newData);
+      updateMutation.mutate({ data: newData, completion: calcCompletion(newData), esg_score });
     }, 800);
   }, [reportData, updateMutation, calcCompletion]);
 
