@@ -1,0 +1,48 @@
+{
+  "name": "Report",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome del report VSME"
+    },
+    "year": {
+      "type": "number",
+      "description": "Anno di riferimento"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "bozza",
+        "in_corso",
+        "completato"
+      ],
+      "default": "bozza"
+    },
+    "completion": {
+      "type": "number",
+      "default": 0,
+      "description": "Percentuale completamento 0-100"
+    },
+    "module": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "comprehensive"
+      ],
+      "default": "basic"
+    },
+    "data": {
+      "type": "object",
+      "description": "Tutti i dati del report VSME strutturati per sezione"
+    },
+    "esg_score": {
+      "type": "object",
+      "description": "Score ESG calcolato: E, S, G, totale"
+    }
+  },
+  "required": [
+    "name",
+    "year"
+  ]
+}
