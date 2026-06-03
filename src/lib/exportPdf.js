@@ -68,7 +68,7 @@ function govBadge(doc, x, y, w, h, label, active) {
   setTextC(doc, active ? C.green : C.slate);
   doc.text(label, x + w / 2, y + 7, { align: 'center' });
   setFont(doc, 'bold', 9);
-  doc.text(active ? '✓ Sì' : '— No', x + w / 2, y + 14, { align: 'center' });
+  doc.text(active ? 'Si' : 'No', x + w / 2, y + 14, { align: 'center' });
 }
 
 // ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
@@ -92,10 +92,10 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
   // Brand
   setFont(doc, 'bold', 9);
   setTextC(doc, [134, 239, 172]);
-  doc.text('🌿 VSME BUILDER', ML, 14);
+  doc.text('VSME BUILDER', ML, 14);
   setFont(doc, 'normal', 7);
-  setTextC(doc, [134, 239, 172, 0.6]);
-  doc.text('Standard EFRAG · Sostenibilità PMI', ML, 20);
+  setTextC(doc, [134, 239, 172]);
+  doc.text('Standard EFRAG - Sostenibilita PMI', ML, 20);
 
   // Report title
   setFont(doc, 'bold', 22);
@@ -105,14 +105,14 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
 
   // Year + module badge
   setFont(doc, 'normal', 8);
-  setTextC(doc, [255, 255, 255, 0.6]);
-  doc.text(`Anno ${report.year || new Date().getFullYear()} · ${report.module === 'comprehensive' ? 'Modulo Completo' : 'Modulo Base'} · Generato il ${today}`, ML, 58);
+  setTextC(doc, [200, 220, 200]);
+  doc.text(`Anno ${report.year || new Date().getFullYear()} - ${report.module === 'comprehensive' ? 'Modulo Completo' : 'Modulo Base'} - Generato il ${today}`, ML, 58);
 
   // ESG Score hero card
   const scoreX = PW - ML - 44;
   rect(doc, scoreX, 10, 44, 50, rc.color, 5);
   setFont(doc, 'bold', 7);
-  setTextC(doc, [255, 255, 255, 180]);
+  setTextC(doc, [220, 240, 220]);
   doc.text('ESG SCORE', scoreX + 22, 19, { align: 'center' });
   setFont(doc, 'bold', 32);
   setTextC(doc, C.white);
@@ -121,6 +121,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
   doc.text('/ 100', scoreX + 22, 43, { align: 'center' });
   rect(doc, scoreX + 4, 46, 36, 10, [255,255,255,40], 3);
   setFont(doc, 'bold', 7.5);
+  setTextC(doc, C.white);
   doc.text(esg.rating, scoreX + 22, 53, { align: 'center' });
 
   // ── E / S / G pillars ──────────────────────────────────────────────────────
@@ -180,7 +181,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
     ['Codice ATECO',    ana.ateco || '—'],
     ['Forma Giuridica', ana.forma || '—'],
     ['Dipendenti (HC)', pe.hc || '—'],
-    ['Fatturato (M€)',  ana.fatturato ? `${ana.fatturato} M€` : '—'],
+    ['Fatturato (MEuro)',  ana.fatturato ? `${ana.fatturato} MEuro` : '-'],
     ['Sede',           ana.sede || '—'],
   ];
   rows.forEach(([label, val], i) => {
@@ -202,16 +203,16 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
   // ── KPI ENERGIA ───────────────────────────────────────────────────────────
   setFont(doc, 'bold', 9);
   setTextC(doc, C.forest);
-  doc.text('🌡️  CLIMA & ENERGIA', ML, cy);
+  doc.text('CLIMA & ENERGIA', ML, cy);
   cy += 6;
 
   const kpiW = (CW - 9) / 4;
   const kpiH = 28;
   const energyKPIs = [
-    { label: 'Scope 1+2', value: g.tot.toFixed(2), unit: 'tCO₂eq',   bg: C.amberL, fg: C.amber },
+    { label: 'Scope 1+2', value: g.tot.toFixed(2), unit: 'tCO2eq',   bg: C.amberL, fg: C.amber },
     { label: '% Rinnovabile', value: g.pRen.toFixed(1)+'%', unit: 'da FV', bg: C.greenL, fg: C.green },
     { label: 'Energia Totale', value: (g.totKwh/1000).toFixed(1), unit: 'MWh', bg: C.blueL,  fg: C.blue  },
-    { label: 'Intensità GHG', value: g.intensity > 0 ? g.intensity.toFixed(1) : '—', unit: 'tCO₂eq/M€', bg: C.slateL, fg: C.slate },
+    { label: 'Intensita GHG', value: g.intensity > 0 ? g.intensity.toFixed(1) : '-', unit: 'tCO2eq/MEuro', bg: C.slateL, fg: C.slate },
   ];
   energyKPIs.forEach((k, i) => {
     kpiBox(doc, ML + i*(kpiW+3), cy, kpiW, kpiH, k.label, k.value, k.unit, k.bg, k.fg);
@@ -221,13 +222,13 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
   // ── KPI ACQUA ──────────────────────────────────────────────────────────────
   setFont(doc, 'bold', 9);
   setTextC(doc, C.forest);
-  doc.text('💧  ACQUA', ML, cy);
+  doc.text('ACQUA', ML, cy);
   cy += 6;
   const waterKPIs = [
-    { label: 'Prelievi', value: wa.tot.toFixed(0), unit: 'm³', bg: C.blueL, fg: C.blue },
-    { label: 'Stress Idrico', value: wa.high.toFixed(0), unit: 'm³', bg: wa.high > 0 ? C.amberL : C.slateL, fg: wa.high > 0 ? C.amber : C.slate },
-    { label: 'Consumo Netto', value: wa.consumo.toFixed(0), unit: 'm³', bg: C.slateL, fg: C.slate },
-    { label: 'Cons./Dip.', value: wa.consumoDip.toFixed(1), unit: 'm³/dip.', bg: C.slateL, fg: C.slate },
+    { label: 'Prelievi', value: wa.tot.toFixed(0), unit: 'm3', bg: C.blueL, fg: C.blue },
+    { label: 'Stress Idrico', value: wa.high.toFixed(0), unit: 'm3', bg: wa.high > 0 ? C.amberL : C.slateL, fg: wa.high > 0 ? C.amber : C.slate },
+    { label: 'Consumo Netto', value: wa.consumo.toFixed(0), unit: 'm3', bg: C.slateL, fg: C.slate },
+    { label: 'Cons./Dip.', value: wa.consumoDip.toFixed(1), unit: 'm3/dip.', bg: C.slateL, fg: C.slate },
   ];
   waterKPIs.forEach((k, i) => {
     kpiBox(doc, ML + i*(kpiW+3), cy, kpiW, kpiH, k.label, k.value, k.unit, k.bg, k.fg);
@@ -237,7 +238,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
   // ── KPI RIFIUTI ────────────────────────────────────────────────────────────
   setFont(doc, 'bold', 9);
   setTextC(doc, C.forest);
-  doc.text('♻️  RIFIUTI', ML, cy);
+  doc.text('RIFIUTI', ML, cy);
   cy += 6;
   const wasteKPIs = [
     { label: 'Rifiuti Totali', value: w.tot.toFixed(2), unit: 't', bg: C.slateL, fg: C.slate },
@@ -255,7 +256,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
 
   setFont(doc, 'bold', 9);
   setTextC(doc, C.forest);
-  doc.text('👥  PERSONALE', ML, cy);
+  doc.text('PERSONALE', ML, cy);
   cy += 6;
   const hc = parseInt(pe.hc) || 0;
   const donne = parseFloat(pe.donne) || 0;
@@ -265,7 +266,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
     { label: 'Dipendenti', value: hc || '—', unit: 'headcount', bg: C.blueL, fg: C.blue },
     { label: '% Donne', value: percD !== '—' ? percD+'%' : '—', unit: '', bg: C.slateL, fg: C.slate },
     { label: 'Gender Pay Gap', value: p.gpg+'%', unit: '', bg: gpg > 15 ? C.amberL : C.greenL, fg: gpg > 15 ? C.amber : C.green },
-    { label: 'Indice Freq.', value: p.IF, unit: '×1M ore', bg: C.slateL, fg: C.slate },
+    { label: 'Indice Freq.', value: p.IF, unit: 'x1M ore', bg: C.slateL, fg: C.slate },
   ];
   personnelKPIs.forEach((k, i) => {
     kpiBox(doc, ML + i*(kpiW+3), cy, kpiW, kpiH, k.label, k.value, k.unit, k.bg, k.fg);
@@ -275,7 +276,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
   // ── GOVERNANCE BADGES ─────────────────────────────────────────────────────
   setFont(doc, 'bold', 9);
   setTextC(doc, C.forest);
-  doc.text('⚖️  GOVERNANCE', ML, cy);
+  doc.text('GOVERNANCE', ML, cy);
   cy += 6;
   const govItems = [
     { label: 'Codice Etico',   active: gov.codEtico === 'si' },
@@ -296,7 +297,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
     try {
       setFont(doc, 'bold', 9);
       setTextC(doc, C.forest);
-      doc.text('📊  GRAFICI ESG', ML, cy);
+      doc.text('GRAFICI ESG', ML, cy);
       cy += 4;
       const canvas = await html2canvas(chartEl, {
         scale: 1.8,
@@ -319,7 +320,7 @@ export async function exportReportPDF({ report, data, esg, g, w, wa, p }) {
     rect(doc, 0, PH - 10, PW, 10, C.forest);
     setFont(doc, 'normal', 6);
     setTextC(doc, [134, 239, 172]);
-    doc.text('🌿 VSME Builder — Standard EFRAG 2024', ML, PH - 4);
+    doc.text('VSME Builder - Standard EFRAG 2024', ML, PH - 4);
     doc.text(`Pagina ${i} / ${totalPages}  ·  ${today}`, PW - ML, PH - 4, { align: 'right' });
   }
 
