@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import KPICard from '@/components/report/KPICard';
 import EsgAlerts from '@/components/report/EsgAlerts';
-import { calcWaste } from '@/lib/vsmeDefaults';
+import { calcWaste, getMissingMandatory } from '@/lib/vsmeDefaults';
+import { AlertTriangle } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
   const ri = data?.ri || {};
   const u = (field, value) => onUpdate('ri', field, value);
   const w = calcWaste(data);
+  const missing = getMissingMandatory(data, 'ri');
 
   const destData = [
     { name: 'Recupero', value: parseFloat(w.rec) || 0 },
@@ -21,6 +23,18 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
   return (
     <div>
       <SectionHeader icon="♻️" title="B7 — Rifiuti" description="Dati dal Registro di Carico/Scarico (D.Lgs. 152/2006) e portale RENTRI." reference="VSME B7 | D.Lgs. 152/2006 | RENTRI" />
+
+      {missing.length > 0 && (
+        <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 mb-5">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-bold text-amber-800">Dati obbligatori mancanti</p>
+            <ul className="mt-1 space-y-0.5">
+              {missing.map(m => <li key={m} className="text-xs text-amber-700">• {m}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Dati Riassuntivi</h3>

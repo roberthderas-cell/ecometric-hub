@@ -1,5 +1,6 @@
-import { SECTIONS, getSectionCompletion } from '@/lib/vsmeDefaults';
+import { SECTIONS, getSectionCompletion, getMissingMandatory } from '@/lib/vsmeDefaults';
 import { motion } from 'framer-motion';
+import { AlertTriangle } from 'lucide-react';
 
 export default function ReportSidebar({ data, activeSection, onNavigate, completion }) {
   let lastGroup = '';
@@ -29,6 +30,7 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
           const comp = getSectionCompletion(data, sec.id);
           const isActive = activeSection === sec.id;
           const isDash = sec.id === 'dash';
+          const missing = getMissingMandatory(data, sec.id);
 
           return (
             <div key={sec.id}>
@@ -54,6 +56,11 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
                 )}
                 <span className="text-sm w-5 text-center">{sec.icon}</span>
                 <span className="flex-1 text-left">{sec.label}</span>
+                {missing.length > 0 && (
+                  <span title={`Campi mancanti: ${missing.join(', ')}`}>
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  </span>
+                )}
                 {!isDash && comp.total > 0 && (
                   <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${
                     comp.pct === 100

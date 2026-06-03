@@ -73,6 +73,34 @@ export const REQUIRED_FIELDS = {
   b2: [],
 };
 
+// Mandatory fields that trigger a warning icon if missing (stricter than REQUIRED_FIELDS)
+export const MANDATORY_FIELDS = {
+  en: {
+    fields: [
+      { key: 'elReteN', label: 'Elettricità da rete Anno N (kWh)' },
+      { key: 'ispra', label: 'Fattore emissione ISPRA (kgCO₂eq/kWh)' },
+    ],
+    sectionKey: 'en',
+  },
+  ri: {
+    fields: [
+      { key: 'totN', label: 'Rifiuti Totali Anno N (kg)' },
+      { key: 'recN', label: 'Rifiuti a Recupero Anno N (kg)' },
+    ],
+    sectionKey: 'ri',
+  },
+};
+
+/** Returns array of missing mandatory field labels for a section ('en' or 'ri') */
+export function getMissingMandatory(data, sectionId) {
+  const def = MANDATORY_FIELDS[sectionId];
+  if (!def) return [];
+  const secData = data?.[def.sectionKey] || {};
+  return def.fields
+    .filter(f => !secData[f.key] || secData[f.key] === '')
+    .map(f => f.label);
+}
+
 export function getSectionCompletion(data, sectionId) {
   const fields = REQUIRED_FIELDS[sectionId];
   if (!fields || !fields.length) return { pct: 0, filled: 0, total: 0 };

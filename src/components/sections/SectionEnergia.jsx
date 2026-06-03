@@ -5,13 +5,15 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import KPICard from '@/components/report/KPICard';
 import EsgAlerts from '@/components/report/EsgAlerts';
-import { calcEnergy } from '@/lib/vsmeDefaults';
+import { calcEnergy, getMissingMandatory } from '@/lib/vsmeDefaults';
+import { AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigate }) {
   const en = data?.en || {};
   const u = (field, value) => onUpdate('en', field, value);
   const g = calcEnergy(data);
+  const missing = getMissingMandatory(data, 'en');
 
   const ghgData = [
     { name: 'Scope 1', value: parseFloat(g.s1.toFixed(2)), fill: '#D97706' },
@@ -32,6 +34,18 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
         description="Consumi energetici, combustibili Scope 1, elettricità Scope 2. Fattori di emissione ISPRA location-based."
         reference="VSME B3 | GHG Protocol | Fattori ISPRA"
       />
+
+      {missing.length > 0 && (
+        <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 mb-5">
+          <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-bold text-amber-800">Dati obbligatori mancanti</p>
+            <ul className="mt-1 space-y-0.5">
+              {missing.map(m => <li key={m} className="text-xs text-amber-700">• {m}</li>)}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Elettricità da Rete e Fotovoltaico</h3>
