@@ -215,12 +215,14 @@ export default function YearComparison() {
             {/* Tabella espandibile per aziende */}
             <Card className="overflow-hidden">
               {/* Header tabella */}
-              <div className="grid grid-cols-12 gap-4 items-center p-4 bg-muted/50 border-b border-border font-heading font-bold text-sm">
-                <div className="col-span-4">Azienda</div>
-                <div className="col-span-2 text-center">Score Totale</div>
-                {selectedMetrics.includes('E') && <div className="col-span-2 text-center">Ambiente (E)</div>}
-                {selectedMetrics.includes('S') && <div className="col-span-2 text-center">Sociale (S)</div>}
-                {selectedMetrics.includes('G') && <div className="col-span-2 text-center">Governance (G)</div>}
+              <div className="grid grid-cols-13 gap-4 items-center p-4 bg-muted/50 border-b border-border font-heading font-bold text-sm">
+                <div className="col-span-3">Azienda</div>
+                <div className="col-span-1 text-center">Score Totale</div>
+                {selectedMetrics.includes('E') && <div className="col-span-1 text-center">E</div>}
+                {selectedMetrics.includes('S') && <div className="col-span-1 text-center">S</div>}
+                {selectedMetrics.includes('G') && <div className="col-span-1 text-center">G</div>}
+                <div className="col-span-3 text-center">Gap vs Target</div>
+                <div className="col-span-2 text-center">Azioni</div>
               </div>
 
               {/* Raggruppa report per azienda */}

@@ -36,8 +36,23 @@ export default function CompanyExpandableRow({ company, reports, selectedMetrics
   const years = Object.keys(aggregatedByYear).sort((a, b) => parseInt(b) - parseInt(a));
   const latestReport = aggregatedByYear[years[0]];
   const esg = latestReport?.esg_score || { E: 0, S: 0, G: 0, tot: 0 };
+  const targets = latestReport?.data?.obiettivi?.[parseInt(latestReport.year) + 1] || {};
   
   const ratingColor = RATING_COLORS[esg.rating] || '#94A3B8';
+
+  // Calcola gap percentuale vs target
+  const calculateGap = (actual, target) => {
+    if (!target || target === 0) return null;
+    const gap = ((actual - target) / target) * 100;
+    return Math.round(gap * 10) / 10;
+  };
+
+  const gaps = {
+    tot: calculateGap(esg.tot, targets.tot),
+    E: calculateGap(esg.E, targets.E),
+    S: calculateGap(esg.S, targets.S),
+    G: calculateGap(esg.G, targets.G),
+  };
 
   return (
     <>
@@ -45,10 +60,10 @@ export default function CompanyExpandableRow({ company, reports, selectedMetrics
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: index * 0.05 }}
-        className="grid grid-cols-12 gap-4 items-center p-4 border-b border-border hover:bg-muted/50 transition-colors"
+        className="grid grid-cols-13 gap-4 items-center p-4 border-b border-border hover:bg-muted/50 transition-colors"
       >
         {/* Azienda */}
-        <div className="col-span-4 flex items-center gap-3">
+        <div className="col-span-3 flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
@@ -69,32 +84,46 @@ export default function CompanyExpandableRow({ company, reports, selectedMetrics
         </div>
 
         {/* Score Totale */}
-        <div className="col-span-2 text-center">
-          <span className="font-heading font-extrabold text-2xl" style={{ color: PILLAR_COLORS.tot }}>
+        <div className="col-span-1 text-center">
+          <span className="font-heading font-extrabold text-lg" style={{ color: PILLAR_COLORS.tot }}>
             {esg.tot}
           </span>
-          <span className="text-xs text-muted-foreground ml-1">/100</span>
         </div>
 
         {/* Pilastri */}
         {selectedMetrics.includes('E') && (
-          <div className="col-span-2 text-center">
-            <span className="font-bold" style={{ color: PILLAR_COLORS.E }}>{esg.E}</span>
+          <div className="col-span-1 text-center">
+            <span className="font-bold text-sm" style={{ color: PILLAR_COLORS.E }}>{esg.E}</span>
           </div>
         )}
         {selectedMetrics.includes('S') && (
-          <div className="col-span-2 text-center">
-            <span className="font-bold" style={{ color: PILLAR_COLORS.S }}>{esg.S}</span>
+          <div className="col-span-1 text-center">
+            <span className="font-bold text-sm" style={{ color: PILLAR_COLORS.S }}>{esg.S}</span>
           </div>
         )}
         {selectedMetrics.includes('G') && (
-          <div className="col-span-2 text-center">
-            <span className="font-bold" style={{ color: PILLAR_COLORS.G }}>{esg.G}</span>
+          <div className="col-span-1 text-center">
+            <span className="font-bold text-sm" style={{ color: PILLAR_COLORS.G }}>{esg.G}</span>
           </div>
         )}
 
+        {/* Gap vs Target */}
+        <div className="col-span-3 text-center">
+          {gaps.tot !== null ? (
+            <div className={`text-xs font-bold px-2 py-1 rounded-full inline-block ${
+              gaps.tot >= 0 
+                ? 'bg-green-100 text-green-700' 
+                : 'bg-red-100 text-red-700'
+            }`}>
+              {gaps.tot >= 0 ? '+' : ''}{gaps.tot}%
+            </div>
+          ) : (
+            <span className="text-xs text-muted-foreground">Nessun target</span>
+          )}
+        </div>
+
         {/* Azioni */}
-        <div className="col-span-1 flex justify-center">
+        <div className="col-span-2 flex justify-center gap-2">
           <Link to={`/report/${latestReport?.id}/dash`}>
             <Button variant="outline" size="sm" className="gap-1">
               <LinkIcon className="w-3 h-3" />
@@ -118,28 +147,44 @@ export default function CompanyExpandableRow({ company, reports, selectedMetrics
               {years.map(year => {
                 const report = aggregatedByYear[year];
                 const score = report.esg_score || { E: 0, S: 0, G: 0, tot: 0 };
+                const yearTargets = report.data?.obiettivi?.[parseInt(year) + 1] || {};
+                const yearGap = calculateGap(score.tot, yearTargets.tot);
+                
                 return (
-                  <div key={year} className="grid grid-cols-12 gap-4 items-center p-3 bg-card rounded-lg">
+                  <div key={year} className="grid grid-cols-13 gap-4 items-center p-3 bg-card rounded-lg">
                     <div className="col-span-3 font-bold">{year}</div>
-                    <div className="col-span-2 text-center font-bold" style={{ color: PILLAR_COLORS.tot }}>
+                    <div className="col-span-1 text-center font-bold" style={{ color: PILLAR_COLORS.tot }}>
                       {score.tot}
                     </div>
                     {selectedMetrics.includes('E') && (
-                      <div className="col-span-2 text-center" style={{ color: PILLAR_COLORS.E }}>
+                      <div className="col-span-1 text-center" style={{ color: PILLAR_COLORS.E }}>
                         {score.E}
                       </div>
                     )}
                     {selectedMetrics.includes('S') && (
-                      <div className="col-span-2 text-center" style={{ color: PILLAR_COLORS.S }}>
+                      <div className="col-span-1 text-center" style={{ color: PILLAR_COLORS.S }}>
                         {score.S}
                       </div>
                     )}
                     {selectedMetrics.includes('G') && (
-                      <div className="col-span-2 text-center" style={{ color: PILLAR_COLORS.G }}>
+                      <div className="col-span-1 text-center" style={{ color: PILLAR_COLORS.G }}>
                         {score.G}
                       </div>
                     )}
-                    <div className="col-span-1 text-center">
+                    <div className="col-span-3 text-center">
+                      {yearGap !== null ? (
+                        <div className={`text-xs font-bold px-2 py-1 rounded-full inline-block ${
+                          yearGap >= 0 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-red-100 text-red-700'
+                        }`}>
+                          {yearGap >= 0 ? '+' : ''}{yearGap}%
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">-</span>
+                      )}
+                    </div>
+                    <div className="col-span-2 text-center">
                       <Badge variant={report.status === 'completato' ? 'default' : 'secondary'}>
                         {report.status}
                       </Badge>
