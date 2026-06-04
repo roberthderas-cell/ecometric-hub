@@ -88,6 +88,12 @@ export default function EsgTrendChart({ reportId }) {
 
         <ResponsiveContainer width="100%" height={260}>
           <LineChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
+            <defs>
+              <linearGradient id="lineGradEsg" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#059669" stopOpacity={0.18} />
+                <stop offset="100%" stopColor="#059669" stopOpacity={0} />
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#F0FDF4" />
             <XAxis dataKey="label" fontSize={10} tick={{ fill: '#94a3b8' }} />
             <YAxis domain={[0, 100]} fontSize={10} tick={{ fill: '#94a3b8' }} />
@@ -95,10 +101,57 @@ export default function EsgTrendChart({ reportId }) {
             <Legend wrapperStyle={{ fontSize: 11 }} />
             <ReferenceLine y={70} stroke="#2563EB" strokeDasharray="4 3" label={{ value: 'Avanzato 70', fontSize: 10, fill: '#2563EB', position: 'right' }} />
             <ReferenceLine y={85} stroke="#059669" strokeDasharray="4 3" label={{ value: 'Leader 85', fontSize: 10, fill: '#059669', position: 'right' }} />
-            <Line type="monotone" dataKey="esg_tot" name="ESG Totale" stroke="#059669" strokeWidth={2.5} dot={{ r: 4, fill: '#059669' }} activeDot={{ r: 6 }} />
-            <Line type="monotone" dataKey="esg_e" name="Ambiente (E)" stroke="#16a34a" strokeWidth={1.5} dot={false} strokeDasharray="5 3" />
-            <Line type="monotone" dataKey="esg_s" name="Sociale (S)" stroke="#2563EB" strokeWidth={1.5} dot={false} strokeDasharray="5 3" />
-            <Line type="monotone" dataKey="esg_g" name="Governance (G)" stroke="#7C3AED" strokeWidth={1.5} dot={false} strokeDasharray="5 3" />
+            <Line
+              type="monotoneClosed"
+              dataKey="esg_tot"
+              name="ESG Totale"
+              stroke="#059669"
+              strokeWidth={3}
+              dot={{ r: 5, fill: '#059669', stroke: '#fff', strokeWidth: 2 }}
+              activeDot={{ r: 8, fill: '#059669', stroke: '#fff', strokeWidth: 2.5 }}
+              isAnimationActive
+              animationDuration={1600}
+              animationEasing="ease-out"
+            />
+            <Line
+              type="monotone"
+              dataKey="esg_e"
+              name="Ambiente (E)"
+              stroke="#16a34a"
+              strokeWidth={1.8}
+              dot={false}
+              strokeDasharray="5 3"
+              isAnimationActive
+              animationDuration={1800}
+              animationBegin={200}
+              animationEasing="ease-out"
+            />
+            <Line
+              type="monotone"
+              dataKey="esg_s"
+              name="Sociale (S)"
+              stroke="#2563EB"
+              strokeWidth={1.8}
+              dot={false}
+              strokeDasharray="5 3"
+              isAnimationActive
+              animationDuration={1800}
+              animationBegin={400}
+              animationEasing="ease-out"
+            />
+            <Line
+              type="monotone"
+              dataKey="esg_g"
+              name="Governance (G)"
+              stroke="#7C3AED"
+              strokeWidth={1.8}
+              dot={false}
+              strokeDasharray="5 3"
+              isAnimationActive
+              animationDuration={1800}
+              animationBegin={600}
+              animationEasing="ease-out"
+            />
           </LineChart>
         </ResponsiveContainer>
       </Card>
