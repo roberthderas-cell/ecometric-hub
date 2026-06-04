@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap } from 'lucide-react';
 import YearComparisonChart from '@/components/report/YearComparisonChart';
 import { TemplatePicker } from '@/components/report/TemplateManager';
+import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
 
@@ -269,6 +270,9 @@ export default function Home() {
             <Plus className="w-4 h-4" /> Nuovo
           </Button>
         </div>
+
+        {/* Multi-site ESG ranking (shown when ≥2 reports with ESG scores exist) */}
+        <MultiSiteDashboard reports={reports} />
 
         {/* Year-over-year comparison (shown only when ≥2 reports with ESG scores exist) */}
         {reports.filter(r => r.data && r.esg_score?.tot).length >= 2 && (
