@@ -11,6 +11,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, ReferenceLine, Area, AreaChart
 } from 'recharts';
+import KpiHeatmap from '@/components/report/KpiHeatmap';
 
 const ESG_METRICS = [
   { key: 'tot', label: 'Score Totale ESG', color: '#059669', group: 'ESG' },
@@ -272,6 +273,17 @@ export default function CompanyKpiTrend() {
           </Card>
         ) : (
           <div className="space-y-6">
+            {/* Heatmap variazioni anno su anno */}
+            {chartData.length >= 2 && (
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                <Card className="p-6">
+                  <h3 className="font-heading font-bold text-lg mb-1">Heatmap Variazioni Anno su Anno</h3>
+                  <p className="text-xs text-muted-foreground mb-5">Δ% rispetto all'anno precedente per ogni KPI selezionato</p>
+                  <KpiHeatmap chartData={chartData} activeMetrics={activeMetrics} />
+                </Card>
+              </motion.div>
+            )}
+
             {/* KPI summary cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {ESG_METRICS.map(m => {
