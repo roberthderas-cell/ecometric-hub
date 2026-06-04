@@ -96,6 +96,46 @@ export default function CompanyKpiTrend() {
       .sort((a, b) => a.year - b.year);
   }, [reports, company]);
 
+  // Codice ATECO dell'azienda selezionata
+  const companyAteco = companyReports[0]?.data?.ana?.ateco || null;
+
+  // Report dello stesso settore (esclusa l'azienda stessa) per benchmark
+  const sectorReports = useMemo(() => {
+    if (!reports || !companyAteco) return [];
+    return reports.filter(r =>
+      r.data?.ana?.ateco === companyAteco &&
+      r.data?.ana?.ragione !== company
+    );
+  }, [reports, companyAteco, company]);
+
+  // Calcola media benchmark per anno e metrica
+  const benchmarkByYear = useMemo(() => {
+    const byYear = {};
+    sectorReports.forEach(r => {
+      const y = `${r.year}`;
+      if (!byYear[y]) byYear[y] = { count: 0 };
+      byYear[y].count++;
+      ESG_METRICS.forEach(m => {
+        const v = r.esg_score?.[m.key];
+        if (v != null) byYear[y][`bm_${m.key}`] = ((byYear[y][`bm_${m.key}`] || 0) + v);
+      });
+      KPI_METRICS.forEach(m => {
+        const v = m.path(r);
+        if (v != null) byYear[y][`bm_${m.key}`] = ((byYear[y][`bm_${m.key}`] || 0) + v);
+      });
+    });
+    // Calcola medie
+    Object.keys(byYear).forEach(y => {
+      const count = byYear[y].count;
+      Object.keys(byYear[y]).forEach(k => {
+        if (k !== 'count') byYear[y][k] = Math.round((byYear[y][k] / count) * 10) / 10;
+      });
+    });
+    return byYear;
+  }, [sectorReports]);
+
+  const hasBenchmark = sectorReports.length > 0;
+
   // Costruisci i dati per il grafico
   const chartData = useMemo(() => {
     return companyReports.map(r => {
@@ -105,9 +145,12 @@ export default function CompanyKpiTrend() {
       // targets
       const targets = r.data?.obiettivi?.[r.year + 1] || {};
       row._targets = targets;
+      // benchmark
+      const bm = benchmarkByYear[`${r.year}`] || {};
+      Object.keys(bm).forEach(k => { if (k !== 'count') row[k] = bm[k]; });
       return row;
     });
-  }, [companyReports]);
+  }, [companyReports, benchmarkByYear]);
 
   // Raggruppa metriche selezionate per group
   const activeMetrics = ALL_METRICS.filter(m => selectedMetrics.includes(m.key));
@@ -166,6 +209,17 @@ export default function CompanyKpiTrend() {
             <span className="text-xs text-muted-foreground ml-2">
               {companyReports.length} report disponibili ({companyReports.map(r => r.year).join(', ')})
             </span>
+          )}
+          {companyAteco && (
+            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ml-auto ${
+              hasBenchmark ? 'bg-blue-100 text-blue-700' : 'bg-muted text-muted-foreground'
+            }`}>
+              <span>ATECO {companyAteco}</span>
+              {hasBenchmark
+                ? <span>· benchmark su {sectorReports.length} aziend{sectorReports.length === 1 ? 'a' : 'e'} del settore</span>
+                : <span>· nessuna altra azienda nel settore per il benchmark</span>
+              }
+            </div>
           )}
         </Card>
 
@@ -281,6 +335,20 @@ export default function CompanyKpiTrend() {
                               dot={{ fill: m.color, strokeWidth: 2, r: 5 }}
                               activeDot={{ r: 7 }}
                               connectNulls
+                            />
+                          ))}
+                          {hasBenchmark && groupMetrics.map(m => (
+                            <Line
+                              key={`bm_${m.key}`}
+                              type="monotone"
+                              dataKey={`bm_${m.key}`}
+                              stroke={m.color}
+                              strokeWidth={1.5}
+                              strokeDasharray="5 4"
+                              name={`${m.label} (settore)`}
+                              dot={false}
+                              connectNulls
+                              opacity={0.6}
                             />
                           ))}
                         </LineChart>
