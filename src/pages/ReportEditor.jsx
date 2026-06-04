@@ -21,6 +21,7 @@ import SectionB2 from '@/components/sections/SectionB2';
 import { SectionB3, SectionB4, SectionB5, SectionB6, SectionB7, SectionB8, SectionB9, SectionB10, SectionB11 } from '@/components/sections/SectionModuloBase';
 import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
+import EsgRecommendationsPanel from '@/components/report/EsgRecommendationsPanel';
 import { getSectionCompletion, SECTIONS, DEFAULT_DATA, calcESGScore } from '@/lib/vsmeDefaults';
 import EsgMilestone from '@/components/report/EsgMilestone';
 
@@ -58,6 +59,7 @@ const SECTION_COMPONENTS = {
   c8: SectionC8,
   c9: SectionC9,
   dash: SectionDashboard,
+  consigli: EsgRecommendationsPanel,
 };
 
 export default function ReportEditor() {
@@ -220,6 +222,7 @@ export default function ReportEditor() {
               onNavigate={handleNavigate}
               reportId={reportId}
               report={report}
+              {...(activeSection === 'consigli' ? { report } : {})}
             />
           ) : (
             <p className="text-muted-foreground">Sezione non trovata</p>
