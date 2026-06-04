@@ -5,11 +5,45 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileDown, Loader2, ArrowLeft, FileText, Building2, Leaf } from 'lucide-react';
+import { FileDown, Loader2, ArrowLeft, FileText, Building2, Leaf, BarChart3, Sparkles } from 'lucide-react';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
 import BankReportPreview from '@/components/report/BankReportPreview';
+import BankNarrativeReport from '@/components/report/BankNarrativeReport';
 import { exportBankReportPDF } from '@/lib/exportBankPdf';
 import { motion } from 'framer-motion';
+
+function RelazioneTabSelector({ report, metrics }) {
+  const [tab, setTab] = useState('preview');
+
+  return (
+    <div>
+      <div className="flex gap-2 mb-6 bg-muted/40 p-1.5 rounded-xl w-fit">
+        <button
+          onClick={() => setTab('preview')}
+          className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'preview' ? 'bg-white shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <BarChart3 className="w-4 h-4" /> Relazione con Grafici
+        </button>
+        <button
+          onClick={() => setTab('narrative')}
+          className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'narrative' ? 'bg-white shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <Sparkles className="w-4 h-4" /> Relazione Testuale AI
+        </button>
+      </div>
+
+      {tab === 'preview' ? (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <BankReportPreview report={report} metrics={metrics} />
+        </motion.div>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <BankNarrativeReport report={report} metrics={metrics} />
+        </motion.div>
+      )}
+    </div>
+  );
+}
 
 export default function RelazioneESG() {
   const [selectedId, setSelectedId] = useState('');
@@ -107,12 +141,13 @@ export default function RelazioneESG() {
           )}
         </Card>
 
-        {/* Preview */}
-        {selected && metrics ? (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-            <BankReportPreview report={selected} metrics={metrics} />
-          </motion.div>
-        ) : (
+        {/* Tabs */}
+        {selected && metrics && (
+          <RelazioneTabSelector report={selected} metrics={metrics} />
+        )}
+
+        {/* Empty state */}
+        {(!selected || !metrics) && (
           <div className="text-center py-24 text-muted-foreground">
             <Leaf className="w-12 h-12 mx-auto mb-3 opacity-20" />
             <p className="text-sm">Nessun report disponibile. Crea e compila un report ESG per generare la relazione.</p>
