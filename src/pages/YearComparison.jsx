@@ -35,15 +35,25 @@ export default function YearComparison() {
   const [showTargetSetter, setShowTargetSetter] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState('all');
   const [selectedSector, setSelectedSector] = useState('all');
+  const [selectedSize, setSelectedSize] = useState('all');
+  const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedMetrics, setSelectedMetrics] = useState(['E', 'S', 'G']);
 
-  // Estrai aziende uniche e settori unici dai report
+  // Estrai aziende, settori, dimensioni e regioni uniche dai report
   const companies = reports 
     ? [...new Set(reports.map(r => r.data?.ana?.ragione).filter(Boolean))]
     : [];
   
   const sectors = reports
     ? [...new Set(reports.map(r => r.data?.ana?.ateco).filter(Boolean))]
+    : [];
+  
+  const dimensions = reports
+    ? [...new Set(reports.map(r => r.data?.ana?.dimensione).filter(Boolean))]
+    : [];
+  
+  const regions = reports
+    ? [...new Set(reports.map(r => r.data?.ana?.regione).filter(Boolean))]
     : [];
 
   const updateMutation = useMutation({
@@ -67,6 +77,14 @@ export default function YearComparison() {
   
   if (selectedSector !== 'all') {
     filteredReports = filteredReports.filter(r => r.data?.ana?.ateco === selectedSector);
+  }
+  
+  if (selectedDimension !== 'all') {
+    filteredReports = filteredReports.filter(r => r.data?.ana?.dimensione === selectedDimension);
+  }
+  
+  if (selectedRegion !== 'all') {
+    filteredReports = filteredReports.filter(r => r.data?.ana?.regione === selectedRegion);
   }
 
   const sortedReports = filteredReports.sort((a, b) => b.year - a.year);
@@ -159,6 +177,44 @@ export default function YearComparison() {
             </div>
           )}
           
+          {regions.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedRegion} onValueChange={setSelectedRegion}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Tutte le regioni" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutte le regioni</SelectItem>
+                  {regions.map(region => (
+                    <SelectItem key={region} value={region}>
+                      {region}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
+          {dimensions.length > 0 && (
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedDimension} onValueChange={setSelectedDimension}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Tutte le dimensioni" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutte le dimensioni</SelectItem>
+                  {dimensions.map(dim => (
+                    <SelectItem key={dim} value={dim}>
+                      {dim === 'micro' ? 'Micro' : dim === 'piccola' ? 'Piccola' : 'Media'}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+          
           <div className="flex items-center gap-2">
             <BarChart3 className="w-4 h-4 text-muted-foreground" />
             <span className="text-xs font-bold text-muted-foreground">Metriche:</span>
@@ -182,13 +238,15 @@ export default function YearComparison() {
             </div>
           </div>
           
-          {(selectedCompany !== 'all' || selectedSector !== 'all') && (
+          {(selectedCompany !== 'all' || selectedSector !== 'all' || selectedRegion !== 'all' || selectedDimension !== 'all') && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => { 
                 setSelectedCompany('all'); 
-                setSelectedSector('all'); 
+                setSelectedSector('all');
+                setSelectedRegion('all');
+                setSelectedDimension('all');
               }}
               className="text-muted-foreground hover:text-foreground"
             >

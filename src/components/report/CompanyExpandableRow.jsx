@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, ChevronUp, Link as LinkIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp, Link as LinkIcon, Briefcase, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PILLAR_COLORS = {
@@ -37,6 +37,7 @@ export default function CompanyExpandableRow({ company, reports, selectedMetrics
   const latestReport = aggregatedByYear[years[0]];
   const esg = latestReport?.esg_score || { E: 0, S: 0, G: 0, tot: 0 };
   const targets = latestReport?.data?.obiettivi?.[parseInt(latestReport.year) + 1] || {};
+  const ana = latestReport?.data?.ana || {};
   
   const ratingColor = RATING_COLORS[esg.rating] || '#94A3B8';
 
@@ -72,13 +73,32 @@ export default function CompanyExpandableRow({ company, reports, selectedMetrics
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
-          <div>
-            <h4 className="font-heading font-bold text-base">{company}</h4>
-            <div 
-              className="px-2 py-0.5 rounded-full text-xs font-bold inline-block mt-1"
-              style={{ color: ratingColor, backgroundColor: ratingColor + '15' }}
-            >
-              {esg.rating}
+          <div className="min-w-0">
+            <h4 className="font-heading font-bold text-base truncate">{company}</h4>
+            <div className="flex items-center gap-2 mt-1 flex-wrap">
+              <div 
+                className="px-2 py-0.5 rounded-full text-xs font-bold inline-block"
+                style={{ color: ratingColor, backgroundColor: ratingColor + '15' }}
+              >
+                {esg.rating}
+              </div>
+              {ana?.ateco && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Briefcase className="w-3 h-3" />
+                  ATECO {ana.ateco}
+                </span>
+              )}
+              {ana?.dimensione && (
+                <span className="text-xs text-muted-foreground capitalize">
+                  {ana.dimensione === 'micro' ? 'Micro' : ana.dimensione === 'piccola' ? 'Piccola' : 'Media'}
+                </span>
+              )}
+              {ana?.regione && (
+                <span className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Building2 className="w-3 h-3" />
+                  {ana.regione}
+                </span>
+              )}
             </div>
           </div>
         </div>
