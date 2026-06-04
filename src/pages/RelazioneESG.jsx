@@ -5,10 +5,11 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileDown, Loader2, ArrowLeft, FileText, Building2, Leaf, BarChart3, Sparkles } from 'lucide-react';
+import { FileDown, Loader2, ArrowLeft, FileText, Building2, Leaf, BarChart3, Sparkles, TrendingDown } from 'lucide-react';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
 import BankReportPreview from '@/components/report/BankReportPreview';
 import BankNarrativeReport from '@/components/report/BankNarrativeReport';
+import Co2SavingsPanel from '@/components/report/Co2SavingsPanel';
 import { exportBankReportPDF } from '@/lib/exportBankPdf';
 import { motion } from 'framer-motion';
 
@@ -30,15 +31,27 @@ function RelazioneTabSelector({ report, metrics }) {
         >
           <Sparkles className="w-4 h-4" /> Relazione Testuale AI
         </button>
+        <button
+          onClick={() => setTab('savings')}
+          className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'savings' ? 'bg-white shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <TrendingDown className="w-4 h-4" /> Risparmio CO₂ & Benefici
+        </button>
       </div>
 
-      {tab === 'preview' ? (
+      {tab === 'preview' && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <BankReportPreview report={report} metrics={metrics} />
         </motion.div>
-      ) : (
+      )}
+      {tab === 'narrative' && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <BankNarrativeReport report={report} metrics={metrics} />
+        </motion.div>
+      )}
+      {tab === 'savings' && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <Co2SavingsPanel metrics={metrics} />
         </motion.div>
       )}
     </div>
