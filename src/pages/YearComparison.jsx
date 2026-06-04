@@ -448,11 +448,24 @@ export default function YearComparison() {
               ))}
             </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <YearComparisonChart reports={sortedReports} />
-              <TotalScoreTrend reports={sortedReports} />
-            </div>
+            {/* Charts - only show when there are 2+ years of data */}
+            {sortedReports.length >= 2 && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <YearComparisonChart reports={sortedReports} />
+                <TotalScoreTrend reports={sortedReports} />
+              </div>
+            )}
+            
+            {sortedReports.length === 1 && (
+              <Card className="p-8 text-center bg-amber-50 border-amber-200">
+                <TrendingUp className="w-12 h-12 text-amber-600 mx-auto mb-4" />
+                <h3 className="font-heading font-bold text-lg text-amber-900 mb-2">Crea un secondo report per il confronto</h3>
+                <p className="text-amber-800 mb-6">I chart di confronto appariranno quando avrai report di almeno 2 anni diversi</p>
+                <Link to="/">
+                  <Button className="gap-2">Crea nuovo report</Button>
+                </Link>
+              </Card>
+            )}
           </>
         )}
       </div>
