@@ -1,0 +1,85 @@
+{
+  "name": "ModuloAmbiente",
+  "type": "object",
+  "properties": {
+    "azienda_id": {
+      "type": "string",
+      "description": "Riferimento ad AziendaProfilo"
+    },
+    "anno": {
+      "type": "number",
+      "description": "Anno di riferimento"
+    },
+    "energia_totale_kwh": {
+      "type": "number",
+      "description": "Consumo energetico totale (kWh)"
+    },
+    "energia_rinnovabile_pct": {
+      "type": "number",
+      "description": "% energia da fonti rinnovabili"
+    },
+    "co2_scope1": {
+      "type": "number",
+      "description": "Emissioni CO2 Scope 1 (tCO2eq)"
+    },
+    "co2_scope2": {
+      "type": "number",
+      "description": "Emissioni CO2 Scope 2 (tCO2eq)"
+    },
+    "co2_scope3": {
+      "type": "number",
+      "description": "Emissioni CO2 Scope 3 (tCO2eq)"
+    },
+    "rifiuti_totali_kg": {
+      "type": "number",
+      "description": "Rifiuti prodotti totali (kg)"
+    },
+    "rifiuti_riciclati_pct": {
+      "type": "number",
+      "description": "% rifiuti avviati a riciclo"
+    },
+    "consumo_idrico_mc": {
+      "type": "number",
+      "description": "Consumo idrico totale (m\u00b3)"
+    },
+    "note": {
+      "type": "string",
+      "description": "Note libere"
+    }
+  },
+  "required": [
+    "azienda_id",
+    "anno"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.azienda_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.azienda_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

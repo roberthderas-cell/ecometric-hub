@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,9 @@ export default function ReportEditor() {
   const queryClient = useQueryClient();
   const saveTimer = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  useOnboardingGuard(user);
 
   const { data: report, isLoading } = useQuery({
     queryKey: ['report', reportId],

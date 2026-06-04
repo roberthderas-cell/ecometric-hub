@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
+import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -186,6 +187,9 @@ export default function Home() {
   const [year, setYear] = useState('2025');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  useOnboardingGuard(user);
 
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['reports'],

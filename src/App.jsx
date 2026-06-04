@@ -13,6 +13,7 @@ import ResetPassword from '@/pages/ResetPassword';
 import Home from '@/pages/Home';
 import ReportEditor from '@/pages/ReportEditor';
 import RelazioneESG from '@/pages/RelazioneESG';
+import Onboarding from '@/pages/Onboarding';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -44,6 +45,7 @@ const AuthenticatedApp = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        <Route path="/onboarding" element={<Onboarding />} />
         <Route path="/" element={<Home />} />
         <Route path="/report/:reportId/:section" element={<ReportEditor />} />
         <Route path="/report/:reportId" element={<ReportEditor />} />

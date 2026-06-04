@@ -1,0 +1,85 @@
+{
+  "name": "ModuloSociale",
+  "properties": {
+    "anno": {
+      "description": "Anno di riferimento",
+      "type": "number"
+    },
+    "azienda_id": {
+      "description": "Riferimento ad AziendaProfilo",
+      "type": "string"
+    },
+    "dipendenti_donne_pct": {
+      "description": "% dipendenti donne",
+      "type": "number"
+    },
+    "dipendenti_totali": {
+      "description": "Numero totale dipendenti",
+      "type": "number"
+    },
+    "eta_media": {
+      "description": "Et\u00e0 media dipendenti",
+      "type": "number"
+    },
+    "infortuni_numero": {
+      "description": "Numero infortuni sul lavoro",
+      "type": "number"
+    },
+    "note": {
+      "description": "Note libere",
+      "type": "string"
+    },
+    "ore_formazione_media": {
+      "description": "Ore medie di formazione per dipendente",
+      "type": "number"
+    },
+    "retribuzione_media_annua": {
+      "description": "Retribuzione media annua lorda (\u20ac)",
+      "type": "number"
+    },
+    "turnover_pct": {
+      "description": "Tasso di turnover %",
+      "type": "number"
+    },
+    "welfare_attivo": {
+      "description": "Piano welfare aziendale attivo",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "azienda_id",
+    "anno"
+  ],
+  "rls": {
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.azienda_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.azienda_id": "{{user.id}}"
+        }
+      ]
+    }
+  },
+  "type": "object"
+}

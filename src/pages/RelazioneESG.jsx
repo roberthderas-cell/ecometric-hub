@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -71,6 +72,9 @@ function RelazioneTabSelector({ report, metrics, allReports }) {
 }
 
 export default function RelazioneESG() {
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
+  useOnboardingGuard(user);
+
   const urlParams = new URLSearchParams(window.location.search);
   const preselectedId = urlParams.get('report') || '';
   const [selectedId, setSelectedId] = useState(preselectedId);

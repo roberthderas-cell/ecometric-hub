@@ -1,0 +1,84 @@
+{
+  "name": "ModuloGovernance",
+  "properties": {
+    "anno": {
+      "description": "Anno di riferimento",
+      "type": "number"
+    },
+    "anticorruzione_policy": {
+      "description": "Policy anticorruzione adottata",
+      "type": "boolean"
+    },
+    "azienda_id": {
+      "description": "Riferimento ad AziendaProfilo",
+      "type": "string"
+    },
+    "cda_donne_pct": {
+      "description": "% donne nel CdA",
+      "type": "number"
+    },
+    "cda_indipendenti_pct": {
+      "description": "% membri indipendenti nel CdA",
+      "type": "number"
+    },
+    "cda_membri": {
+      "description": "Numero membri CdA",
+      "type": "number"
+    },
+    "certificazioni": {
+      "description": "Lista certificazioni (ISO 9001, ISO 14001, SA8000, ecc.)",
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "codice_etico_adottato": {
+      "description": "Codice etico aziendale adottato",
+      "type": "boolean"
+    },
+    "note": {
+      "description": "Note libere",
+      "type": "string"
+    },
+    "privacy_gdpr_conforme": {
+      "description": "Conformit\u00e0 GDPR documentata",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "azienda_id",
+    "anno"
+  ],
+  "rls": {
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.azienda_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.azienda_id": "{{user.id}}"
+        }
+      ]
+    }
+  },
+  "type": "object"
+}

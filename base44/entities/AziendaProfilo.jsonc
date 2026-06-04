@@ -1,0 +1,107 @@
+{
+  "name": "AziendaProfilo",
+  "type": "object",
+  "properties": {
+    "ragione_sociale": {
+      "type": "string",
+      "description": "Ragione sociale dell'azienda"
+    },
+    "codice_ateco": {
+      "type": "string",
+      "description": "Codice ATECO primario"
+    },
+    "settore_descrizione": {
+      "type": "string",
+      "description": "Descrizione settore"
+    },
+    "dimensione": {
+      "type": "string",
+      "enum": [
+        "micro",
+        "piccola",
+        "media"
+      ],
+      "description": "Dimensione aziendale"
+    },
+    "anno_riferimento_esg": {
+      "type": "number",
+      "description": "Anno di riferimento per la rendicontazione ESG"
+    },
+    "indirizzo": {
+      "type": "string",
+      "description": "Indirizzo sede legale"
+    },
+    "comune": {
+      "type": "string",
+      "description": "Comune"
+    },
+    "provincia": {
+      "type": "string",
+      "description": "Sigla provincia"
+    },
+    "regione": {
+      "type": "string",
+      "description": "Regione"
+    },
+    "cap": {
+      "type": "string",
+      "description": "CAP"
+    },
+    "lat": {
+      "type": "number",
+      "description": "Latitudine sede (da mappa)"
+    },
+    "lng": {
+      "type": "number",
+      "description": "Longitudine sede (da mappa)"
+    },
+    "onboarding_completato": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag onboarding completato"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "ID utente proprietario"
+    },
+    "profilo_territoriale": {
+      "type": "object",
+      "description": "Dati territoriali ESG da API: clima, aria, rischio idrico"
+    }
+  },
+  "required": [
+    "ragione_sociale",
+    "anno_riferimento_esg"
+  ],
+  "rls": {
+    "read": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        },
+        {
+          "data.user_id": "{{user.id}}"
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
