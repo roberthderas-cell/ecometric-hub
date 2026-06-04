@@ -102,7 +102,16 @@ function YearComparisonChart({ reports }) {
 }
 
 function TotalScoreTrend({ reports }) {
-  const chartData = reports
+  // Group reports by year and keep only the latest/highest score per year
+  const reportsByYear = {};
+  reports.forEach(r => {
+    const year = r.year;
+    if (!reportsByYear[year] || (r.esg_score?.tot || 0) > (reportsByYear[year].esg_score?.tot || 0)) {
+      reportsByYear[year] = r;
+    }
+  });
+
+  const chartData = Object.values(reportsByYear)
     .map(r => ({
       year: r.year,
       tot: r.esg_score?.tot || 0,
