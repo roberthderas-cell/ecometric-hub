@@ -18,6 +18,7 @@ import SectionPersonale from '@/components/sections/SectionPersonale';
 import SectionGovernance from '@/components/sections/SectionGovernance';
 import SectionB1 from '@/components/sections/SectionB1';
 import SectionB2 from '@/components/sections/SectionB2';
+import { SectionB3, SectionB4, SectionB5, SectionB6, SectionB7, SectionB8, SectionB9, SectionB10, SectionB11 } from '@/components/sections/SectionModuloBase';
 import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
 import { getSectionCompletion, SECTIONS, DEFAULT_DATA, calcESGScore } from '@/lib/vsmeDefaults';
@@ -38,6 +39,15 @@ const SECTION_COMPONENTS = {
   gov: SectionGovernance,
   b1: SectionB1,
   b2: SectionB2,
+  b3: SectionB3,
+  b4: SectionB4,
+  b5: SectionB5,
+  b6: SectionB6,
+  b7: SectionB7,
+  b8: SectionB8,
+  b9: SectionB9,
+  b10: SectionB10,
+  b11: SectionB11,
   c1: SectionC1,
   c2: SectionC2,
   c3: SectionC3,

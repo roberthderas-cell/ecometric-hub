@@ -27,7 +27,7 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
   let lastGroup = '';
 
   const visibleSections = SECTIONS.filter(sec => {
-    if (sec.group === 'MODULO COMPLETO') return modulo === 'comprehensive';
+    if (sec.comp) return modulo === 'comprehensive';
     return true;
   });
 
@@ -100,6 +100,8 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
           const comp = getSectionCompletion(data, sec.id);
           const isActive = activeSection === sec.id;
           const isDash = sec.id === 'dash';
+          const isCalc = !!sec.calc;
+          const isComp = !!sec.comp;
           const missing = getMissingMandatory(data, sec.id);
           const isDone = comp.total > 0 && comp.pct === 100;
 
@@ -131,10 +133,12 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
                   {missing.length > 0 && (
                     <AlertTriangle className="w-3 h-3 text-amber-400" title={`Mancante: ${missing.join(', ')}`} />
                   )}
-                  {!isDash && isDone && (
+                  {isCalc && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-400/15 text-indigo-300">auto</span>}
+                  {isComp && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-orange-400/15 text-orange-300">C</span>}
+                  {!isDash && !isCalc && !isComp && isDone && (
                     <CheckCircle2 className="w-3 h-3 text-green-400" />
                   )}
-                  {!isDash && !isDone && comp.total > 0 && comp.pct > 0 && (
+                  {!isDash && !isCalc && !isComp && !isDone && comp.total > 0 && comp.pct > 0 && (
                     <span className="text-[9px] font-bold text-yellow-400">{comp.pct}%</span>
                   )}
                   {isDash && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-400/15 text-blue-400">KPI</span>}
