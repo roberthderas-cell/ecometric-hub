@@ -15,7 +15,7 @@ import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
 import HeroParticles from '@/components/home/HeroParticles';
-import VisuraUploader from '../components/home/VisuraUploader.jsx';
+import VisuraWithAnalysis from '../components/home/VisuraWithAnalysis.jsx';
 
 const ratingConfig = {
   Leader:        { color: '#059669', bg: 'from-emerald-500 to-green-400', label: '🏆 Leader' },
@@ -188,6 +188,7 @@ export default function Home() {
   const [year, setYear] = useState('2025');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [visuraData, setVisuraData] = useState(null);
+  const [visuraTerritorial, setVisuraTerritorial] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -214,9 +215,10 @@ export default function Home() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reports'] }),
   });
 
-  const handleVisuraExtracted = (extracted) => {
+  const handleVisuraExtracted = (extracted, territorial) => {
     setVisuraData(extracted);
-    if (extracted.ragione_sociale && !name.trim()) {
+    if (territorial) setVisuraTerritorial(territorial);
+    if (extracted?.ragione_sociale && !name.trim()) {
       setName(extracted.ragione_sociale);
     }
   };
@@ -251,6 +253,7 @@ export default function Home() {
       completion: 0,
       module: selectedTemplate?.module || 'basic',
       data: baseData,
+      ...(visuraTerritorial ? { profilo_territoriale: visuraTerritorial } : {}),
     });
   };
 
@@ -426,7 +429,7 @@ export default function Home() {
       </div>
 
       {/* ── NEW REPORT DIALOG ────────────────────────────── */}
-      <Dialog open={showNew} onOpenChange={(o) => { setShowNew(o); if (!o) { setName(''); setVisuraData(null); setSelectedTemplate(null); } }}>
+      <Dialog open={showNew} onOpenChange={(o) => { setShowNew(o); if (!o) { setName(''); setVisuraData(null); setVisuraTerritorial(null); setSelectedTemplate(null); } }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-heading flex items-center gap-2">
@@ -440,7 +443,7 @@ export default function Home() {
             {/* Visura upload */}
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5 block">Compilazione automatica (opzionale)</label>
-              <VisuraUploader onExtracted={handleVisuraExtracted} />
+              <VisuraWithAnalysis onExtracted={handleVisuraExtracted} />
             </div>
 
             <div className="border-t border-dashed border-border" />
