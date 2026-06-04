@@ -281,14 +281,6 @@ export default function YearComparison() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   // Filtra i report in base ai filtri selezionati
   let filteredReports = reports || [];
   
@@ -306,6 +298,14 @@ export default function YearComparison() {
 
   const sortedReports = filteredReports.sort((a, b) => b.year - a.year);
   const latestReport = sortedReports[0];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-6 md:p-8">
