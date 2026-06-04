@@ -71,7 +71,9 @@ function RelazioneTabSelector({ report, metrics, allReports }) {
 }
 
 export default function RelazioneESG() {
-  const [selectedId, setSelectedId] = useState('');
+  const urlParams = new URLSearchParams(window.location.search);
+  const preselectedId = urlParams.get('report') || '';
+  const [selectedId, setSelectedId] = useState(preselectedId);
   const [exporting, setExporting] = useState(false);
 
   const { data: reports = [], isLoading } = useQuery({
@@ -80,7 +82,7 @@ export default function RelazioneESG() {
   });
 
   const scored = reports.filter(r => r.esg_score?.tot || r.data);
-  const selected = scored.find(r => r.id === selectedId) || scored[0] || null;
+  const selected = scored.find(r => r.id === (selectedId || preselectedId)) || scored[0] || null;
 
   // Precompute metrics for selected report
   const metrics = selected ? (() => {

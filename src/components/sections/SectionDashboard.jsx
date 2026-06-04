@@ -7,15 +7,16 @@ import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
 import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
-import { FileDown, Loader2, FlaskConical, LayoutTemplate } from 'lucide-react';
+import { FileDown, Loader2, FlaskConical, LayoutTemplate, Building2 } from 'lucide-react';
 import { exportReportPDF } from '@/lib/exportPdf';
+import { Link } from 'react-router-dom';
 import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/components/report/EsgCharts';
 import SimulatorPanel from '@/components/report/SimulatorPanel';
 import { TemplateManagerModal } from '@/components/report/TemplateManager';
 import SectorBenchmark from '@/components/report/SectorBenchmark';
 import { AnimatePresence } from 'framer-motion';
 
-export default function SectionDashboard({ data, reportId, report }) {
+export default function SectionDashboard({ data, reportId, report, onNavigate }) {
   const [exporting, setExporting] = useState(false);
   const [simOpen, setSimOpen] = useState(false);
   const [tmplOpen, setTmplOpen] = useState(false);
@@ -74,6 +75,11 @@ export default function SectionDashboard({ data, reportId, report }) {
               ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
               : <><FileDown className="w-4 h-4" /> Esporta PDF</>}
           </Button>
+          <Link to={`/relazione-banca?report=${reportId}`}>
+            <Button className="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white gap-2 shadow-lg font-bold">
+              <Building2 className="w-4 h-4" /> Relazione Banca PDF
+            </Button>
+          </Link>
         </div>
       </div>
 
