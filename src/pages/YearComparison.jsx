@@ -3,9 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, Award, Target } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Award, Target, Filter, Building2, Briefcase } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { calcESGScore } from '@/lib/vsmeDefaults';
 
@@ -245,6 +246,9 @@ export default function YearComparison() {
     enabled: !!user,
   });
 
+  const [selectedCompany, setSelectedCompany] = useState('all');
+  const [selectedSector, setSelectedSector] = useState('all');
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -253,14 +257,34 @@ export default function YearComparison() {
     );
   }
 
-  const sortedReports = (reports || []).sort((a, b) => b.year - a.year);
+  // Estrai aziende uniche e settori unici dai report
+  const companies = reports 
+    ? [...new Set(reports.map(r => r.data?.ana?.ragione).filter(Boolean))]
+    : [];
+  
+  const sectors = reports
+    ? [...new Set(reports.map(r => r.data?.ana?.ateco).filter(Boolean))]
+    : [];
+
+  // Filtra i report in base ai filtri selezionati
+  let filteredReports = reports || [];
+  
+  if (selectedCompany !== 'all') {
+    filteredReports = filteredReports.filter(r => r.data?.ana?.ragione === selectedCompany);
+  }
+  
+  if (selectedSector !== 'all') {
+    filteredReports = filteredReports.filter(r => r.data?.ana?.ateco === selectedSector);
+  }
+
+  const sortedReports = filteredReports.sort((a, b) => b.year - a.year);
   const latestReport = sortedReports[0];
 
   return (
     <div className="min-h-screen bg-background p-6 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
+        <div className="flex items-center gap-4 mb-6">
           <Link to="/">
             <Button variant="outline" size="icon">
               <ArrowLeft className="w-4 h-4" />
@@ -271,6 +295,74 @@ export default function YearComparison() {
             <p className="text-sm text-muted-foreground">Analizza l'evoluzione delle performance di sostenibilità nel tempo</p>
           </div>
         </div>
+
+        {/* Filtri */}
+        {(companies.length > 1 || sectors.length > 1) && (
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="flex flex-wrap gap-4 items-center bg-card p-4 rounded-xl border border-border"
+          >
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Filter className="w-4 h-4" />
+              <span className="text-sm font-bold">Filtri:</span>
+            </div>
+            
+            {companies.length > 1 && (
+              <div className="flex items-center gap-2">
+                <Building2 className="w-4 h-4 text-muted-foreground" />
+                <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Tutte le aziende" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tutte le aziende</SelectItem>
+                    {companies.map(company => (
+                      <SelectItem key={company} value={company}>
+                        {company}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {sectors.length > 1 && (
+              <div className="flex items-center gap-2">
+                <Briefcase className="w-4 h-4 text-muted-foreground" />
+                <Select value={selectedSector} onValueChange={setSelectedSector}>
+                  <SelectTrigger className="w-36">
+                    <SelectValue placeholder="Tutti i settori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tutti i settori</SelectItem>
+                    {sectors.map(sector => (
+                      <SelectItem key={sector} value={sector}>
+                        ATECO {sector}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            
+            {(selectedCompany !== 'all' || selectedSector !== 'all') && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => { setSelectedCompany('all'); setSelectedSector('all'); }}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Reset filtri
+              </Button>
+            )}
+            
+            <div className="ml-auto text-xs text-muted-foreground">
+              {sortedReports.length} report visualizzati
+            </div>
+          </motion.div>
+        )}
 
         {sortedReports.length === 0 ? (
           <Card className="p-12 text-center">
