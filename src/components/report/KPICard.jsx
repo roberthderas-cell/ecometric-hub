@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Info, X, TrendingUp } from 'lucide-react';
 
 const colorMap = {
@@ -95,27 +95,115 @@ function KPIDrawer({ label, value, unit, description, color, onClose }) {
   );
 }
 
+function AnimatedNumber({ value }) {
+  // Parse numeric portion for animation
+  const raw = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
+  const suffix = String(value).replace(/^[0-9.\-]+/, '');
+  const [displayed, setDisplayed] = useState(0);
+  const started = useRef(false);
+
+  // Trigger count-up on mount
+  useState(() => {
+    if (isNaN(raw)) return;
+    let start = null;
+    const duration = 900;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayed(eased * raw);
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+
+  if (isNaN(raw)) return <>{value}</>;
+
+  const formatted = displayed.toLocaleString('it-IT', {
+    maximumFractionDigits: String(value).includes('.') ? 2 : 0,
+  });
+
+  return <>{formatted}{suffix}</>;
+}
+
 export default function KPICard({ label, value, unit, color = 'default', delay = 0, description }) {
   const [open, setOpen] = useState(false);
   const gradient = colorMap[color] || colorMap.default;
 
+  // 3-D tilt on hover
+  const cardRef = useRef(null);
+  const rotX = useMotionValue(0);
+  const rotY = useMotionValue(0);
+  const springX = useSpring(rotX, { stiffness: 260, damping: 20 });
+  const springY = useSpring(rotY, { stiffness: 260, damping: 20 });
+
+  const handleMouseMove = (e) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    rotX.set(-y * 10);
+    rotY.set(x * 10);
+  };
+  const handleMouseLeave = () => { rotX.set(0); rotY.set(0); };
+
   return (
     <>
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay, duration: 0.4 }}
-        className={`relative rounded-xl bg-gradient-to-br ${gradient} p-4 text-white shadow-lg hover:scale-[1.03] transition-transform`}
+        ref={cardRef}
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        style={{ rotateX: springX, rotateY: springY, transformPerspective: 800 }}
+        whileTap={{ scale: 0.97 }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        className={`relative rounded-xl bg-gradient-to-br ${gradient} p-4 text-white shadow-lg cursor-pointer overflow-hidden`}
         onClick={() => description && setOpen(true)}
-        style={{ cursor: description ? 'pointer' : 'default' }}
       >
+        {/* Shine overlay */}
+        <motion.div
+          className="absolute inset-0 bg-white/10 opacity-0 rounded-xl pointer-events-none"
+          whileHover={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+        />
+        {/* Pulse ring on mount */}
+        <motion.div
+          className="absolute inset-0 rounded-xl border-2 border-white/30 pointer-events-none"
+          initial={{ scale: 1.1, opacity: 0.6 }}
+          animate={{ scale: 1.35, opacity: 0 }}
+          transition={{ delay: delay + 0.2, duration: 0.7, ease: 'easeOut' }}
+        />
+
         <p className="text-[10px] font-bold uppercase tracking-wide opacity-85 pr-6">{label}</p>
-        <p className="font-heading text-2xl font-extrabold mt-1 leading-none">{value}</p>
-        {unit && <p className="text-[10px] opacity-70 mt-1">{unit}</p>}
+        <motion.p
+          className="font-heading text-2xl font-extrabold mt-1 leading-none"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: delay + 0.15, duration: 0.35 }}
+        >
+          <AnimatedNumber value={value} />
+        </motion.p>
+        {unit && (
+          <motion.p
+            className="text-[10px] opacity-70 mt-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.7 }}
+            transition={{ delay: delay + 0.3 }}
+          >
+            {unit}
+          </motion.p>
+        )}
         {description && (
-          <span className="absolute top-2.5 right-2.5 opacity-60 hover:opacity-100">
+          <motion.span
+            className="absolute top-2.5 right-2.5"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 0.6, scale: 1 }}
+            whileHover={{ opacity: 1, scale: 1.2 }}
+            transition={{ delay: delay + 0.35, type: 'spring', stiffness: 400 }}
+          >
             <Info className="w-3.5 h-3.5" />
-          </span>
+          </motion.span>
         )}
       </motion.div>
 
