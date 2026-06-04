@@ -73,10 +73,13 @@ export default function ReportEditor() {
   });
 
   const [localData, setLocalData] = useState(null);
+  const localDataRef = useRef(null);
 
   useEffect(() => {
-    if (report?.data && !localData) {
-      setLocalData(JSON.parse(JSON.stringify(report.data)));
+    if (report?.data && !localDataRef.current) {
+      const d = JSON.parse(JSON.stringify(report.data));
+      localDataRef.current = d;
+      setLocalData(d);
     }
   }, [report?.data]);
 
@@ -90,7 +93,8 @@ export default function ReportEditor() {
   }, []);
 
   const handleUpdate = useCallback((sectionId, field, value) => {
-    const newData = JSON.parse(JSON.stringify(reportData));
+    const base = localDataRef.current || JSON.parse(JSON.stringify(DEFAULT_DATA));
+    const newData = JSON.parse(JSON.stringify(base));
     if (!newData[sectionId]) newData[sectionId] = {};
     if (field.includes('.')) {
       const [parent, child] = field.split('.');
@@ -99,6 +103,7 @@ export default function ReportEditor() {
     } else {
       newData[sectionId][field] = value;
     }
+    localDataRef.current = newData;
     setLocalData(newData);
     // Debounced save + live ESG score recalc
     if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -123,12 +128,14 @@ export default function ReportEditor() {
         });
       }
     }, 1200);
-  }, [reportData, updateMutation, calcCompletion, reportId]);
+  }, [updateMutation, calcCompletion, reportId]);
 
   const handleBulkUpdate = useCallback((sectionId, updates) => {
-    const newData = JSON.parse(JSON.stringify(reportData));
+    const base = localDataRef.current || JSON.parse(JSON.stringify(DEFAULT_DATA));
+    const newData = JSON.parse(JSON.stringify(base));
     if (!newData[sectionId]) newData[sectionId] = {};
     Object.assign(newData[sectionId], updates);
+    localDataRef.current = newData;
     setLocalData(newData);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setIsSaving(true);
@@ -136,7 +143,7 @@ export default function ReportEditor() {
       const esg_score = calcESGScore(newData);
       updateMutation.mutate({ data: newData, completion: calcCompletion(newData), esg_score });
     }, 800);
-  }, [reportData, updateMutation, calcCompletion]);
+  }, [updateMutation, calcCompletion]);
 
   const handleNavigate = (secId) => navigate(`/report/${reportId}/${secId}`);
 
