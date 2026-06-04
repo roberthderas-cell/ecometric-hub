@@ -7,15 +7,17 @@ import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
 import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
-import { FileDown, Loader2, FlaskConical } from 'lucide-react';
+import { FileDown, Loader2, FlaskConical, LayoutTemplate } from 'lucide-react';
 import { exportReportPDF } from '@/lib/exportPdf';
 import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/components/report/EsgCharts';
 import SimulatorPanel from '@/components/report/SimulatorPanel';
+import { TemplateManagerModal } from '@/components/report/TemplateManager';
 import { AnimatePresence } from 'framer-motion';
 
 export default function SectionDashboard({ data, reportId, report }) {
   const [exporting, setExporting] = useState(false);
   const [simOpen, setSimOpen] = useState(false);
+  const [tmplOpen, setTmplOpen] = useState(false);
   const g   = calcEnergy(data);
   const w   = calcWaste(data);
   const wa  = calcWater(data);
@@ -49,6 +51,13 @@ export default function SectionDashboard({ data, reportId, report }) {
         <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
         <div className="flex gap-2 shrink-0 mt-1">
           <Button
+            onClick={() => setTmplOpen(true)}
+            variant="outline"
+            className="gap-2 shadow"
+          >
+            <LayoutTemplate className="w-4 h-4" /> Modelli
+          </Button>
+          <Button
             onClick={() => setSimOpen(o => !o)}
             variant={simOpen ? 'default' : 'outline'}
             className={`gap-2 shadow ${simOpen ? 'bg-primary text-white' : ''}`}
@@ -70,6 +79,12 @@ export default function SectionDashboard({ data, reportId, report }) {
       <AnimatePresence>
         {simOpen && <SimulatorPanel data={data} realEsg={esg} onClose={() => setSimOpen(false)} />}
       </AnimatePresence>
+
+      <TemplateManagerModal
+        open={tmplOpen}
+        onClose={() => setTmplOpen(false)}
+        currentData={data}
+      />
 
       {/* AI Coach ESG */}
       <AiCoach data={data} esg={esg} />

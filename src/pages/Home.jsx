@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap } from 'lucide-react';
 import YearComparisonChart from '@/components/report/YearComparisonChart';
+import { TemplatePicker } from '@/components/report/TemplateManager';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
 
@@ -134,6 +135,7 @@ export default function Home() {
   const [showNew, setShowNew] = useState(false);
   const [name, setName] = useState('');
   const [year, setYear] = useState('2025');
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: reports = [], isLoading } = useQuery({
@@ -143,7 +145,7 @@ export default function Home() {
 
   const createMutation = useMutation({
     mutationFn: (d) => base44.entities.Report.create(d),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['reports'] }); setShowNew(false); setName(''); },
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['reports'] }); setShowNew(false); setName(''); setSelectedTemplate(null); },
   });
 
   const deleteMutation = useMutation({
@@ -153,13 +155,16 @@ export default function Home() {
 
   const handleCreate = () => {
     if (!name.trim()) return;
+    const baseData = selectedTemplate?.data
+      ? JSON.parse(JSON.stringify(selectedTemplate.data))
+      : JSON.parse(JSON.stringify(DEFAULT_DATA));
     createMutation.mutate({
       name: name.trim(),
       year: parseInt(year),
       status: 'bozza',
       completion: 0,
-      module: 'basic',
-      data: JSON.parse(JSON.stringify(DEFAULT_DATA)),
+      module: selectedTemplate?.module || 'basic',
+      data: baseData,
     });
   };
 
@@ -325,6 +330,10 @@ export default function Home() {
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                 autoFocus
               />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5 block">Modello di partenza</label>
+              <TemplatePicker onSelect={setSelectedTemplate} selectedId={selectedTemplate?.id} />
             </div>
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Anno di riferimento</label>
