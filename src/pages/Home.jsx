@@ -298,7 +298,6 @@ export default function Home() {
             </div>
 
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
-              Il tuo Report<br />
               <span className="bg-gradient-to-r from-green-400 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
                 ESG Intelligente
               </span>
