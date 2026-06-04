@@ -15,6 +15,7 @@ import ReportEditor from '@/pages/ReportEditor';
 import RelazioneESG from '@/pages/RelazioneESG';
 import Onboarding from '@/pages/Onboarding';
 import YearComparison from '@/pages/YearComparison';
+import CompanyKpiTrend from '@/pages/CompanyKpiTrend';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +53,7 @@ const AuthenticatedApp = () => {
         <Route path="/report/:reportId" element={<ReportEditor />} />
         <Route path="/relazione-banca" element={<RelazioneESG />} />
         <Route path="/confronto-anni" element={<YearComparison />} />
+        <Route path="/kpi-trend" element={<CompanyKpiTrend />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

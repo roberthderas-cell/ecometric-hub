@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, Target, Filter, Building2, Briefcase, Target as TargetIcon, BarChart3 } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Target, Filter, Building2, Briefcase, Target as TargetIcon, BarChart3, LineChart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import TargetSetter from '@/components/report/TargetSetter';
 import CompanyExpandableRow from '@/components/report/CompanyExpandableRow';
@@ -36,6 +36,7 @@ export default function YearComparison() {
   const [selectedCompany, setSelectedCompany] = useState('all');
   const [selectedSector, setSelectedSector] = useState('all');
   const [selectedSize, setSelectedSize] = useState('all');
+  const [selectedDimension, setSelectedDimension] = useState('all');
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedMetrics, setSelectedMetrics] = useState(['E', 'S', 'G']);
 
@@ -114,17 +115,25 @@ export default function YearComparison() {
               <p className="text-sm text-muted-foreground">Analizza l'evoluzione delle performance di sostenibilità nel tempo</p>
             </div>
           </div>
-          {latestReport && (
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={() => setShowTargetSetter(true)}
-                className="gap-2 bg-primary"
-              >
-                <TargetIcon className="w-4 h-4" />
-                Imposta Obiettivi {latestReport.year + 1}
+          <div className="flex items-center gap-2">
+            <Link to="/kpi-trend">
+              <Button variant="outline" className="gap-2">
+                <LineChart className="w-4 h-4" />
+                Analisi KPI Pluriennale
               </Button>
-            </motion.div>
-          )}
+            </Link>
+            {latestReport && (
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  onClick={() => setShowTargetSetter(true)}
+                  className="gap-2 bg-primary"
+                >
+                  <TargetIcon className="w-4 h-4" />
+                  Imposta Obiettivi {latestReport.year + 1}
+                </Button>
+              </motion.div>
+            )}
+          </div>
         </div>
 
         {/* Filtri */}
