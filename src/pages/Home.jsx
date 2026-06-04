@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap } from 'lucide-react';
+import YearComparisonChart from '@/components/report/YearComparisonChart';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
 
@@ -263,6 +264,13 @@ export default function Home() {
             <Plus className="w-4 h-4" /> Nuovo
           </Button>
         </div>
+
+        {/* Year-over-year comparison (shown only when ≥2 reports with ESG scores exist) */}
+        {reports.filter(r => r.data && r.esg_score?.tot).length >= 2 && (
+          <div className="mb-6">
+            <YearComparisonChart reports={reports} />
+          </div>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center py-24">
