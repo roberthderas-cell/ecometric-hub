@@ -12,6 +12,7 @@ import { exportReportPDF } from '@/lib/exportPdf';
 import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/components/report/EsgCharts';
 import SimulatorPanel from '@/components/report/SimulatorPanel';
 import { TemplateManagerModal } from '@/components/report/TemplateManager';
+import SectorBenchmark from '@/components/report/SectorBenchmark';
 import { AnimatePresence } from 'framer-motion';
 
 export default function SectionDashboard({ data, reportId, report }) {
@@ -85,6 +86,9 @@ export default function SectionDashboard({ data, reportId, report }) {
         onClose={() => setTmplOpen(false)}
         currentData={data}
       />
+
+      {/* Benchmark di Settore */}
+      <SectorBenchmark esg={esg} ateco={data?.ana?.ateco} />
 
       {/* AI Coach ESG */}
       <AiCoach data={data} esg={esg} />
