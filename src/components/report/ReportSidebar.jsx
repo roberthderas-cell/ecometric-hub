@@ -23,6 +23,7 @@ function EsgMiniBar({ label, value, color }) {
 export default function ReportSidebar({ data, activeSection, onNavigate, completion }) {
   const esg = calcESGScore(data);
   const modulo = data?.ana?.modulo || 'basic';
+  
   let lastGroup = '';
 
   const visibleSections = SECTIONS.filter(sec => {

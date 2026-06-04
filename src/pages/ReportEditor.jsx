@@ -97,7 +97,8 @@ export default function ReportEditor() {
     saveTimer.current = setTimeout(() => {
       const esg_score = calcESGScore(newData);
       const completion = calcCompletion(newData);
-      updateMutation.mutate({ data: newData, completion, esg_score });
+      const module = newData?.ana?.modulo === 'comprehensive' ? 'comprehensive' : 'basic';
+      updateMutation.mutate({ data: newData, completion, esg_score, module });
       // Save ESG snapshot if score changed significantly
       const tot = esg_score.tot;
       if (lastSnapshotScore === null || Math.abs(tot - lastSnapshotScore) >= ESG_SNAPSHOT_MIN_DELTA) {
