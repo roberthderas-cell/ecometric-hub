@@ -15,6 +15,7 @@ import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
 import HeroParticles from '@/components/home/HeroParticles';
+import VisuraUploader from '../components/home/VisuraUploader.jsx';
 
 const ratingConfig = {
   Leader:        { color: '#059669', bg: 'from-emerald-500 to-green-400', label: '🏆 Leader' },
@@ -186,6 +187,7 @@ export default function Home() {
   const [name, setName] = useState('');
   const [year, setYear] = useState('2025');
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [visuraData, setVisuraData] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -198,7 +200,13 @@ export default function Home() {
 
   const createMutation = useMutation({
     mutationFn: (d) => base44.entities.Report.create(d),
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['reports'] }); setShowNew(false); setName(''); setSelectedTemplate(null); },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reports'] });
+      setShowNew(false);
+      setName('');
+      setSelectedTemplate(null);
+      setVisuraData(null);
+    },
   });
 
   const deleteMutation = useMutation({
@@ -206,11 +214,36 @@ export default function Home() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['reports'] }),
   });
 
+  const handleVisuraExtracted = (extracted) => {
+    setVisuraData(extracted);
+    if (extracted.ragione_sociale && !name.trim()) {
+      setName(extracted.ragione_sociale);
+    }
+  };
+
   const handleCreate = () => {
     if (!name.trim()) return;
     const baseData = selectedTemplate?.data
       ? JSON.parse(JSON.stringify(selectedTemplate.data))
       : JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+    // Pre-fill anagrafica data from visura if available
+    if (visuraData) {
+      if (!baseData.ana) baseData.ana = {};
+      if (visuraData.ragione_sociale) baseData.ana.ragione = visuraData.ragione_sociale;
+      if (visuraData.ateco) baseData.ana.ateco = visuraData.ateco;
+      if (visuraData.forma_giuridica) {
+        const formaMap = { 'SRL': 'SRL', 'S.R.L.': 'SRL', 'SPA': 'SPA', 'S.P.A.': 'SPA', 'SNC': 'SNC', 'SAS': 'SAS' };
+        baseData.ana.forma = formaMap[visuraData.forma_giuridica?.toUpperCase()] || 'SRL';
+      }
+      if (visuraData.sede_legale) baseData.ana.sede = visuraData.sede_legale;
+      if (visuraData.num_dipendenti) {
+        baseData.ana.hc = String(visuraData.num_dipendenti);
+        baseData.pe = baseData.pe || {};
+        baseData.pe.hc = String(visuraData.num_dipendenti);
+      }
+    }
+
     createMutation.mutate({
       name: name.trim(),
       year: parseInt(year),
@@ -393,8 +426,8 @@ export default function Home() {
       </div>
 
       {/* ── NEW REPORT DIALOG ────────────────────────────── */}
-      <Dialog open={showNew} onOpenChange={setShowNew}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={showNew} onOpenChange={(o) => { setShowNew(o); if (!o) { setName(''); setVisuraData(null); setSelectedTemplate(null); } }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="font-heading flex items-center gap-2">
               <span className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -404,6 +437,14 @@ export default function Home() {
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
+            {/* Visura upload */}
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5 block">Compilazione automatica (opzionale)</label>
+              <VisuraUploader onExtracted={handleVisuraExtracted} />
+            </div>
+
+            <div className="border-t border-dashed border-border" />
+
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Nome dell'impresa *</label>
               <Input
@@ -414,6 +455,11 @@ export default function Home() {
                 onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
                 autoFocus
               />
+              {visuraData?.ragione_sociale && (
+                <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
+                  ✅ Estratto dalla visura: {visuraData.ragione_sociale}
+                </p>
+              )}
             </div>
             <div>
               <label className="text-xs font-bold text-muted-foreground uppercase tracking-wide mb-1.5 block">Modello di partenza</label>
