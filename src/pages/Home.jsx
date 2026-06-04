@@ -254,9 +254,7 @@ export default function Home() {
               <span className="inline-flex items-center gap-1.5 bg-green-400/12 border border-green-400/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full">
                 <Leaf className="w-3.5 h-3.5" /> VSME Standard · EFRAG 2024
               </span>
-              <span className="inline-flex items-center gap-1.5 bg-blue-400/10 border border-blue-400/20 text-blue-300 text-xs font-bold px-3 py-1.5 rounded-full">
-                <Sparkles className="w-3.5 h-3.5" /> AI-powered ESG
-              </span>
+
             </div>
 
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
