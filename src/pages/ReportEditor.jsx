@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -72,7 +72,15 @@ export default function ReportEditor() {
     onError: () => setIsSaving(false),
   });
 
-  const reportData = report?.data || JSON.parse(JSON.stringify(DEFAULT_DATA));
+  const [localData, setLocalData] = useState(null);
+
+  useEffect(() => {
+    if (report?.data && !localData) {
+      setLocalData(JSON.parse(JSON.stringify(report.data)));
+    }
+  }, [report?.data]);
+
+  const reportData = localData || report?.data || JSON.parse(JSON.stringify(DEFAULT_DATA));
   const activeSection = section || 'ana';
 
   const calcCompletion = useCallback((data) => {
@@ -91,6 +99,7 @@ export default function ReportEditor() {
     } else {
       newData[sectionId][field] = value;
     }
+    setLocalData(newData);
     // Debounced save + live ESG score recalc
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setIsSaving(true);
@@ -120,6 +129,7 @@ export default function ReportEditor() {
     const newData = JSON.parse(JSON.stringify(reportData));
     if (!newData[sectionId]) newData[sectionId] = {};
     Object.assign(newData[sectionId], updates);
+    setLocalData(newData);
     if (saveTimer.current) clearTimeout(saveTimer.current);
     setIsSaving(true);
     saveTimer.current = setTimeout(() => {
