@@ -1,263 +1,26 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, ReferenceLine } from 'recharts';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, Award, Target, Filter, Building2, Briefcase, Target as TargetIcon, Check } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Target, Filter, Building2, Briefcase, Target as TargetIcon, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { calcESGScore } from '@/lib/vsmeDefaults';
 import TargetSetter from '@/components/report/TargetSetter';
+import CompanyExpandableRow from '@/components/report/CompanyExpandableRow';
+import { YearComparisonChart, TotalScoreTrend } from '@/components/report/ComparisonCharts';
 import { toast } from 'sonner';
 
-function YearComparisonChart({ reports }) {
-  // Group reports by year and keep only the latest/highest score per year
-  const reportsByYear = {};
-  reports.forEach(r => {
-    const year = r.year;
-    if (!reportsByYear[year] || (r.esg_score?.tot || 0) > (reportsByYear[year].esg_score?.tot || 0)) {
-      reportsByYear[year] = r;
-    }
-  });
-
-  const chartData = Object.values(reportsByYear)
-    .map(r => ({
-      year: `${r.year}`,
-      tot: r.esg_score?.tot || 0,
-      E: r.esg_score?.E || 0,
-      S: r.esg_score?.S || 0,
-      G: r.esg_score?.G || 0,
-    }))
-    .sort((a, b) => parseInt(a.year) - parseInt(b.year));
-
-  const maxYear = chartData.length > 0 ? chartData[chartData.length - 1].year : null;
-  const prevTot = chartData.length > 1 ? chartData[chartData.length - 2].tot : null;
-  const currTot = maxYear !== null ? chartData[chartData.length - 1].tot : null;
-  const delta = prevTot !== null && currTot !== null ? currTot - prevTot : 0;
-  
-  // Estrai target dall'ultimo report per le linee di riferimento
-  const latestReport = reports[reports.length - 1];
-  const targets = latestReport?.data?.targets || {};
-  const hasTargets = targets.E || targets.S || targets.G || targets.tot;
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h3 className="font-heading font-bold text-lg flex items-center gap-2">
-              <motion.div
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              >
-                <TrendingUp className="w-5 h-5 text-green-600" />
-              </motion.div>
-              Evoluzione ESG per Anno
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1">Confronto per anno: Score Totale e Pilastri (E, S, G)</p>
-          </div>
-          {delta !== 0 && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 500, delay: 0.3 }}
-              className={`px-3 py-1 rounded-full text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
-            >
-              {delta > 0 ? '↑' : '↓'} {Math.abs(delta)} pti da {parseInt(maxYear) - 1}
-            </motion.div>
-          )}
-        </div>
-        
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-              <XAxis dataKey="year" tick={{ fontSize: 13, fontWeight: 600 }} label={{ value: 'Anno', position: 'insideBottomRight', offset: -5 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} label={{ value: 'Score', angle: -90, position: 'insideLeft' }} />
-              <Tooltip 
-                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                formatter={(value) => value.toFixed(1)}
-              />
-              <Legend />
-              <Bar dataKey="tot" fill="#059669" radius={[4, 4, 0, 0]} name="Score Totale" />
-              <Bar dataKey="E" fill="#16A34A" radius={[4, 4, 0, 0]} name="Ambiente (E)" />
-              <Bar dataKey="S" fill="#2563EB" radius={[4, 4, 0, 0]} name="Sociale (S)" />
-              <Bar dataKey="G" fill="#A855F7" radius={[4, 4, 0, 0]} name="Governance (G)" />
-              {targets.tot && (
-                <ReferenceLine y={targets.tot} stroke="#059669" strokeDasharray="5 5" strokeWidth={2} label={{ value: `Target Tot: ${targets.tot}`, position: 'insideTopRight', offset: -10, fill: '#059669', fontSize: 11, fontWeight: 'bold' }} />
-              )}
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-    </motion.div>
-  );
-}
-
-function TotalScoreTrend({ reports }) {
-  // Group reports by year and keep only the latest/highest score per year
-  const reportsByYear = {};
-  reports.forEach(r => {
-    const year = r.year;
-    if (!reportsByYear[year] || (r.esg_score?.tot || 0) > (reportsByYear[year].esg_score?.tot || 0)) {
-      reportsByYear[year] = r;
-    }
-  });
-
-  const chartData = Object.values(reportsByYear)
-    .map(r => ({
-      year: r.year,
-      tot: r.esg_score?.tot || 0,
-    }))
-    .sort((a, b) => a.year - b.year);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-    >
-      <Card className="p-6">
-        <h3 className="font-heading font-bold text-lg flex items-center gap-2 mb-6">
-          <motion.div
-            animate={{ rotate: [0, 360] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-          >
-            <Award className="w-5 h-5 text-amber-500" />
-          </motion.div>
-          Trend Score Totale
-        </h3>
-        
-        <div className="h-48">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-              <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 600 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <motion.line
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 1 }}
-                transition={{ duration: 1.2, ease: 'easeOut', delay: 0.5 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="tot" 
-                stroke="#059669" 
-                strokeWidth={3}
-                dot={{ fill: '#059669', strokeWidth: 2, r: 6 }}
-                activeDot={{ r: 8 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-    </motion.div>
-  );
-}
-
-function YearCard({ report, isLatest, index }) {
-  const esg = report.esg_score || { E: 0, S: 0, G: 0, tot: 0 };
-  
-  const ratingColor = {
-    Leader: '#34D399', Avanzato: '#60A5FA', Buono: '#22D3EE',
-    'In crescita': '#FCD34D', Base: '#94A3B8',
-  }[esg.rating] || '#94A3B8';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      whileHover={{ y: -8, scale: 1.02 }}
-      className={`relative overflow-hidden rounded-xl border-2 transition-colors ${isLatest ? 'border-green-500 bg-green-50' : 'border-border bg-card'}`}
-    >
-      {isLatest && (
-        <div className="absolute top-2 right-2">
-          <span className="text-xs font-bold px-2 py-1 rounded-full bg-green-500 text-white">
-            Attuale
-          </span>
-        </div>
-      )}
-      
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-heading font-bold text-2xl text-foreground">{report.year}</h4>
-          <div 
-            className="px-3 py-1 rounded-full text-xs font-bold border"
-            style={{ color: ratingColor, borderColor: ratingColor + '40', backgroundColor: ratingColor + '15' }}
-          >
-            {esg.rating}
-          </div>
-        </div>
-
-        <div className="flex items-end gap-2 mb-4">
-          <span className="font-heading font-extrabold text-4xl" style={{ color: ratingColor }}>
-            {esg.tot}
-          </span>
-          <span className="text-sm text-muted-foreground mb-2">/100</span>
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Ambiente (E)</span>
-            <span className="text-sm font-bold" style={{ color: '#16A34A' }}>{esg.E}/100</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ backgroundColor: '#16A34A' }}
-              initial={{ width: 0 }}
-              animate={{ width: `${esg.E}%` }}
-              transition={{ duration: 0.8 }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Sociale (S)</span>
-            <span className="text-sm font-bold" style={{ color: '#2563EB' }}>{esg.S}/100</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ backgroundColor: '#2563EB' }}
-              initial={{ width: 0 }}
-              animate={{ width: `${esg.S}%` }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Governance (G)</span>
-            <span className="text-sm font-bold" style={{ color: '#A855F7' }}>{esg.G}/100</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <motion.div
-              className="h-full rounded-full"
-              style={{ backgroundColor: '#A855F7' }}
-              initial={{ width: 0 }}
-              animate={{ width: `${esg.G}%` }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            />
-          </div>
-        </div>
-
-        <Link to={`/report/${report.id}/dash`}>
-          <Button className="w-full mt-4" variant={isLatest ? 'default' : 'outline'} size="sm">
-            {isLatest ? 'Apri Report' : 'Visualizza Dettagli'}
-          </Button>
-        </Link>
-      </div>
-    </motion.div>
-  );
-}
+// Metriche disponibili
+const AVAILABLE_METRICS = [
+  { key: 'tot', label: 'Score Totale', color: '#059669' },
+  { key: 'E', label: 'Ambiente (E)', color: '#16A34A' },
+  { key: 'S', label: 'Sociale (S)', color: '#2563EB' },
+  { key: 'G', label: 'Governance (G)', color: '#A855F7' },
+  { key: 'completion', label: 'Completamento', color: '#F59E0B' },
+];
 
 export default function YearComparison() {
   const queryClient = useQueryClient();
@@ -272,7 +35,7 @@ export default function YearComparison() {
   const [showTargetSetter, setShowTargetSetter] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState('all');
   const [selectedSector, setSelectedSector] = useState('all');
-  const [selectedYears, setSelectedYears] = useState([]);
+  const [selectedMetrics, setSelectedMetrics] = useState(['E', 'S', 'G']);
 
   // Estrai aziende uniche e settori unici dai report
   const companies = reports 
@@ -281,10 +44,6 @@ export default function YearComparison() {
   
   const sectors = reports
     ? [...new Set(reports.map(r => r.data?.ana?.ateco).filter(Boolean))]
-    : [];
-
-  const availableYears = reports
-    ? [...new Set(reports.map(r => r.year).filter(Boolean))].sort((a, b) => b - a)
     : [];
 
   const updateMutation = useMutation({
@@ -308,10 +67,6 @@ export default function YearComparison() {
   
   if (selectedSector !== 'all') {
     filteredReports = filteredReports.filter(r => r.data?.ana?.ateco === selectedSector);
-  }
-  
-  if (selectedYears.length > 0) {
-    filteredReports = filteredReports.filter(r => selectedYears.includes(r.year));
   }
 
   const sortedReports = filteredReports.sort((a, b) => b.year - a.year);
@@ -404,38 +159,36 @@ export default function YearComparison() {
             </div>
           )}
           
-          {availableYears.length > 0 && (
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold text-muted-foreground">Anni:</span>
-              <div className="flex gap-2 flex-wrap">
-                {availableYears.map(year => (
-                  <label key={year} className="flex items-center gap-1.5 cursor-pointer">
-                    <Checkbox
-                      checked={selectedYears.includes(year)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedYears([...selectedYears, year].sort((a, b) => b - a));
-                        } else {
-                          setSelectedYears(selectedYears.filter(y => y !== year));
-                        }
-                      }}
-                      className="border-muted-foreground"
-                    />
-                    <span className="text-xs font-medium">{year}</span>
-                  </label>
-                ))}
-              </div>
+          <div className="flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs font-bold text-muted-foreground">Metriche:</span>
+            <div className="flex gap-2">
+              {AVAILABLE_METRICS.map(metric => (
+                <label key={metric.key} className="flex items-center gap-1.5 cursor-pointer">
+                  <Checkbox
+                    checked={selectedMetrics.includes(metric.key)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedMetrics([...selectedMetrics, metric.key]);
+                      } else {
+                        setSelectedMetrics(selectedMetrics.filter(m => m !== metric.key));
+                      }
+                    }}
+                    className="border-muted-foreground"
+                  />
+                  <span className="text-xs font-medium" style={{ color: metric.color }}>{metric.label}</span>
+                </label>
+              ))}
             </div>
-          )}
+          </div>
           
-          {(selectedCompany !== 'all' || selectedSector !== 'all' || selectedYears.length < availableYears.length) && (
+          {(selectedCompany !== 'all' || selectedSector !== 'all') && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => { 
                 setSelectedCompany('all'); 
                 setSelectedSector('all'); 
-                setSelectedYears(availableYears.slice(0, Math.min(3, availableYears.length)));
               }}
               className="text-muted-foreground hover:text-foreground"
             >
@@ -459,17 +212,42 @@ export default function YearComparison() {
           </Card>
         ) : (
           <>
-            {/* Year Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedReports.map((report, idx) => (
-                <YearCard key={report.id} report={report} isLatest={idx === 0} index={idx} />
-              ))}
-            </div>
+            {/* Tabella espandibile per aziende */}
+            <Card className="overflow-hidden">
+              {/* Header tabella */}
+              <div className="grid grid-cols-12 gap-4 items-center p-4 bg-muted/50 border-b border-border font-heading font-bold text-sm">
+                <div className="col-span-4">Azienda</div>
+                <div className="col-span-2 text-center">Score Totale</div>
+                {selectedMetrics.includes('E') && <div className="col-span-2 text-center">Ambiente (E)</div>}
+                {selectedMetrics.includes('S') && <div className="col-span-2 text-center">Sociale (S)</div>}
+                {selectedMetrics.includes('G') && <div className="col-span-2 text-center">Governance (G)</div>}
+              </div>
+
+              {/* Raggruppa report per azienda */}
+              {companies.length > 0 ? (
+                companies.map((company, idx) => {
+                  const companyReports = sortedReports.filter(r => r.data?.ana?.ragione === company);
+                  return (
+                    <CompanyExpandableRow
+                      key={company}
+                      company={company}
+                      reports={companyReports}
+                      selectedMetrics={selectedMetrics}
+                      index={idx}
+                    />
+                  );
+                })
+              ) : (
+                <div className="p-8 text-center text-muted-foreground">
+                  Nessuna azienda trovata nei report
+                </div>
+              )}
+            </Card>
 
             {/* Charts - only show when there are 2+ DISTINCT years of data */}
             {new Set(sortedReports.map(r => r.year)).size >= 2 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <YearComparisonChart reports={sortedReports} />
+                <YearComparisonChart reports={sortedReports} selectedMetrics={selectedMetrics} />
                 <TotalScoreTrend reports={sortedReports} />
               </div>
             ) : (
