@@ -4,9 +4,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, ReferenceLine } from 'recharts';
 import { motion } from 'framer-motion';
-import { ArrowLeft, TrendingUp, Award, Target, Filter, Building2, Briefcase, Target as TargetIcon } from 'lucide-react';
+import { ArrowLeft, TrendingUp, Award, Target, Filter, Building2, Briefcase, Target as TargetIcon, Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { calcESGScore } from '@/lib/vsmeDefaults';
 import TargetSetter from '@/components/report/TargetSetter';
@@ -253,6 +254,20 @@ export default function YearComparison() {
   const [showTargetSetter, setShowTargetSetter] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState('all');
   const [selectedSector, setSelectedSector] = useState('all');
+  const [selectedYears, setSelectedYears] = useState([]);
+
+  // Estrai aziende uniche e settori unici dai report
+  const companies = reports 
+    ? [...new Set(reports.map(r => r.data?.ana?.ragione).filter(Boolean))]
+    : [];
+  
+  const sectors = reports
+    ? [...new Set(reports.map(r => r.data?.ana?.ateco).filter(Boolean))]
+    : [];
+
+  const availableYears = reports
+    ? [...new Set(reports.map(r => r.year).filter(Boolean))].sort((a, b) => b - a)
+    : [];
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Report.update(id, { data }),
@@ -274,15 +289,6 @@ export default function YearComparison() {
     );
   }
 
-  // Estrai aziende uniche e settori unici dai report
-  const companies = reports 
-    ? [...new Set(reports.map(r => r.data?.ana?.ragione).filter(Boolean))]
-    : [];
-  
-  const sectors = reports
-    ? [...new Set(reports.map(r => r.data?.ana?.ateco).filter(Boolean))]
-    : [];
-
   // Filtra i report in base ai filtri selezionati
   let filteredReports = reports || [];
   
@@ -292,6 +298,10 @@ export default function YearComparison() {
   
   if (selectedSector !== 'all') {
     filteredReports = filteredReports.filter(r => r.data?.ana?.ateco === selectedSector);
+  }
+  
+  if (selectedYears.length > 0) {
+    filteredReports = filteredReports.filter(r => selectedYears.includes(r.year));
   }
 
   const sortedReports = filteredReports.sort((a, b) => b.year - a.year);
@@ -327,72 +337,98 @@ export default function YearComparison() {
         </div>
 
         {/* Filtri */}
-        {(companies.length > 1 || sectors.length > 1) && (
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-wrap gap-4 items-center bg-card p-4 rounded-xl border border-border"
-          >
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Filter className="w-4 h-4" />
-              <span className="text-sm font-bold">Filtri:</span>
+        <motion.div
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="flex flex-wrap gap-4 items-center bg-card p-4 rounded-xl border border-border"
+        >
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Filter className="w-4 h-4" />
+            <span className="text-sm font-bold">Filtri:</span>
+          </div>
+          
+          {companies.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedCompany} onValueChange={setSelectedCompany}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Tutte le aziende" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutte le aziende</SelectItem>
+                  {companies.map(company => (
+                    <SelectItem key={company} value={company}>
+                      {company}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-            
-            {companies.length > 1 && (
-              <div className="flex items-center gap-2">
-                <Building2 className="w-4 h-4 text-muted-foreground" />
-                <Select value={selectedCompany} onValueChange={setSelectedCompany}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Tutte le aziende" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutte le aziende</SelectItem>
-                    {companies.map(company => (
-                      <SelectItem key={company} value={company}>
-                        {company}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            {sectors.length > 1 && (
-              <div className="flex items-center gap-2">
-                <Briefcase className="w-4 h-4 text-muted-foreground" />
-                <Select value={selectedSector} onValueChange={setSelectedSector}>
-                  <SelectTrigger className="w-36">
-                    <SelectValue placeholder="Tutti i settori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tutti i settori</SelectItem>
-                    {sectors.map(sector => (
-                      <SelectItem key={sector} value={sector}>
-                        ATECO {sector}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-            
-            {(selectedCompany !== 'all' || selectedSector !== 'all') && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => { setSelectedCompany('all'); setSelectedSector('all'); }}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Reset filtri
-              </Button>
-            )}
-            
-            <div className="ml-auto text-xs text-muted-foreground">
-              {sortedReports.length} report visualizzati
+          )}
+          
+          {sectors.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Briefcase className="w-4 h-4 text-muted-foreground" />
+              <Select value={selectedSector} onValueChange={setSelectedSector}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Tutti i settori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tutti i settori</SelectItem>
+                  {sectors.map(sector => (
+                    <SelectItem key={sector} value={sector}>
+                      ATECO {sector}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </motion.div>
-        )}
+          )}
+          
+          {availableYears.length > 0 && (
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-muted-foreground">Anni:</span>
+              <div className="flex gap-2 flex-wrap">
+                {availableYears.map(year => (
+                  <label key={year} className="flex items-center gap-1.5 cursor-pointer">
+                    <Checkbox
+                      checked={selectedYears.includes(year)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedYears([...selectedYears, year].sort((a, b) => b - a));
+                        } else {
+                          setSelectedYears(selectedYears.filter(y => y !== year));
+                        }
+                      }}
+                      className="border-muted-foreground"
+                    />
+                    <span className="text-xs font-medium">{year}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {(selectedCompany !== 'all' || selectedSector !== 'all' || selectedYears.length < availableYears.length) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { 
+                setSelectedCompany('all'); 
+                setSelectedSector('all'); 
+                setSelectedYears(availableYears.slice(0, Math.min(3, availableYears.length)));
+              }}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Reset
+            </Button>
+          )}
+          
+          <div className="ml-auto text-xs text-muted-foreground font-bold">
+            {sortedReports.length} report{sortedReports.length !== 1 ? ' visualizzati' : ''}
+          </div>
+        </motion.div>
 
         {sortedReports.length === 0 ? (
           <Card className="p-12 text-center">
