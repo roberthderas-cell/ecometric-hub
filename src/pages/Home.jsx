@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap, Building2 } from 'lucide-react';
 import YearComparisonChart from '@/components/report/YearComparisonChart';
 import { TemplatePicker } from '@/components/report/TemplateManager';
 import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
@@ -219,7 +219,11 @@ export default function Home() {
                 <Plus className="w-4 h-4" /> Nuovo Report
               </Button>
               {reports.length > 0 && (
-                <span className="text-white/40 text-sm">{reports.length} report attivi</span>
+                <Link to="/relazione-banca">
+                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 gap-2 bg-white/5">
+                    <Building2 className="w-4 h-4" /> Relazione per la Banca
+                  </Button>
+                </Link>
               )}
             </div>
 

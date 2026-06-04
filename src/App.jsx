@@ -12,6 +12,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Home from '@/pages/Home';
 import ReportEditor from '@/pages/ReportEditor';
+import RelazioneESG from '@/pages/RelazioneESG';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -46,6 +47,7 @@ const AuthenticatedApp = () => {
         <Route path="/" element={<Home />} />
         <Route path="/report/:reportId/:section" element={<ReportEditor />} />
         <Route path="/report/:reportId" element={<ReportEditor />} />
+        <Route path="/relazione-banca" element={<RelazioneESG />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
