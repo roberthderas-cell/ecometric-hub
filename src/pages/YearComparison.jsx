@@ -21,41 +21,69 @@ function YearComparisonChart({ reports }) {
     .sort((a, b) => a.year - b.year);
 
   const maxYear = chartData.length > 0 ? chartData[chartData.length - 1].year : null;
-  const prevYear = chartData.length > 1 ? chartData[chartData.length - 2].tot : null;
-  const currYear = maxYear !== null ? chartData[chartData.length - 1].tot : null;
-  const delta = prevYear !== null && currYear !== null ? currYear - prevYear : 0;
+  const prevTot = chartData.length > 1 ? chartData[chartData.length - 2].tot : null;
+  const currTot = maxYear !== null ? chartData[chartData.length - 1].tot : null;
+  const delta = prevTot !== null && currTot !== null ? currTot - prevTot : 0;
 
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-heading font-bold text-lg flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-green-600" />
-          Evoluzione Score ESG
-        </h3>
-        {delta !== 0 && (
-          <div className={`px-3 py-1 rounded-full text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-            {delta > 0 ? '+' : ''}{delta} pti vs {maxYear - 1}
-          </div>
-        )}
-      </div>
-      
-      <div className="h-80">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-            <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 600 }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-            <Tooltip 
-              contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-            />
-            <Legend />
-            <Bar dataKey="E" fill="#16A34A" radius={[4, 4, 0, 0]} name="Ambiente (E)" />
-            <Bar dataKey="S" fill="#2563EB" radius={[4, 4, 0, 0]} name="Sociale (S)" />
-            <Bar dataKey="G" fill="#A855F7" radius={[4, 4, 0, 0]} name="Governance (G)" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-heading font-bold text-lg flex items-center gap-2">
+            <motion.div
+              animate={{ rotate: [0, 10, -10, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+            >
+              <TrendingUp className="w-5 h-5 text-green-600" />
+            </motion.div>
+            Evoluzione Score ESG
+          </h3>
+          {delta !== 0 && (
+          <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 500, delay: 0.3 }}
+          className={`px-3 py-1 rounded-full text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+          >
+          {delta > 0 ? '↑' : '↓'} {Math.abs(delta)} pti vs {maxYear !== null ? maxYear - 1 : ''}
+          </motion.div>
+          )}
+        </div>
+        
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+              <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 600 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+              <Tooltip 
+                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+              />
+              <Legend />
+              <Bar dataKey="E" fill="#16A34A" radius={[4, 4, 0, 0]} name="Ambiente (E)">
+                {chartData.map((entry, index) => (
+                  <motion.animate
+                    key={index}
+                    attributeName="height"
+                    from="0"
+                    to={entry.E}
+                    dur="0.8s"
+                    begin={`${index * 0.1}s`}
+                    fill="freeze"
+                  />
+                ))}
+              </Bar>
+              <Bar dataKey="S" fill="#2563EB" radius={[4, 4, 0, 0]} name="Sociale (S)" />
+              <Bar dataKey="G" fill="#A855F7" radius={[4, 4, 0, 0]} name="Governance (G)" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+    </motion.div>
   );
 }
 
@@ -68,35 +96,51 @@ function TotalScoreTrend({ reports }) {
     .sort((a, b) => a.year - b.year);
 
   return (
-    <Card className="p-6">
-      <h3 className="font-heading font-bold text-lg flex items-center gap-2 mb-6">
-        <Award className="w-5 h-5 text-amber-500" />
-        Trend Score Totale
-      </h3>
-      
-      <div className="h-48">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-            <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 600 }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-            <Tooltip />
-            <Line 
-              type="monotone" 
-              dataKey="tot" 
-              stroke="#059669" 
-              strokeWidth={3}
-              dot={{ fill: '#059669', strokeWidth: 2, r: 6 }}
-              activeDot={{ r: 8 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+    >
+      <Card className="p-6">
+        <h3 className="font-heading font-bold text-lg flex items-center gap-2 mb-6">
+          <motion.div
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+          >
+            <Award className="w-5 h-5 text-amber-500" />
+          </motion.div>
+          Trend Score Totale
+        </h3>
+        
+        <div className="h-48">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
+              <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 600 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <motion.line
+                initial={{ pathLength: 0, opacity: 0 }}
+                animate={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 1.2, ease: 'easeOut', delay: 0.5 }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="tot" 
+                stroke="#059669" 
+                strokeWidth={3}
+                dot={{ fill: '#059669', strokeWidth: 2, r: 6 }}
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+    </motion.div>
   );
 }
 
-function YearCard({ report, isLatest }) {
+function YearCard({ report, isLatest, index }) {
   const esg = report.esg_score || { E: 0, S: 0, G: 0, tot: 0 };
   
   const ratingColor = {
@@ -106,9 +150,11 @@ function YearCard({ report, isLatest }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 24 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`relative overflow-hidden rounded-xl border-2 ${isLatest ? 'border-green-500 bg-green-50' : 'border-border bg-card'}`}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      className={`relative overflow-hidden rounded-xl border-2 transition-colors ${isLatest ? 'border-green-500 bg-green-50' : 'border-border bg-card'}`}
     >
       {isLatest && (
         <div className="absolute top-2 right-2">
@@ -240,7 +286,7 @@ export default function YearComparison() {
             {/* Year Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedReports.map((report, idx) => (
-                <YearCard key={report.id} report={report} isLatest={idx === 0} />
+                <YearCard key={report.id} report={report} isLatest={idx === 0} index={idx} />
               ))}
             </div>
 
