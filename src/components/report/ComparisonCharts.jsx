@@ -85,7 +85,16 @@ export function YearComparisonChart({ reports, selectedMetrics }) {
               <Bar dataKey="S" fill="#2563EB" radius={[4, 4, 0, 0]} name="Sociale (S)" />
               <Bar dataKey="G" fill="#A855F7" radius={[4, 4, 0, 0]} name="Governance (G)" />
               {targets.tot && (
-                <ReferenceLine y={targets.tot} stroke="#059669" strokeDasharray="5 5" strokeWidth={2} label={{ value: `Target Tot: ${targets.tot}`, position: 'insideTopRight', offset: -10, fill: '#059669', fontSize: 11, fontWeight: 'bold' }} />
+                <ReferenceLine y={targets.tot} stroke="#059669" strokeDasharray="5 5" strokeWidth={2} label={{ value: `Target: ${targets.tot}`, position: 'top', fill: '#059669', fontSize: 11, fontWeight: 'bold' }} />
+              )}
+              {targets.E && (
+                <ReferenceLine y={targets.E} stroke="#16A34A" strokeDasharray="3 3" strokeWidth={1.5} />
+              )}
+              {targets.S && (
+                <ReferenceLine y={targets.S} stroke="#2563EB" strokeDasharray="3 3" strokeWidth={1.5} />
+              )}
+              {targets.G && (
+                <ReferenceLine y={targets.G} stroke="#A855F7" strokeDasharray="3 3" strokeWidth={1.5} />
               )}
             </BarChart>
           </ResponsiveContainer>
@@ -104,6 +113,10 @@ export function TotalScoreTrend({ reports }) {
       tot: r.esg_score?.tot || 0,
     }))
     .sort((a, b) => a.year - b.year);
+
+  // Estrai target dall'ultimo report
+  const latestReport = reports[reports.length - 1];
+  const targets = latestReport?.data?.targets || {};
 
   return (
     <motion.div
@@ -142,6 +155,9 @@ export function TotalScoreTrend({ reports }) {
                 dot={{ fill: '#059669', strokeWidth: 2, r: 6 }}
                 activeDot={{ r: 8 }}
               />
+              {targets.tot && (
+                <ReferenceLine y={targets.tot} stroke="#059669" strokeDasharray="5 5" strokeWidth={2} label={{ value: `Target: ${targets.tot}`, position: 'top', fill: '#059669', fontSize: 11, fontWeight: 'bold' }} />
+              )}
             </LineChart>
           </ResponsiveContainer>
         </div>

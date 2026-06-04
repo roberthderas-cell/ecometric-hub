@@ -4,7 +4,8 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon } from 'lucide-react';
+import TargetSetter from '@/components/report/TargetSetter';
 import ReportSidebar from '@/components/report/ReportSidebar';
 import LiveEsgBadge from '@/components/report/LiveEsgBadge';
 import SectionProgress from '@/components/report/SectionProgress';
@@ -68,6 +69,7 @@ export default function ReportEditor() {
   const queryClient = useQueryClient();
   const saveTimer = useRef(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [showTargetSetter, setShowTargetSetter] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   useOnboardingGuard(user);
@@ -204,6 +206,15 @@ export default function ReportEditor() {
                 {isSaving ? '⏳ Salvataggio...' : '✅ Salvato'}
               </span>
               <LiveEsgBadge esg={report.esg_score ? { ...report.esg_score } : null} compact />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTargetSetter(true)}
+                className="gap-1 hidden sm:flex"
+              >
+                <TargetIcon className="w-3 h-3" />
+                Obiettivi {report.year + 1}
+              </Button>
             </div>
           </div>
           {/* Section progress stepper */}
@@ -229,6 +240,18 @@ export default function ReportEditor() {
           )}
         </main>
       </div>
+
+      {showTargetSetter && (
+        <TargetSetter
+          report={report}
+          onSave={(newData) => {
+            updateMutation.mutate({ data: newData });
+            setShowTargetSetter(false);
+            toast.success('Obiettivi salvati con successo!');
+          }}
+          onClose={() => setShowTargetSetter(false)}
+        />
+      )}
     </div>
   );
 }
