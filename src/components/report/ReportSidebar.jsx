@@ -22,7 +22,13 @@ function EsgMiniBar({ label, value, color }) {
 
 export default function ReportSidebar({ data, activeSection, onNavigate, completion }) {
   const esg = calcESGScore(data);
+  const modulo = data?.ana?.modulo || 'basic';
   let lastGroup = '';
+
+  const visibleSections = SECTIONS.filter(sec => {
+    if (sec.group === 'MODULO COMPLETO') return modulo === 'comprehensive';
+    return true;
+  });
 
   const ratingColor = {
     Leader: '#34D399', Avanzato: '#60A5FA', Buono: '#22D3EE',
@@ -87,7 +93,7 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
 
       {/* Nav */}
       <nav className="flex-1 py-2 overflow-y-auto">
-        {SECTIONS.map((sec) => {
+        {visibleSections.map((sec) => {
           const showGroup = sec.group !== lastGroup;
           if (showGroup) lastGroup = sec.group;
           const comp = getSectionCompletion(data, sec.id);
