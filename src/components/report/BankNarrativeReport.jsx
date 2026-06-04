@@ -238,85 +238,97 @@ export default function BankNarrativeReport({ report, metrics }) {
         </div>
       )}
 
-      {/* Narrative output */}
-      <AnimatePresence>
-        {narrative && expanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
+      {/* Narrative output — documento A4 da stampa */}
+      {narrative && expanded && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-slate-100 px-6 py-8"
+        >
+          {/* Foglio A4 */}
+          <div
+            id="bank-narrative-content"
+            className="bg-white mx-auto shadow-xl"
+            style={{ maxWidth: '210mm', minHeight: '297mm', padding: '20mm 22mm', fontFamily: 'Georgia, "Times New Roman", serif', color: '#1a1a1a', lineHeight: 1.7 }}
           >
-            <div id="bank-narrative-content" className="px-8 py-8">
-              {/* Document header */}
-              <div className="text-center mb-8 pb-6 border-b-2 border-slate-100">
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 mb-2">RELAZIONE DI SOSTENIBILITÀ</p>
-                <h1 className="font-heading text-2xl font-extrabold text-slate-900 mb-1">{report.name}</h1>
-                <p className="text-sm text-slate-500">Anno {report.year} · Standard VSME EFRAG 2024 · Predisposta ai sensi EBA/GL/2020/06</p>
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <span className="px-3 py-1 rounded-full text-xs font-bold border" style={{ color: ratingCfg.color, borderColor: ratingCfg.color + '40', background: ratingCfg.color + '10' }}>
-                    ESG Score: {esg.tot}/100 · {ratingCfg.label}
-                  </span>
-                  <span className="px-3 py-1 rounded-full text-xs font-bold border border-slate-200 text-slate-600 bg-slate-50">
-                    {new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
-                  </span>
+            {/* Intestazione documento */}
+            <div style={{ borderBottom: '2px solid #1a1a1a', paddingBottom: '10mm', marginBottom: '8mm' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                  <p style={{ fontSize: '8pt', letterSpacing: '0.15em', textTransform: 'uppercase', color: '#666', marginBottom: '3mm' }}>
+                    Relazione di Sostenibilità — Standard VSME EFRAG 2024
+                  </p>
+                  <h1 style={{ fontSize: '18pt', fontWeight: 'bold', margin: 0, lineHeight: 1.2 }}>{report.name}</h1>
+                  <p style={{ fontSize: '10pt', color: '#444', marginTop: '2mm' }}>
+                    Esercizio {report.year} · Predisposta ai sensi EBA/GL/2020/06
+                  </p>
                 </div>
-              </div>
-
-              {/* Sections */}
-              {sections.length > 0 ? (
-                <div className="space-y-7">
-                  {sections.map((section, idx) => {
-                    const lines = section.trim().split('\n');
-                    const title = lines[0] || '';
-                    const body = lines.slice(1).join('\n').trim();
-                    return (
-                      <motion.div
-                        key={idx}
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.05 }}
-                        className="prose-section"
-                      >
-                        <div className="flex items-start gap-3 mb-3">
-                          <span className="w-6 h-6 rounded-md bg-slate-900 text-white text-[10px] font-extrabold flex items-center justify-center shrink-0 mt-0.5">{idx + 1}</span>
-                          <h3 className="font-heading text-sm font-extrabold text-slate-800 uppercase tracking-wide leading-snug">
-                            {title.replace(/^\d+\.\s*/, '')}
-                          </h3>
-                        </div>
-                        <div className="ml-9 text-sm text-slate-700 leading-relaxed whitespace-pre-line">
-                          {body}
-                        </div>
-                        {idx < sections.length - 1 && <div className="mt-6 border-b border-slate-100" />}
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{narrative}</div>
-              )}
-
-              {/* Signature block */}
-              <div className="mt-10 pt-6 border-t-2 border-slate-100">
-                <div className="grid grid-cols-2 gap-12">
-                  <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-2">Luogo e Data</p>
-                    <div className="border-b-2 border-dashed border-slate-200 pb-8 pt-1" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 uppercase tracking-wide mb-2">Firma Legale Rappresentante</p>
-                    <div className="border-b-2 border-dashed border-slate-200 pb-8 pt-1" />
+                <div style={{ textAlign: 'right', minWidth: '40mm' }}>
+                  <div style={{ border: `2px solid ${ratingCfg.color}`, borderRadius: '6px', padding: '3mm 5mm', display: 'inline-block' }}>
+                    <p style={{ fontSize: '7pt', textTransform: 'uppercase', letterSpacing: '0.1em', color: ratingCfg.color, margin: 0 }}>ESG Score</p>
+                    <p style={{ fontSize: '22pt', fontWeight: 'bold', color: ratingCfg.color, margin: 0, lineHeight: 1 }}>{esg.tot}</p>
+                    <p style={{ fontSize: '8pt', color: ratingCfg.color, margin: 0 }}>{ratingCfg.label}</p>
                   </div>
                 </div>
-                <div className="mt-6 flex items-center justify-between text-[10px] text-slate-300">
-                  <span>Documento generato da VSME Builder · AI-assisted · Standard EFRAG 2024</span>
-                  <span>{new Date().toLocaleDateString('it-IT')}</span>
-                </div>
               </div>
+              <p style={{ fontSize: '8pt', color: '#888', marginTop: '4mm', marginBottom: 0 }}>
+                Data di emissione: {new Date().toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' })}
+              </p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+            {/* Corpo del documento — sezioni */}
+            {sections.length > 0 ? (
+              <div>
+                {sections.map((section, idx) => {
+                  const lines = section.trim().split('\n');
+                  const rawTitle = lines[0] || '';
+                  const title = rawTitle.replace(/^\d+\.\s*/, '');
+                  const body = lines.slice(1).join('\n').trim();
+                  return (
+                    <div key={idx} style={{ marginBottom: '8mm' }}>
+                      <h2 style={{
+                        fontSize: '10pt',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.08em',
+                        borderLeft: '3px solid #1a1a1a',
+                        paddingLeft: '4mm',
+                        marginBottom: '3mm',
+                        marginTop: idx === 0 ? 0 : '6mm',
+                        color: '#1a1a1a',
+                      }}>
+                        {idx + 1}. {title}
+                      </h2>
+                      <p style={{ fontSize: '10pt', textAlign: 'justify', whiteSpace: 'pre-line', margin: 0, color: '#222' }}>
+                        {body}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p style={{ fontSize: '10pt', textAlign: 'justify', whiteSpace: 'pre-line' }}>{narrative}</p>
+            )}
+
+            {/* Blocco firma */}
+            <div style={{ borderTop: '1px solid #ccc', marginTop: '14mm', paddingTop: '8mm' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20mm' }}>
+                <div>
+                  <p style={{ fontSize: '8pt', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888', marginBottom: '10mm' }}>Luogo e Data</p>
+                  <div style={{ borderBottom: '1px solid #999', paddingBottom: '15mm' }} />
+                </div>
+                <div>
+                  <p style={{ fontSize: '8pt', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#888', marginBottom: '10mm' }}>Firma del Legale Rappresentante</p>
+                  <div style={{ borderBottom: '1px solid #999', paddingBottom: '15mm' }} />
+                </div>
+              </div>
+              <p style={{ fontSize: '7pt', color: '#bbb', marginTop: '6mm', textAlign: 'center' }}>
+                Documento generato da VSME Builder · AI-assisted · Standard EFRAG 2024 · EBA/GL/2020/06
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
