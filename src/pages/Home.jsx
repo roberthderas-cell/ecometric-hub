@@ -315,11 +315,18 @@ export default function Home() {
                 <Plus className="w-4 h-4" /> Nuovo Report
               </Button>
               {reports.length > 0 && (
-                <Link to="/relazione-banca">
-                  <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 gap-2 bg-white/5">
-                    <Building2 className="w-4 h-4" /> Relazione per la Banca
-                  </Button>
-                </Link>
+                <>
+                  <Link to="/relazione-banca">
+                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 gap-2 bg-white/5">
+                      <Building2 className="w-4 h-4" /> Relazione per la Banca
+                    </Button>
+                  </Link>
+                  <Link to="/confronto-anni">
+                    <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 gap-2 bg-white/5">
+                      <BarChart3 className="w-4 h-4" /> Confronto Anni
+                    </Button>
+                  </Link>
+                </>
               )}
             </div>
 
