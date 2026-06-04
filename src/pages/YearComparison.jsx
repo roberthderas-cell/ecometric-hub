@@ -15,17 +15,13 @@ import { toast } from 'sonner';
 function YearComparisonChart({ reports }) {
   const chartData = reports
     .map(r => ({
-      year: r.year,
+      year: `${r.year}`,
+      tot: r.esg_score?.tot || 0,
       E: r.esg_score?.E || 0,
       S: r.esg_score?.S || 0,
       G: r.esg_score?.G || 0,
-      tot: r.esg_score?.tot || 0,
-      targetE: r.data?.targets?.E || null,
-      targetS: r.data?.targets?.S || null,
-      targetG: r.data?.targets?.G || null,
-      targetTot: r.data?.targets?.tot || null,
     }))
-    .sort((a, b) => a.year - b.year);
+    .sort((a, b) => parseInt(a.year) - parseInt(b.year));
 
   const maxYear = chartData.length > 0 ? chartData[chartData.length - 1].year : null;
   const prevTot = chartData.length > 1 ? chartData[chartData.length - 2].tot : null;
@@ -45,75 +41,47 @@ function YearComparisonChart({ reports }) {
     >
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="font-heading font-bold text-lg flex items-center gap-2">
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            >
-              <TrendingUp className="w-5 h-5 text-green-600" />
-            </motion.div>
-            Evoluzione Score ESG
-          </h3>
-          <div className="flex items-center gap-3">
-            {hasTargets && (
-              <div className="flex items-center gap-2 text-xs">
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-0.5" style={{ backgroundColor: '#16A34A' }} /> Target E
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-0.5" style={{ backgroundColor: '#2563EB' }} /> Target S
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-3 h-0.5" style={{ backgroundColor: '#A855F7' }} /> Target G
-                </span>
-              </div>
-            )}
-            {delta !== 0 && (
+          <div>
+            <h3 className="font-heading font-bold text-lg flex items-center gap-2">
               <motion.div
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', stiffness: 500, delay: 0.3 }}
-                className={`px-3 py-1 rounded-full text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                animate={{ rotate: [0, 10, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
               >
-                {delta > 0 ? '↑' : '↓'} {Math.abs(delta)} pti vs {maxYear !== null ? maxYear - 1 : ''}
+                <TrendingUp className="w-5 h-5 text-green-600" />
               </motion.div>
-            )}
+              Evoluzione ESG per Anno
+            </h3>
+            <p className="text-xs text-muted-foreground mt-1">Confronto per anno: Score Totale e Pilastri (E, S, G)</p>
           </div>
+          {delta !== 0 && (
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 500, delay: 0.3 }}
+              className={`px-3 py-1 rounded-full text-xs font-bold ${delta > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+            >
+              {delta > 0 ? '↑' : '↓'} {Math.abs(delta)} pti da {parseInt(maxYear) - 1}
+            </motion.div>
+          )}
         </div>
         
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-              <XAxis dataKey="year" tick={{ fontSize: 12, fontWeight: 600 }} />
-              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
+              <XAxis dataKey="year" tick={{ fontSize: 13, fontWeight: 600 }} label={{ value: 'Anno', position: 'insideBottomRight', offset: -5 }} />
+              <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} label={{ value: 'Score', angle: -90, position: 'insideLeft' }} />
               <Tooltip 
                 contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                formatter={(value) => value.toFixed(1)}
               />
               <Legend />
-              <Bar dataKey="E" fill="#16A34A" radius={[4, 4, 0, 0]} name="Ambiente (E)">
-                {chartData.map((entry, index) => (
-                  <motion.animate
-                    key={index}
-                    attributeName="height"
-                    from="0"
-                    to={entry.E}
-                    dur="0.8s"
-                    begin={`${index * 0.1}s`}
-                    fill="freeze"
-                  />
-                ))}
-              </Bar>
+              <Bar dataKey="tot" fill="#059669" radius={[4, 4, 0, 0]} name="Score Totale" />
+              <Bar dataKey="E" fill="#16A34A" radius={[4, 4, 0, 0]} name="Ambiente (E)" />
               <Bar dataKey="S" fill="#2563EB" radius={[4, 4, 0, 0]} name="Sociale (S)" />
               <Bar dataKey="G" fill="#A855F7" radius={[4, 4, 0, 0]} name="Governance (G)" />
-              {targets.E && (
-                <ReferenceLine y={targets.E} stroke="#16A34A" strokeDasharray="4 4" strokeWidth={2} label={{ value: `Target E: ${targets.E}`, position: 'right', fill: '#16A34A', fontSize: 11 }} />
-              )}
-              {targets.S && (
-                <ReferenceLine y={targets.S} stroke="#2563EB" strokeDasharray="4 4" strokeWidth={2} label={{ value: `Target S: ${targets.S}`, position: 'right', fill: '#2563EB', fontSize: 11 }} />
-              )}
-              {targets.G && (
-                <ReferenceLine y={targets.G} stroke="#A855F7" strokeDasharray="4 4" strokeWidth={2} label={{ value: `Target G: ${targets.G}`, position: 'right', fill: '#A855F7', fontSize: 11 }} />
+              {targets.tot && (
+                <ReferenceLine y={targets.tot} stroke="#059669" strokeDasharray="5 5" strokeWidth={2} label={{ value: `Target Tot: ${targets.tot}`, position: 'insideTopRight', offset: -10, fill: '#059669', fontSize: 11, fontWeight: 'bold' }} />
               )}
             </BarChart>
           </ResponsiveContainer>
