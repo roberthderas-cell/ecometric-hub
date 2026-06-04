@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
@@ -13,6 +13,7 @@ import { TemplatePicker } from '@/components/report/TemplateManager';
 import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
+import HeroParticles from '@/components/home/HeroParticles';
 
 const ratingConfig = {
   Leader:        { color: '#059669', bg: 'from-emerald-500 to-green-400', label: '🏆 Leader' },
@@ -28,17 +29,62 @@ const statusConfig = {
   completato:{ bg: 'bg-green-50 text-green-700 border-green-200',        dot: 'bg-green-500',   label: 'Completato' },
 };
 
+function useAnimatedCount(target, duration = 1200) {
+  const [count, setCount] = useState(0);
+  const [started, setStarted] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started) setStarted(true);
+    }, { threshold: 0.5 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [started]);
+
+  useEffect(() => {
+    if (!started || typeof target !== 'number') return;
+    let start = null;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const progress = Math.min((ts - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [started, target, duration]);
+
+  return { count, ref };
+}
+
 function StatPill({ icon: Icon, value, label, color }) {
+  const numeric = typeof value === 'number' ? value : parseInt(value);
+  const isNum = !isNaN(numeric) && typeof value === 'number';
+  const { count, ref } = useAnimatedCount(isNum ? numeric : 0);
+
   return (
-    <div className="flex items-center gap-3 bg-white/8 hover:bg-white/12 transition-colors rounded-2xl px-5 py-3.5">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}>
+    <motion.div
+      ref={ref}
+      whileHover={{ scale: 1.06, backgroundColor: 'rgba(255,255,255,0.14)' }}
+      transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+      className="flex items-center gap-3 bg-white/8 rounded-2xl px-5 py-3.5 cursor-default"
+    >
+      <motion.div
+        whileHover={{ rotate: 10 }}
+        className={`w-9 h-9 rounded-xl flex items-center justify-center ${color}`}
+      >
         <Icon className="w-4 h-4 text-white" />
-      </div>
+      </motion.div>
       <div>
-        <p className="font-heading font-extrabold text-white text-xl leading-none">{value}</p>
+        <p className="font-heading font-extrabold text-white text-xl leading-none">
+          {isNum ? count : value}
+        </p>
         <p className="text-white/50 text-[11px] mt-0.5">{label}</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -52,13 +98,15 @@ function ReportCard({ report, onDelete, index }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ delay: index * 0.06 }}
-      className="group relative"
+      viewport={{ once: true, margin: '-30px' }}
+      whileHover={{ y: -6, boxShadow: '0 20px 40px -12px rgba(0,0,0,0.15)' }}
+      transition={{ delay: index * 0.05, duration: 0.35 }}
+      className="group relative rounded-xl"
     >
       <Link to={`/report/${report.id}/ana`}>
-        <Card className="relative overflow-hidden p-0 hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer border-border hover:border-primary/30">
+        <Card className="relative overflow-hidden p-0 cursor-pointer border-border group-hover:border-primary/30 transition-colors duration-300">
           {/* Top accent bar */}
           {cfg && (
             <div className={`h-1 w-full bg-gradient-to-r ${cfg.bg}`} />
@@ -179,15 +227,25 @@ export default function Home() {
 
       {/* ── HERO ─────────────────────────────────────────── */}
       <div className="relative overflow-hidden bg-gradient-to-br from-forest-900 via-forest-800 to-forest-700">
+        {/* Particles */}
+        <HeroParticles />
         {/* Background decoration */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <div className="absolute -top-20 -right-20 w-96 h-96 bg-green-400/5 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-emerald-300/5 rounded-full blur-2xl" />
-          <svg className="absolute inset-0 w-full h-full opacity-[0.03]" viewBox="0 0 800 500">
-            <circle cx="700" cy="250" r="200" fill="none" stroke="white" strokeWidth="1"/>
-            <circle cx="700" cy="250" r="130" fill="none" stroke="white" strokeWidth="1"/>
-            <circle cx="700" cy="250" r="60" fill="none" stroke="white" strokeWidth="1"/>
-          </svg>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+            className="absolute -right-16 top-1/2 -translate-y-1/2 opacity-[0.04]"
+          >
+            <svg width="400" height="400" viewBox="0 0 400 400">
+              <circle cx="200" cy="200" r="180" fill="none" stroke="white" strokeWidth="1"/>
+              <circle cx="200" cy="200" r="120" fill="none" stroke="white" strokeWidth="1"/>
+              <circle cx="200" cy="200" r="60" fill="none" stroke="white" strokeWidth="1"/>
+              <line x1="200" y1="20" x2="200" y2="380" stroke="white" strokeWidth="0.5"/>
+              <line x1="20" y1="200" x2="380" y2="200" stroke="white" strokeWidth="0.5"/>
+            </svg>
+          </motion.div>
         </div>
 
         <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-20">
@@ -248,12 +306,20 @@ export default function Home() {
           ].map((f, i) => (
             <motion.div
               key={f.title}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 + i * 0.1 }}
-              className="flex items-center gap-3"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-40px' }}
+              transition={{ delay: i * 0.1, duration: 0.4 }}
+              whileHover={{ x: 4 }}
+              className="flex items-center gap-3 cursor-default"
             >
-              <span className="text-2xl">{f.icon}</span>
+              <motion.span
+                whileHover={{ scale: 1.3, rotate: -5 }}
+                transition={{ type: 'spring', stiffness: 400 }}
+                className="text-2xl select-none"
+              >
+                {f.icon}
+              </motion.span>
               <div>
                 <p className="text-sm font-bold text-foreground">{f.title}</p>
                 <p className="text-xs text-muted-foreground">{f.desc}</p>
@@ -265,15 +331,23 @@ export default function Home() {
 
       {/* ── REPORT LIST ──────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-6 py-10">
-        <div className="flex items-center justify-between mb-6">
+        <motion.div
+          className="flex items-center justify-between mb-6"
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4 }}
+        >
           <div>
             <h2 className="font-heading text-xl font-bold text-foreground">I tuoi Report</h2>
             <p className="text-sm text-muted-foreground mt-0.5">{reports.length} report · aggiornati automaticamente</p>
           </div>
-          <Button onClick={() => setShowNew(true)} className="gap-2 bg-primary">
-            <Plus className="w-4 h-4" /> Nuovo
-          </Button>
-        </div>
+          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+            <Button onClick={() => setShowNew(true)} className="gap-2 bg-primary">
+              <Plus className="w-4 h-4" /> Nuovo
+            </Button>
+          </motion.div>
+        </motion.div>
 
         {/* Multi-site ESG ranking (shown when ≥2 reports with ESG scores exist) */}
         <MultiSiteDashboard reports={reports} />
