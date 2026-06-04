@@ -5,15 +5,16 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileDown, Loader2, ArrowLeft, FileText, Building2, Leaf, BarChart3, Sparkles, TrendingDown } from 'lucide-react';
+import { FileDown, Loader2, ArrowLeft, FileText, Building2, Leaf, BarChart3, Sparkles, TrendingDown, GitCompare } from 'lucide-react';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
 import BankReportPreview from '@/components/report/BankReportPreview';
 import BankNarrativeReport from '@/components/report/BankNarrativeReport';
 import Co2SavingsPanel from '@/components/report/Co2SavingsPanel';
+import YearProgressReport from '@/components/report/YearProgressReport';
 import { exportBankReportPDF } from '@/lib/exportBankPdf';
 import { motion } from 'framer-motion';
 
-function RelazioneTabSelector({ report, metrics }) {
+function RelazioneTabSelector({ report, metrics, allReports }) {
   const [tab, setTab] = useState('preview');
 
   return (
@@ -37,6 +38,12 @@ function RelazioneTabSelector({ report, metrics }) {
         >
           <TrendingDown className="w-4 h-4" /> Risparmio CO₂ & Benefici
         </button>
+        <button
+          onClick={() => setTab('progress')}
+          className={`flex items-center gap-2 px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'progress' ? 'bg-white shadow text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+        >
+          <GitCompare className="w-4 h-4" /> Confronto Anni
+        </button>
       </div>
 
       {tab === 'preview' && (
@@ -52,6 +59,11 @@ function RelazioneTabSelector({ report, metrics }) {
       {tab === 'savings' && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <Co2SavingsPanel metrics={metrics} />
+        </motion.div>
+      )}
+      {tab === 'progress' && (
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
+          <YearProgressReport reports={allReports} />
         </motion.div>
       )}
     </div>
@@ -156,7 +168,7 @@ export default function RelazioneESG() {
 
         {/* Tabs */}
         {selected && metrics && (
-          <RelazioneTabSelector report={selected} metrics={metrics} />
+          <RelazioneTabSelector report={selected} metrics={metrics} allReports={scored} />
         )}
 
         {/* Empty state */}
