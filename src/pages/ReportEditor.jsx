@@ -224,37 +224,37 @@ export default function ReportEditor() {
               />
               <LiveEsgBadge esg={report.esg_score ? { ...report.esg_score } : null} compact />
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowExcelImport(true)}
-                className="gap-1 hidden md:flex border-green-300 text-green-700 hover:bg-green-50"
+                className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
               >
                 <FileSpreadsheet className="w-3 h-3" />
                 Importa Excel
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowAnomalies(true)}
-                className="gap-1 hidden md:flex border-amber-300 text-amber-700 hover:bg-amber-50"
+                className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
               >
                 <FlaskConical className="w-3 h-3" />
                 Anomalie
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowHistory(true)}
-                className="gap-1 hidden md:flex"
+                className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
               >
                 <History className="w-3 h-3" />
                 Storico
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={() => setShowChecklist(true)}
-                className="gap-1 hidden md:flex"
+                className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
               >
                 <ListChecks className="w-3 h-3" />
                 Completa report
@@ -263,7 +263,7 @@ export default function ReportEditor() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowWizard(true)}
-                className="gap-1 hidden md:flex border-primary text-primary hover:bg-primary/5"
+                className="gap-1 hidden md:flex"
               >
                 <ClipboardList className="w-3 h-3" />
                 Guida
