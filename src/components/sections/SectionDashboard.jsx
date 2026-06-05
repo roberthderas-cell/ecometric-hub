@@ -14,6 +14,7 @@ import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/
 import SimulatorPanel from '@/components/report/SimulatorPanel';
 import { TemplateManagerModal } from '@/components/report/TemplateManager';
 import SectorBenchmark from '@/components/report/SectorBenchmark';
+import EsgPriorityOverview from '@/components/report/EsgPriorityOverview';
 import { AnimatePresence } from 'framer-motion';
 
 export default function SectionDashboard({ data, reportId, report, onNavigate }) {
@@ -92,6 +93,9 @@ export default function SectionDashboard({ data, reportId, report, onNavigate })
         onClose={() => setTmplOpen(false)}
         currentData={data}
       />
+
+      {/* Priority Overview — aree da migliorare */}
+      <EsgPriorityOverview esg={esg} onNavigate={onNavigate} />
 
       {/* Benchmark di Settore */}
       <SectorBenchmark esg={esg} ateco={data?.ana?.ateco} />
