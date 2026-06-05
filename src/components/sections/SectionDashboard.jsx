@@ -7,7 +7,7 @@ import KPICard from '@/components/report/KPICard';
 import EsgTrendChart from '@/components/report/EsgTrendChart';
 import AiCoach from '@/components/report/AiCoach';
 import { calcEnergy, calcWaste, calcWater, calcPersonnel, calcESGScore } from '@/lib/vsmeDefaults';
-import { FileDown, Loader2, FlaskConical, LayoutTemplate, Building2 } from 'lucide-react';
+import { FileDown, Loader2, FlaskConical, LayoutTemplate, Building2, ClipboardList } from 'lucide-react';
 import { exportReportPDF } from '@/lib/exportPdf';
 import { Link } from 'react-router-dom';
 import { RadarEsg, GhgBarChart, WasteDonut, GenderDonut, EnergyMixBar } from '@/components/report/EsgCharts';
@@ -15,12 +15,14 @@ import SimulatorPanel from '@/components/report/SimulatorPanel';
 import { TemplateManagerModal } from '@/components/report/TemplateManager';
 import SectorBenchmark from '@/components/report/SectorBenchmark';
 import EsgPriorityOverview from '@/components/report/EsgPriorityOverview';
+import EsgWizard from '@/components/report/EsgWizard';
 import { AnimatePresence } from 'framer-motion';
 
-export default function SectionDashboard({ data, reportId, report, onNavigate }) {
+export default function SectionDashboard({ data, reportId, report, onNavigate, onUpdate, onBulkUpdate }) {
   const [exporting, setExporting] = useState(false);
   const [simOpen, setSimOpen] = useState(false);
   const [tmplOpen, setTmplOpen] = useState(false);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const g   = calcEnergy(data);
   const w   = calcWaste(data);
   const wa  = calcWater(data);
@@ -53,6 +55,13 @@ export default function SectionDashboard({ data, reportId, report, onNavigate })
       <div className="flex items-start justify-between mb-6 gap-4">
         <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
         <div className="flex gap-2 shrink-0 mt-1">
+          <Button
+            onClick={() => setWizardOpen(true)}
+            variant="outline"
+            className="gap-2 shadow border-primary text-primary hover:bg-primary/5"
+          >
+            <ClipboardList className="w-4 h-4" /> Compilazione Guidata
+          </Button>
           <Button
             onClick={() => setTmplOpen(true)}
             variant="outline"
@@ -93,6 +102,14 @@ export default function SectionDashboard({ data, reportId, report, onNavigate })
         onClose={() => setTmplOpen(false)}
         currentData={data}
       />
+
+      {wizardOpen && (
+        <EsgWizard
+          data={data}
+          onUpdate={onUpdate}
+          onClose={() => setWizardOpen(false)}
+        />
+      )}
 
       {/* Priority Overview — aree da migliorare */}
       <EsgPriorityOverview esg={esg} onNavigate={onNavigate} />
