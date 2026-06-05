@@ -4,11 +4,12 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical } from 'lucide-react';
 import TargetSetter from '@/components/report/TargetSetter';
 import EsgWizard from '@/components/report/EsgWizard';
 import CompletionChecklist from '@/components/report/CompletionChecklist';
 import HistoryPanel from '@/components/report/HistoryPanel';
+import AnomalyDetector from '@/components/report/AnomalyDetector';
 import KpiAlertsPanel from '@/components/report/KpiAlertsPanel';
 import { getAllAlerts } from '@/lib/kpiAlerts';
 import ReportSidebar from '@/components/report/ReportSidebar';
@@ -78,6 +79,7 @@ export default function ReportEditor() {
   const [showWizard, setShowWizard] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showAnomalies, setShowAnomalies] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   useOnboardingGuard(user);
@@ -222,6 +224,15 @@ export default function ReportEditor() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setShowAnomalies(true)}
+                className="gap-1 hidden md:flex border-amber-300 text-amber-700 hover:bg-amber-50"
+              >
+                <FlaskConical className="w-3 h-3" />
+                Anomalie
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowHistory(true)}
                 className="gap-1 hidden md:flex"
               >
@@ -280,6 +291,15 @@ export default function ReportEditor() {
           )}
         </main>
       </div>
+
+      {showAnomalies && (
+        <AnomalyDetector
+          reportId={reportId}
+          currentData={reportData}
+          onClose={() => setShowAnomalies(false)}
+          onNavigate={handleNavigate}
+        />
+      )}
 
       {showHistory && (
         <HistoryPanel
