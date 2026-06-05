@@ -6,6 +6,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Home, ChevronRight, Target as TargetIcon } from 'lucide-react';
 import TargetSetter from '@/components/report/TargetSetter';
+import KpiAlertsPanel from '@/components/report/KpiAlertsPanel';
+import { getAllAlerts } from '@/lib/kpiAlerts';
 import ReportSidebar from '@/components/report/ReportSidebar';
 import LiveEsgBadge from '@/components/report/LiveEsgBadge';
 import SectionProgress from '@/components/report/SectionProgress';
@@ -205,6 +207,10 @@ export default function ReportEditor() {
               <span className={`text-xs font-medium transition-all ${isSaving ? 'text-amber-500' : 'text-green-600'}`}>
                 {isSaving ? '⏳ Salvataggio...' : '✅ Salvato'}
               </span>
+              <KpiAlertsPanel
+                alerts={getAllAlerts(reportData, report.esg_score)}
+                onNavigate={handleNavigate}
+              />
               <LiveEsgBadge esg={report.esg_score ? { ...report.esg_score } : null} compact />
               <Button
                 variant="outline"
