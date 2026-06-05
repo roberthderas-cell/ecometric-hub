@@ -4,8 +4,9 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical, FileSpreadsheet } from 'lucide-react';
 import TargetSetter from '@/components/report/TargetSetter';
+import ExcelImportModal from '@/components/report/ExcelImportModal';
 import EsgWizard from '@/components/report/EsgWizard';
 import CompletionChecklist from '@/components/report/CompletionChecklist';
 import HistoryPanel from '@/components/report/HistoryPanel';
@@ -80,6 +81,7 @@ export default function ReportEditor() {
   const [showChecklist, setShowChecklist] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showAnomalies, setShowAnomalies] = useState(false);
+  const [showExcelImport, setShowExcelImport] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   useOnboardingGuard(user);
@@ -224,6 +226,15 @@ export default function ReportEditor() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setShowExcelImport(true)}
+                className="gap-1 hidden md:flex border-green-300 text-green-700 hover:bg-green-50"
+              >
+                <FileSpreadsheet className="w-3 h-3" />
+                Importa Excel
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowAnomalies(true)}
                 className="gap-1 hidden md:flex border-amber-300 text-amber-700 hover:bg-amber-50"
               >
@@ -291,6 +302,21 @@ export default function ReportEditor() {
           )}
         </main>
       </div>
+
+      {showExcelImport && (
+        <ExcelImportModal
+          currentData={reportData}
+          onImport={(mergedData) => {
+            localDataRef.current = mergedData;
+            setLocalData(mergedData);
+            const esg_score = calcESGScore(mergedData);
+            const completion = calcCompletion(mergedData);
+            updateMutation.mutate({ data: mergedData, completion, esg_score });
+            toast.success('Dati Excel importati con successo!');
+          }}
+          onClose={() => setShowExcelImport(false)}
+        />
+      )}
 
       {showAnomalies && (
         <AnomalyDetector
