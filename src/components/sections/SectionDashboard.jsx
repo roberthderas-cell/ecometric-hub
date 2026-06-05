@@ -52,45 +52,43 @@ export default function SectionDashboard({ data, reportId, report, onNavigate, o
 
   return (
     <div>
-      <div className="flex items-start justify-between mb-6 gap-4">
-        <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
-        <div className="flex gap-2 shrink-0 mt-1">
-          <Button
-            onClick={() => setWizardOpen(true)}
-            variant="outline"
-            className="gap-2 shadow border-primary text-primary hover:bg-primary/5"
-          >
-            <ClipboardList className="w-4 h-4" /> Compilazione Guidata
+      <SectionHeader icon="📊" title="Dashboard KPI ESG" description="Panoramica completa delle performance Environmental, Social e Governance." reference="VSME Standard · 45 indicatori" />
+      <div className="flex flex-wrap gap-2 mb-6">
+        <Button
+          onClick={() => setWizardOpen(true)}
+          variant="outline"
+          className="gap-2 shadow border-primary text-primary hover:bg-primary/5"
+        >
+          <ClipboardList className="w-4 h-4" /> Compilazione Guidata
+        </Button>
+        <Button
+          onClick={() => setTmplOpen(true)}
+          variant="outline"
+          className="gap-2 shadow"
+        >
+          <LayoutTemplate className="w-4 h-4" /> Modelli
+        </Button>
+        <Button
+          onClick={() => setSimOpen(o => !o)}
+          variant={simOpen ? 'default' : 'outline'}
+          className={`gap-2 shadow ${simOpen ? 'bg-primary text-white' : ''}`}
+        >
+          <FlaskConical className="w-4 h-4" /> Simulatore
+        </Button>
+        <Button
+          onClick={handleExport}
+          disabled={exporting}
+          className="bg-forest-800 hover:bg-forest-700 text-white gap-2 shadow-lg"
+        >
+          {exporting
+            ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
+            : <><FileDown className="w-4 h-4" /> Esporta PDF</>}
+        </Button>
+        <Link to={`/relazione-banca?report=${reportId}`}>
+          <Button className="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white gap-2 shadow-lg font-bold">
+            <Building2 className="w-4 h-4" /> Relazione Banca PDF
           </Button>
-          <Button
-            onClick={() => setTmplOpen(true)}
-            variant="outline"
-            className="gap-2 shadow"
-          >
-            <LayoutTemplate className="w-4 h-4" /> Modelli
-          </Button>
-          <Button
-            onClick={() => setSimOpen(o => !o)}
-            variant={simOpen ? 'default' : 'outline'}
-            className={`gap-2 shadow ${simOpen ? 'bg-primary text-white' : ''}`}
-          >
-            <FlaskConical className="w-4 h-4" /> Simulatore
-          </Button>
-          <Button
-            onClick={handleExport}
-            disabled={exporting}
-            className="bg-forest-800 hover:bg-forest-700 text-white gap-2 shadow-lg"
-          >
-            {exporting
-              ? <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
-              : <><FileDown className="w-4 h-4" /> Esporta PDF</>}
-          </Button>
-          <Link to={`/relazione-banca?report=${reportId}`}>
-            <Button className="bg-gradient-to-r from-green-600 to-emerald-500 hover:from-green-700 hover:to-emerald-600 text-white gap-2 shadow-lg font-bold">
-              <Building2 className="w-4 h-4" /> Relazione Banca PDF
-            </Button>
-          </Link>
-        </div>
+        </Link>
       </div>
 
       <AnimatePresence>
