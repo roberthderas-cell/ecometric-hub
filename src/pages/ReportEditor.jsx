@@ -4,9 +4,10 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight, Target as TargetIcon, ClipboardList } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks } from 'lucide-react';
 import TargetSetter from '@/components/report/TargetSetter';
 import EsgWizard from '@/components/report/EsgWizard';
+import CompletionChecklist from '@/components/report/CompletionChecklist';
 import KpiAlertsPanel from '@/components/report/KpiAlertsPanel';
 import { getAllAlerts } from '@/lib/kpiAlerts';
 import ReportSidebar from '@/components/report/ReportSidebar';
@@ -74,6 +75,7 @@ export default function ReportEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [showTargetSetter, setShowTargetSetter] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [showChecklist, setShowChecklist] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   useOnboardingGuard(user);
@@ -217,6 +219,15 @@ export default function ReportEditor() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setShowChecklist(true)}
+                className="gap-1 hidden md:flex"
+              >
+                <ListChecks className="w-3 h-3" />
+                Completa report
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowWizard(true)}
                 className="gap-1 hidden md:flex border-primary text-primary hover:bg-primary/5"
               >
@@ -257,6 +268,14 @@ export default function ReportEditor() {
           )}
         </main>
       </div>
+
+      {showChecklist && (
+        <CompletionChecklist
+          data={reportData}
+          onNavigate={handleNavigate}
+          onClose={() => setShowChecklist(false)}
+        />
+      )}
 
       {showWizard && (
         <EsgWizard
