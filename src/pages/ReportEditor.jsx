@@ -4,10 +4,11 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History } from 'lucide-react';
 import TargetSetter from '@/components/report/TargetSetter';
 import EsgWizard from '@/components/report/EsgWizard';
 import CompletionChecklist from '@/components/report/CompletionChecklist';
+import HistoryPanel from '@/components/report/HistoryPanel';
 import KpiAlertsPanel from '@/components/report/KpiAlertsPanel';
 import { getAllAlerts } from '@/lib/kpiAlerts';
 import ReportSidebar from '@/components/report/ReportSidebar';
@@ -76,6 +77,7 @@ export default function ReportEditor() {
   const [showTargetSetter, setShowTargetSetter] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [showChecklist, setShowChecklist] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   useOnboardingGuard(user);
@@ -145,6 +147,7 @@ export default function ReportEditor() {
           esg_g: esg_score.G,
           rating: esg_score.rating,
           completion,
+          data_snapshot: JSON.parse(JSON.stringify(newData)),
         });
       }
     }, 1200);
@@ -219,6 +222,15 @@ export default function ReportEditor() {
               <Button
                 variant="outline"
                 size="sm"
+                onClick={() => setShowHistory(true)}
+                className="gap-1 hidden md:flex"
+              >
+                <History className="w-3 h-3" />
+                Storico
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setShowChecklist(true)}
                 className="gap-1 hidden md:flex"
               >
@@ -268,6 +280,14 @@ export default function ReportEditor() {
           )}
         </main>
       </div>
+
+      {showHistory && (
+        <HistoryPanel
+          reportId={reportId}
+          currentData={reportData}
+          onClose={() => setShowHistory(false)}
+        />
+      )}
 
       {showChecklist && (
         <CompletionChecklist

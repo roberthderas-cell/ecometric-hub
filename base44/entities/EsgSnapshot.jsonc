@@ -29,6 +29,14 @@
     "completion": {
       "type": "number",
       "description": "Percentuale completamento report al momento dello snapshot"
+    },
+    "data_snapshot": {
+      "type": "object",
+      "description": "Copia completa dei dati del report al momento dello snapshot (per confronto versioni)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Etichetta opzionale assegnata manualmente all'utente (es. 'Prima bozza', 'Post audit')"
     }
   },
   "required": [
