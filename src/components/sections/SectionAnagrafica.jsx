@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, SelectField, ComputedValue } from '@/components/report/FormField';
+import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronRight, Plus, Trash2 } from 'lucide-react';
@@ -153,6 +154,10 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
           {cat === 'Micro' ? '✅ Micro-impresa: il Modulo Base è sufficiente.' : cat === 'Piccola' ? '📋 Piccola impresa: il Modulo Base copre la maggior parte delle esigenze.' : '📋 Media impresa: considera il Modulo Comprehensive.'}
         </div>
       </Card>
+
+      <div className="mb-5">
+        <NotesField value={data?.ana?.noteAna} onChange={(v) => u('noteAna', v)} section="ana" rows={3} />
+      </div>
 
       <div className="flex justify-end pt-4">
         <Button onClick={() => onNavigate('en')} className="bg-primary gap-2">Avanti <ChevronRight className="w-4 h-4" /></Button>

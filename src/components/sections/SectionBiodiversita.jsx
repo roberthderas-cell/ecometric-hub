@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, SelectField, TextArea } from '@/components/report/FormField';
+import { TextInput, SelectField } from '@/components/report/FormField';
+import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -118,10 +119,9 @@ export default function SectionBiodiversita({ data, onUpdate, onNavigate, report
         </div>
       </Card>
 
-      <Card className="p-6 mb-5">
-        <TextArea label="Nota narrativa B5" value={biod.noteBiod} onChange={(v) => u('noteBiod', v)} rows={4}
-          hint="Es.: 'Nessun sito è ubicato in prossimità di aree Natura 2000 o IBA (verifica effettuata su mappa EEA, buffer 5 km).'" />
-      </Card>
+      <div className="mb-5">
+        <NotesField value={biod.noteBiod} onChange={(v) => u('noteBiod', v)} section="biod" />
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('inq')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>

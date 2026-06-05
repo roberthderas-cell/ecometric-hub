@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, TextArea, ComputedValue } from '@/components/report/FormField';
+import { TextInput, ComputedValue } from '@/components/report/FormField';
+import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -71,7 +72,9 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
         </Card>
       )}
 
-      <Card className="p-6 mb-5"><TextArea label="Note B8-B10" value={pe.notePe} onChange={(v) => u('notePe', v)} rows={3} /></Card>
+      <div className="mb-5">
+        <NotesField value={pe.notePe} onChange={(v) => u('notePe', v)} section="pe" />
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('biod')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>

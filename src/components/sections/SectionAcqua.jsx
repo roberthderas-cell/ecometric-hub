@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, TextArea } from '@/components/report/FormField';
+import { TextInput } from '@/components/report/FormField';
+import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -50,9 +51,9 @@ export default function SectionAcqua({ data, onUpdate, onNavigate }) {
         <KPICard label="Consumo/dip." value={wa.consumoDip.toFixed(1)} unit="m³/dip." />
       </div>
 
-      <Card className="p-6 mb-5">
-        <TextArea label="Nota narrativa B6" value={ac.noteAc} onChange={(v) => u('noteAc', v)} rows={3} hint="Fonti, misure di efficienza, target di riduzione" />
-      </Card>
+      <div className="mb-5">
+        <NotesField value={ac.noteAc} onChange={(v) => u('noteAc', v)} section="ac" />
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('en')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>

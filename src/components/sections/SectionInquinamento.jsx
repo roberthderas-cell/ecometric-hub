@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, SelectField, TextArea } from '@/components/report/FormField';
+import { TextInput, SelectField } from '@/components/report/FormField';
+import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from 'lucide-react';
@@ -119,10 +120,9 @@ export default function SectionInquinamento({ data, onUpdate, onNavigate }) {
         </div>
       </Card>
 
-      <Card className="p-6 mb-5">
-        <TextArea label="Nota narrativa B4" value={inq.noteInq} onChange={(v) => u('noteInq', v)} rows={4}
-          hint="Se non applicabile: 'L'impresa non è soggetta ad AIA/AUA e non adotta EMS con monitoraggio emissioni.'" />
-      </Card>
+      <div className="mb-5">
+        <NotesField value={inq.noteInq} onChange={(v) => u('noteInq', v)} section="inq" />
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('ri')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>

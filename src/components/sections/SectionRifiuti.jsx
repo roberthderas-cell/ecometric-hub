@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, TextArea } from '@/components/report/FormField';
+import { TextInput } from '@/components/report/FormField';
+import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -72,9 +73,9 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
         <EsgAlerts data={data} sections={['rifiuti']} />
       </div>
 
-      <Card className="p-6 mb-5">
-        <TextArea label="Note e commenti B7" value={ri.noteRi} onChange={(v) => u('noteRi', v)} rows={3} />
-      </Card>
+      <div className="mb-5">
+        <NotesField value={ri.noteRi} onChange={(v) => u('noteRi', v)} section="ri" />
+      </div>
 
       <div className="flex justify-between pt-4">
         <Button variant="outline" onClick={() => onNavigate('ac')} className="gap-2"><ChevronLeft className="w-4 h-4" /> Precedente</Button>
