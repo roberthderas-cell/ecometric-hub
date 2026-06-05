@@ -1,6 +1,7 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
+import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -49,6 +50,10 @@ export default function SectionAcqua({ data, onUpdate, onNavigate }) {
         <KPICard label="Stress Idrico" value={wa.high.toFixed(0)} unit="m³" color={wa.high > 0 ? 'amber' : 'default'} />
         <KPICard label="Consumo Netto" value={wa.consumo.toFixed(0)} unit="m³" color="green" />
         <KPICard label="Consumo/dip." value={wa.consumoDip.toFixed(1)} unit="m³/dip." />
+      </div>
+
+      <div className="mb-5">
+        <CongruenceAlerts data={data} section="ac" />
       </div>
 
       <div className="mb-5">

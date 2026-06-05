@@ -1,6 +1,7 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, SelectField } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
+import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -45,6 +46,10 @@ export default function SectionGovernance({ data, onUpdate, onNavigate }) {
           <TextInput label="Tempi medi pagamento (gg)" type="number" value={gov.tempiPag} onChange={(v) => u('tempiPag', v)} />
         </div>
       </Card>
+
+      <div className="mb-5">
+        <CongruenceAlerts data={data} section="gov" />
+      </div>
 
       <div className="mb-5">
         <NotesField value={gov.noteGov} onChange={(v) => u('noteGov', v)} section="gov" />

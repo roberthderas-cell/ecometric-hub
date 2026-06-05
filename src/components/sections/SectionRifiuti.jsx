@@ -1,6 +1,7 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
+import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -71,6 +72,10 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
       {/* ESG Validation Alerts */}
       <div className="mb-5">
         <EsgAlerts data={data} sections={['rifiuti']} />
+      </div>
+
+      <div className="mb-5">
+        <CongruenceAlerts data={data} section="ri" />
       </div>
 
       <div className="mb-5">

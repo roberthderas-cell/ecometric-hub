@@ -1,6 +1,7 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, ComputedValue } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
+import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -71,6 +72,10 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
           </ResponsiveContainer>
         </Card>
       )}
+
+      <div className="mb-5">
+        <CongruenceAlerts data={data} section="pe" />
+      </div>
 
       <div className="mb-5">
         <NotesField value={pe.notePe} onChange={(v) => u('notePe', v)} section="pe" />

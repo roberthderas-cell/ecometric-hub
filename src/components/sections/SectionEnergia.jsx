@@ -1,6 +1,7 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, SelectField, ComputedValue } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
+import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -114,6 +115,10 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
       {/* ESG Validation Alerts */}
       <div className="mb-5">
         <EsgAlerts data={data} sections={['energia']} />
+      </div>
+
+      <div className="mb-5">
+        <CongruenceAlerts data={data} section="en" />
       </div>
 
       <div className="mb-5">
