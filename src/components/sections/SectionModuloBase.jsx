@@ -18,7 +18,7 @@ function Td({ children, bold }) {
 function AutoBadge() {
   return <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">auto</span>;
 }
-function SectionHeader({ id, title, ref: refText, badge }) {
+function SectionHeader({ id, title, reference, badge }) {
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
@@ -26,7 +26,7 @@ function SectionHeader({ id, title, ref: refText, badge }) {
           <span className="text-xs font-extrabold px-2 py-1 rounded bg-primary/10 text-primary">{id}</span>
           {title}
         </h2>
-        {refText && <p className="text-xs text-muted-foreground mt-1">{refText}</p>}
+        {reference && <p className="text-xs text-muted-foreground mt-1">{reference}</p>}
       </div>
       {badge}
     </div>
@@ -60,7 +60,7 @@ export function SectionB3({ data }) {
   return (
     <div>
       <SectionHeader id="B3" title="Energia e Emissioni GHG"
-        ref="VSME B3 | GHG Protocol 2004 | Fattori ISPRA location-based"
+        reference="VSME B3 | GHG Protocol 2004 | Fattori ISPRA location-based"
         badge={<AutoBadge />} />
       <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-lg p-3 mb-4 text-xs text-green-700 dark:text-green-400">
         ✅ Valori calcolati automaticamente dalla sezione «Energia & Combustibili».
@@ -104,7 +104,7 @@ export function SectionB4({ data }) {
   const inquinanti = data?.b4asp?.inquinanti || [];
   return (
     <div>
-      <SectionHeader id="B4" title="Inquinamento" ref="VSME B4 | D.Lgs. 152/2006 | AIA/AUA" badge={<AutoBadge />} />
+      <SectionHeader id="B4" title="Inquinamento" reference="VSME B4 | D.Lgs. 152/2006 | AIA/AUA" badge={<AutoBadge />} />
       <Card>
         <Table>
           <thead><tr><Th>Parametro</Th><Th>Valore</Th></tr></thead>
@@ -139,7 +139,7 @@ export function SectionB5({ data }) {
   const nat = parseFloat(biod.natM2) || 0;
   return (
     <div>
-      <SectionHeader id="B5" title="Biodiversità" ref="VSME B5 | Natura 2000 | WDPA | D.Lgs. 152/2006" badge={<AutoBadge />} />
+      <SectionHeader id="B5" title="Biodiversità" reference="VSME B5 | Natura 2000 | WDPA | D.Lgs. 152/2006" badge={<AutoBadge />} />
       <Card>
         {siti.length > 0 && (
           <Table>
@@ -179,7 +179,7 @@ export function SectionB6({ data }) {
   const fonti = data?.acfonti?.fonti || [];
   return (
     <div>
-      <SectionHeader id="B6" title="Acqua" ref="VSME B6 | Prelievo, stress idrico, consumo" badge={<AutoBadge />} />
+      <SectionHeader id="B6" title="Acqua" reference="VSME B6 | Prelievo, stress idrico, consumo" badge={<AutoBadge />} />
       <Card>
         <Table>
           <thead><tr><Th>Indicatore</Th><Th>Anno N</Th></tr></thead>
@@ -214,7 +214,7 @@ export function SectionB7({ data }) {
   const righe = (() => { try { return JSON.parse(data?.ri?.righe || '[]'); } catch { return []; } })();
   return (
     <div>
-      <SectionHeader id="B7" title="Rifiuti e Economia Circolare" ref="VSME B7 | ESRS E5 | D.Lgs. 152/2006 | RENTRI" badge={<AutoBadge />} />
+      <SectionHeader id="B7" title="Rifiuti e Economia Circolare" reference="VSME B7 | ESRS E5 | D.Lgs. 152/2006 | RENTRI" badge={<AutoBadge />} />
       <Card>
         <Table>
           <thead><tr><Th>Categoria</Th><Th>Anno N (t)</Th></tr></thead>
@@ -253,7 +253,7 @@ export function SectionB8({ data }) {
   const donne = parseFloat(pe.donne) || 0;
   return (
     <div>
-      <SectionHeader id="B8" title="Caratteristiche Forza Lavoro" ref="VSME B8 | ESRS S1 reference" badge={<AutoBadge />} />
+      <SectionHeader id="B8" title="Caratteristiche Forza Lavoro" reference="VSME B8 | ESRS S1 reference" badge={<AutoBadge />} />
       <Card>
         <Table>
           <thead><tr><Th>Indicatore</Th><Th>Anno N</Th></tr></thead>
@@ -283,7 +283,7 @@ export function SectionB9({ data }) {
   const calc = calcPersonnel(data);
   return (
     <div>
-      <SectionHeader id="B9" title="Salute e Sicurezza" ref="VSME B9 | D.Lgs. 81/2008 | ESRS S1-14" badge={<AutoBadge />} />
+      <SectionHeader id="B9" title="Salute e Sicurezza" reference="VSME B9 | D.Lgs. 81/2008 | ESRS S1-14" badge={<AutoBadge />} />
       <Card>
         <Table>
           <thead><tr><Th>Indicatore</Th><Th>Anno N</Th><Th>Note</Th></tr></thead>
@@ -309,7 +309,7 @@ export function SectionB10({ data }) {
   const calc = calcPersonnel(data);
   return (
     <div>
-      <SectionHeader id="B10" title="Retribuzione, CCNL e Formazione" ref="VSME B10 | ESRS S1-15/16" badge={<AutoBadge />} />
+      <SectionHeader id="B10" title="Retribuzione, CCNL e Formazione" reference="VSME B10 | ESRS S1-15/16" badge={<AutoBadge />} />
       <Card>
         <Table>
           <thead><tr><Th>Indicatore</Th><Th>Anno N</Th></tr></thead>
@@ -340,7 +340,7 @@ export function SectionB11({ data, onUpdate }) {
 
   return (
     <div>
-      <SectionHeader id="B11" title="Corruzione e Sanzioni" ref="VSME B11 | D.Lgs. 231/2001 | ESRS G1" />
+      <SectionHeader id="B11" title="Corruzione e Sanzioni" reference="VSME B11 | D.Lgs. 231/2001 | ESRS G1" />
       <Card>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
