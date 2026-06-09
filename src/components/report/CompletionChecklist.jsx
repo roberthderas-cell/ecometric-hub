@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle2, Circle, AlertCircle, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { X, CheckCircle2, Circle, AlertCircle, ChevronRight, MinusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 /**
@@ -134,6 +134,52 @@ function getFieldStatus(data, section) {
   }));
 }
 
+const COMP_SECTIONS = [
+  { id: 'c1', label: 'C1 — Strategia', icon: '🎯' },
+  { id: 'c2', label: 'C2 — Pratiche (det.)', icon: '📝' },
+  { id: 'c3', label: 'C3 — Target GHG', icon: '🌍' },
+  { id: 'c4', label: 'C4 — Rischi Climatici', icon: '🌊' },
+  { id: 'c5', label: 'C5 — Workforce+', icon: '📊' },
+  { id: 'c6', label: 'C6 — Diritti Umani', icon: '🤝' },
+  { id: 'c7', label: 'C7 — Incidenti DU', icon: '⚠️' },
+  { id: 'c8', label: 'C8 — Ricavi Settori', icon: '💼' },
+  { id: 'c9', label: 'C9 — Diversità CDA', icon: '🏛️' },
+];
+
+function CompSectionRow({ section, sectionStatus, onNavigate, onClose }) {
+  const status = sectionStatus?.[section.id];
+  const isComplete = status === 'completato';
+  const isNA = status === 'non_applica';
+  const isDone = isComplete || isNA;
+
+  return (
+    <div className={`rounded-xl border p-4 ${isDone ? 'border-green-200 bg-green-50/50' : 'border-border bg-card'}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="text-base">{section.icon}</span>
+          <span className="font-heading font-bold text-sm">{section.label}</span>
+          {isComplete && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full flex items-center gap-1"><CheckCircle2 className="w-2.5 h-2.5" /> Completato</span>}
+          {isNA && <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full flex items-center gap-1"><MinusCircle className="w-2.5 h-2.5" /> Non applica</span>}
+          {!isDone && <span className="text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Da definire</span>}
+        </div>
+        {!isDone && (
+          <button
+            onClick={() => { onNavigate(section.id); onClose(); }}
+            className="flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+          >
+            Vai alla sezione <ChevronRight className="w-3 h-3" />
+          </button>
+        )}
+      </div>
+      {!isDone && (
+        <p className="text-[11px] text-muted-foreground mt-2">
+          Imposta lo stato nella sidebar: <strong>Completato</strong> oppure <strong>Non applica</strong>.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function SectionRow({ section, data, onNavigate, onClose }) {
   const statuses = getFieldStatus(data, section);
   const total = statuses.length;
@@ -193,17 +239,27 @@ function SectionRow({ section, data, onNavigate, onClose }) {
 }
 
 export default function CompletionChecklist({ data, onNavigate, onClose }) {
-  // Calcola totale globale
+  const isComprehensive = data?.ana?.modulo === 'comprehensive';
+  const sectionStatus = data?.sectionStatus || {};
+
+  // Calcola totale globale (sezioni base)
   const allStatuses = SECTION_CHECKS.flatMap(sec => getFieldStatus(data, sec));
   const totalFields = allStatuses.length;
   const doneFields = allStatuses.filter(s => s.ok).length;
-  const globalPct = totalFields > 0 ? Math.round((doneFields / totalFields) * 100) : 0;
-  const missing = totalFields - doneFields;
+
+  // Aggiunge sezioni C1-C9 se modulo comprehensive
+  const compTotal = isComprehensive ? COMP_SECTIONS.length : 0;
+  const compDone = isComprehensive ? COMP_SECTIONS.filter(s => sectionStatus[s.id] === 'completato' || sectionStatus[s.id] === 'non_applica').length : 0;
+
+  const grandTotal = totalFields + compTotal;
+  const grandDone = doneFields + compDone;
+  const globalPct = grandTotal > 0 ? Math.round((grandDone / grandTotal) * 100) : 0;
+  const missing = grandTotal - grandDone;
 
   const sectionsComplete = SECTION_CHECKS.filter(sec => {
     const statuses = getFieldStatus(data, sec);
     return statuses.every(s => s.ok);
-  }).length;
+  }).length + compDone;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
@@ -243,8 +299,8 @@ export default function CompletionChecklist({ data, onNavigate, onClose }) {
             />
           </div>
           <div className="flex justify-between mt-2">
-            <span className="text-[11px] text-muted-foreground">{sectionsComplete}/{SECTION_CHECKS.length} sezioni complete</span>
-            <span className="text-[11px] text-muted-foreground">{doneFields}/{totalFields} campi compilati</span>
+            <span className="text-[11px] text-muted-foreground">{sectionsComplete}/{SECTION_CHECKS.length + compTotal} sezioni complete</span>
+            <span className="text-[11px] text-muted-foreground">{grandDone}/{grandTotal} campi compilati</span>
           </div>
         </div>
 
@@ -269,6 +325,26 @@ export default function CompletionChecklist({ data, onNavigate, onClose }) {
               onClose={onClose}
             />
           ))}
+
+          {isComprehensive && (
+            <>
+              <div className="pt-2 pb-1">
+                <p className="text-[10px] font-extrabold tracking-widest uppercase text-muted-foreground/50">Modulo Completo (C1–C9)</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">
+                  Ogni sezione deve essere marcata come <strong>Completato</strong> o <strong>Non applica</strong> nella sidebar.
+                </p>
+              </div>
+              {COMP_SECTIONS.map(sec => (
+                <CompSectionRow
+                  key={sec.id}
+                  section={sec}
+                  sectionStatus={sectionStatus}
+                  onNavigate={onNavigate}
+                  onClose={onClose}
+                />
+              ))}
+            </>
+          )}
         </div>
 
         {/* Footer */}
