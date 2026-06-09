@@ -66,6 +66,7 @@ export const SECTIONS = [
   { id: 'c7', label: 'C7 — Incidenti DU', icon: '⚠️', group: 'MODULO COMPLETO', comp: true },
   { id: 'c8', label: 'C8 — Ricavi Settori', icon: '💼', group: 'MODULO COMPLETO', comp: true },
   { id: 'c9', label: 'C9 — Diversità CDA', icon: '🏛️', group: 'MODULO COMPLETO', comp: true },
+  { id: 'obiettivi', label: '🎯 Obiettivi ESG', icon: '🎯', group: 'OUTPUT' },
   { id: 'dash', label: 'Dashboard KPI', icon: '📊', group: 'OUTPUT' },
   { id: 'consigli', label: '💡 Consigli ESG', icon: '💡', group: 'OUTPUT', calc: true },
 ];

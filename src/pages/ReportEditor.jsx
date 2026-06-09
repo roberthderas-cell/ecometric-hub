@@ -29,6 +29,7 @@ import SectionB2 from '@/components/sections/SectionB2';
 import { SectionB3, SectionB4, SectionB5, SectionB6, SectionB7, SectionB8, SectionB9, SectionB10, SectionB11 } from '@/components/sections/SectionModuloBase';
 import { SectionC1, SectionC2, SectionC3, SectionC4, SectionC5, SectionC6, SectionC7, SectionC8, SectionC9 } from '@/components/sections/SectionModuloCompleto';
 import SectionDashboard from '@/components/sections/SectionDashboard';
+import SectionObiettivi from '@/components/sections/SectionObiettivi';
 import EsgRecommendationsPanel from '@/components/report/EsgRecommendationsPanel';
 import { getSectionCompletion, SECTIONS, DEFAULT_DATA, calcESGScore } from '@/lib/vsmeDefaults';
 import EsgMilestone from '@/components/report/EsgMilestone';
@@ -66,6 +67,7 @@ const SECTION_COMPONENTS = {
   c7: SectionC7,
   c8: SectionC8,
   c9: SectionC9,
+  obiettivi: SectionObiettivi,
   dash: SectionDashboard,
   consigli: EsgRecommendationsPanel,
 };
