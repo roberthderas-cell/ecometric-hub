@@ -49,9 +49,11 @@ export function SelectField({ label, hint, value, onChange, options }) {
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          {options.map(([val, txt]) => (
-            <SelectItem key={val} value={val}>{txt}</SelectItem>
-          ))}
+          {(options || []).map((opt) => {
+            const val = Array.isArray(opt) ? opt[0] : opt.value;
+            const txt = Array.isArray(opt) ? opt[1] : opt.label;
+            return <SelectItem key={val} value={val}>{txt}</SelectItem>;
+          })}
         </SelectContent>
       </Select>
     </FieldGroup>
