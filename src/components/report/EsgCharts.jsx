@@ -19,6 +19,7 @@ const cardVariants = {
 /* ─── Custom Tooltip ────────────────────────────── */
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (!active || !payload?.length) return null;
+  const isPercent = unit === '%';
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.92, y: -4 }}
@@ -28,8 +29,14 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
       {label && <p className="font-bold text-slate-700 mb-1">{label}</p>}
       {payload.map((p, i) => (
         <p key={i} className="font-semibold" style={{ color: p.color || p.fill }}>
-          {p.name}: <span className="font-extrabold">{typeof p.value === 'number' ? p.value.toLocaleString('it-IT', { maximumFractionDigits: 2 }) : p.value}</span>
-          {unit && <span className="font-normal text-slate-500 ml-1">{unit}</span>}
+          {p.name}: <span className="font-extrabold">
+            {typeof p.value === 'number'
+              ? isPercent
+                ? p.value.toFixed(2) + '%'
+                : p.value.toLocaleString('it-IT', { maximumFractionDigits: 2 })
+              : p.value}
+          </span>
+          {unit && !isPercent && <span className="font-normal text-slate-500 ml-1">{unit}</span>}
         </p>
       ))}
     </motion.div>
@@ -208,7 +215,7 @@ const renderActiveShape = (props) => {
     <g>
       <text x={cx} y={cy - 12} textAnchor="middle" fill="#1e293b" fontSize={15} fontWeight={800}>{value.toFixed(2)}</text>
       <text x={cx} y={cy + 8} textAnchor="middle" fill="#64748b" fontSize={11}>t</text>
-      <text x={cx} y={cy + 26} textAnchor="middle" fill="#64748b" fontSize={10}>{(percent * 100).toFixed(1)}%</text>
+      <text x={cx} y={cy + 26} textAnchor="middle" fill="#64748b" fontSize={10}>{(percent * 100).toFixed(2)}%</text>
       <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius + 10} startAngle={startAngle} endAngle={endAngle} fill={fill} />
       <Sector cx={cx} cy={cy} innerRadius={innerRadius - 5} outerRadius={innerRadius - 1} startAngle={startAngle} endAngle={endAngle} fill={fill} />
     </g>
@@ -278,7 +285,7 @@ const renderActiveShapePerson = (props) => {
     <g>
       <text x={cx} y={cy - 12} textAnchor="middle" fill="#1e293b" fontSize={15} fontWeight={800}>{value}</text>
       <text x={cx} y={cy + 8} textAnchor="middle" fill="#64748b" fontSize={11}>pers.</text>
-      <text x={cx} y={cy + 26} textAnchor="middle" fill="#64748b" fontSize={10}>{(percent * 100).toFixed(1)}%</text>
+      <text x={cx} y={cy + 26} textAnchor="middle" fill="#64748b" fontSize={10}>{(percent * 100).toFixed(2)}%</text>
       <Sector cx={cx} cy={cy} innerRadius={innerRadius} outerRadius={outerRadius + 10} startAngle={startAngle} endAngle={endAngle} fill={fill} />
       <Sector cx={cx} cy={cy} innerRadius={innerRadius - 5} outerRadius={innerRadius - 1} startAngle={startAngle} endAngle={endAngle} fill={fill} />
     </g>
@@ -332,7 +339,7 @@ export function GenderDonut({ pe, index = 3 }) {
               className="flex items-center gap-1.5 text-[11px] font-semibold text-slate-600"
             >
               <span className="w-3 h-3 rounded-full" style={{ backgroundColor: d.fill }} />
-              {d.name}: <strong>{d.value}</strong> ({tot > 0 ? (d.value / tot * 100).toFixed(1) : 0}%)
+              {d.name}: <strong>{d.value}</strong> ({tot > 0 ? (d.value / tot * 100).toFixed(2) : '0.00'}%)
             </motion.span>
           ))}
         </div>
@@ -344,9 +351,9 @@ export function GenderDonut({ pe, index = 3 }) {
 /* ─── Energy Mix Bar ────────────────────────────── */
 export function EnergyMixBar({ g, index = 4 }) {
   const data = [
-    { name: 'Elettricità rete', value: parseFloat((g.eNet / 1000).toFixed(1)), fill: '#6366F1' },
-    { name: 'Fotovoltaico', value: parseFloat((g.eFv / 1000).toFixed(1)), fill: '#22C55E' },
-    { name: 'Combustibili', value: parseFloat((g.eFuel / 1000).toFixed(1)), fill: '#F59E0B' },
+    { name: 'Elettricità rete', value: parseFloat((g.eNet / 1000).toFixed(2)), fill: '#6366F1' },
+    { name: 'Fotovoltaico', value: parseFloat((g.eFv / 1000).toFixed(2)), fill: '#22C55E' },
+    { name: 'Combustibili', value: parseFloat((g.eFuel / 1000).toFixed(2)), fill: '#F59E0B' },
   ].filter(d => d.value > 0);
 
   if (!data.length) return null;
@@ -356,7 +363,7 @@ export function EnergyMixBar({ g, index = 4 }) {
       <Card className="p-5 hover:shadow-xl transition-shadow duration-300">
         <div className="flex items-center justify-between mb-4">
           <h4 className="font-heading text-sm font-bold text-primary">⚡ Mix Energetico</h4>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">MWh · tot. {(g.totKwh / 1000).toFixed(1)}</span>
+          <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">MWh · tot. {(g.totKwh / 1000).toFixed(2)}</span>
         </div>
         <ResponsiveContainer width="100%" height={210}>
           <BarChart data={data} layout="vertical" margin={{ top: 0, right: 40, left: 10, bottom: 0 }} barCategoryGap="30%">
