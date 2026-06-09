@@ -4,35 +4,96 @@ import { Button } from '@/components/ui/button';
 import { TextInput, SelectField, TextArea, ComputedValue } from '@/components/report/FormField';
 import { Card } from '@/components/ui/card';
 import {
-  X, ChevronLeft, ChevronRight, CheckCircle2, Leaf, Users, Shield,
-  Zap, Droplets, Recycle, FlameKindling, Wind
+  X, ChevronLeft, ChevronRight, CheckCircle2, Users, Shield,
+  Zap, Droplets, Recycle, FlameKindling, Wind, Building2, Wind as WindIcon, TreePine
 } from 'lucide-react';
 import { calcEnergy, calcPersonnel } from '@/lib/vsmeDefaults';
 
 // ─── Step definitions ──────────────────────────────────────────────────────
 const STEPS = [
+  // CONFIGURAZIONE
+  { id: 'ana',      area: 'C', areaLabel: 'Configurazione', icon: Building2,   title: 'Anagrafica Azienda',           desc: 'Dati identificativi, settore ATECO e modulo VSME selezionato.' },
   // AMBIENTE
   { id: 'en-elec',  area: 'E', areaLabel: 'Ambiente', icon: Zap,          title: 'Elettricità e Fotovoltaico',   desc: 'Consumi elettrici da rete e produzione FV autoprodotta.' },
   { id: 'en-fuel',  area: 'E', areaLabel: 'Ambiente', icon: FlameKindling, title: 'Combustibili Scope 1',         desc: 'Gas naturale, gasolio e altri combustibili usati in azienda.' },
-  { id: 'ac',       area: 'E', areaLabel: 'Ambiente', icon: Droplets,       title: 'Acqua',                        desc: 'Prelievi idrici, scarichi e stress idrico.' },
-  { id: 'ri',       area: 'E', areaLabel: 'Ambiente', icon: Recycle,        title: 'Rifiuti',                      desc: 'Produzione, classificazione e avvio a recupero.' },
+  { id: 'ac',       area: 'E', areaLabel: 'Ambiente', icon: Droplets,      title: 'Acqua',                        desc: 'Prelievi idrici, scarichi e stress idrico.' },
+  { id: 'ri',       area: 'E', areaLabel: 'Ambiente', icon: Recycle,       title: 'Rifiuti',                      desc: 'Produzione, classificazione e avvio a recupero.' },
+  { id: 'inq',      area: 'E', areaLabel: 'Ambiente', icon: WindIcon,      title: 'Inquinamento',                 desc: 'Applicabilità B4, matrice aspetti-impatti e inventario inquinanti.' },
+  { id: 'biod',     area: 'E', areaLabel: 'Ambiente', icon: TreePine,      title: 'Biodiversità',                 desc: 'Prossimità ad aree protette, impatti sulla natura e misure adottate.' },
   // SOCIALE
-  { id: 'pe-org',   area: 'S', areaLabel: 'Sociale',  icon: Users,          title: 'Organico e Diversity',         desc: 'Headcount, genere, tipologie contrattuali.' },
-  { id: 'pe-hs',    area: 'S', areaLabel: 'Sociale',  icon: Wind,           title: 'Salute & Sicurezza',           desc: 'Infortuni, ore lavorate, assenteismo.' },
-  { id: 'pe-ret',   area: 'S', areaLabel: 'Sociale',  icon: Users,          title: 'Retribuzione e Formazione',    desc: 'CCNL, pay gap di genere, ore di training.' },
+  { id: 'pe-org',   area: 'S', areaLabel: 'Sociale',  icon: Users,         title: 'Organico e Diversity',         desc: 'Headcount, genere, tipologie contrattuali.' },
+  { id: 'pe-hs',    area: 'S', areaLabel: 'Sociale',  icon: Wind,          title: 'Salute & Sicurezza',           desc: 'Infortuni, ore lavorate, assenteismo.' },
+  { id: 'pe-ret',   area: 'S', areaLabel: 'Sociale',  icon: Users,         title: 'Retribuzione e Formazione',    desc: 'CCNL, pay gap di genere, ore di training.' },
   // GOVERNANCE
-  { id: 'gov-cda',  area: 'G', areaLabel: 'Governance', icon: Shield,       title: 'Organo di Governo',            desc: 'Composizione CDA e diversità di genere.' },
-  { id: 'gov-comp', area: 'G', areaLabel: 'Governance', icon: Shield,       title: 'Compliance & Certificazioni',  desc: 'MOG 231, codice etico, ISO, whistleblowing.' },
-  { id: 'gov-corr', area: 'G', areaLabel: 'Governance', icon: Shield,       title: 'Corruzione e Pagamenti',       desc: 'Condanne, sanzioni, tempi medi di pagamento.' },
+  { id: 'gov-cda',  area: 'G', areaLabel: 'Governance', icon: Shield,      title: 'Organo di Governo',            desc: 'Composizione CDA e diversità di genere.' },
+  { id: 'gov-comp', area: 'G', areaLabel: 'Governance', icon: Shield,      title: 'Compliance & Certificazioni',  desc: 'MOG 231, codice etico, ISO, whistleblowing.' },
+  { id: 'gov-corr', area: 'G', areaLabel: 'Governance', icon: Shield,      title: 'Corruzione e Pagamenti',       desc: 'Condanne, sanzioni, tempi medi di pagamento.' },
 ];
 
 const AREA_COLORS = {
-  E: { bg: 'bg-green-600', light: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', dot: 'bg-green-500' },
-  S: { bg: 'bg-blue-600',  light: 'bg-blue-50',  border: 'border-blue-200',  text: 'text-blue-700',  dot: 'bg-blue-500' },
-  G: { bg: 'bg-purple-600',light: 'bg-purple-50',border: 'border-purple-200',text: 'text-purple-700',dot: 'bg-purple-500' },
+  C: { bg: 'bg-slate-600',  light: 'bg-slate-50',  border: 'border-slate-200',  text: 'text-slate-700',  dot: 'bg-slate-500' },
+  E: { bg: 'bg-green-600',  light: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-700',  dot: 'bg-green-500' },
+  S: { bg: 'bg-blue-600',   light: 'bg-blue-50',   border: 'border-blue-200',   text: 'text-blue-700',   dot: 'bg-blue-500' },
+  G: { bg: 'bg-purple-600', light: 'bg-purple-50', border: 'border-purple-200', text: 'text-purple-700', dot: 'bg-purple-500' },
 };
 
 // ─── Step content components ───────────────────────────────────────────────
+
+function StepAna({ data, onUpdate }) {
+  const ana = data?.ana || {};
+  const u = (f, v) => onUpdate('ana', f, v);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <TextInput label="Ragione Sociale" value={ana.ragSoc} onChange={(v) => u('ragSoc', v)} placeholder="Es. Rossi S.r.l." />
+      <TextInput label="Codice ATECO" value={ana.ateco} onChange={(v) => u('ateco', v)} placeholder="Es. 28.99" />
+      <SelectField label="Dimensione aziendale" value={ana.dim} onChange={(v) => u('dim', v)}
+        options={[['micro','Micro (< 10 dip.)'],['piccola','Piccola (10–49 dip.)'],['media','Media (50–249 dip.)']]} />
+      <TextInput label="Anno di riferimento" type="number" value={ana.annoRif} onChange={(v) => u('annoRif', v)} placeholder="Es. 2024" />
+      <SelectField label="Modulo VSME" value={ana.modulo} onChange={(v) => u('modulo', v)}
+        options={[['basic','Base (B1–B11)'],['comprehensive','Completo (B + C1–C9)']]}
+        hint="Il modulo Completo include strategia, stakeholder e DNSH" />
+      <TextInput label="Sede legale (comune)" value={ana.comune} onChange={(v) => u('comune', v)} placeholder="Es. Milano" />
+    </div>
+  );
+}
+
+function StepInq({ data, onUpdate }) {
+  const inq = data?.inq || {};
+  const u = (f, v) => onUpdate('inq', f, v);
+  return (
+    <div className="space-y-4">
+      <SelectField label="Monitoraggio obbligatorio o EMS attivo?" value={inq.regol || 'no'} onChange={(v) => u('regol', v)}
+        options={[['no','No — non applicabile'],['si','Sì — dati disponibili']]}
+        hint="Obbligatorio se soggetti ad AIA, AUA o sistema EMS" />
+      {inq.regol === 'si' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+          ℹ️ Completa la matrice aspetti-impatti e l'inventario inquinanti nella sezione dedicata <strong>B4 — Inquinamento</strong> del report.
+        </div>
+      )}
+      <TextArea label="Note inquinamento (facoltativo)" value={inq.noteInq} onChange={(v) => u('noteInq', v)} rows={3}
+        placeholder="Presenza di autorizzazioni AIA/AUA, sostanze monitorate, misure di riduzione..." />
+    </div>
+  );
+}
+
+function StepBiod({ data, onUpdate }) {
+  const biod = data?.biod || {};
+  const u = (f, v) => onUpdate('biod', f, v);
+  return (
+    <div className="space-y-4">
+      <SelectField label="Sede vicina ad aree protette (< 1 km)?" value={biod.areeProtette || 'no'} onChange={(v) => u('areeProtette', v)}
+        options={[['no','No'],['si','Sì — Natura 2000, WDPA o equivalente']]}
+        hint="Verificabile su ISPRA Geoportale o Copernicus Land" />
+      <SelectField label="Impatto diretto su habitat naturali?" value={biod.impatto || 'no'} onChange={(v) => u('impatto', v)}
+        options={[['no','No impatti significativi'],['si','Sì — impermeabilizzazione, deforestazione, etc.']]} />
+      <SelectField label="Misure di compensazione/mitigazione adottate?" value={biod.misure || 'no'} onChange={(v) => u('misure', v)}
+        options={[['no','No'],['in_corso','In corso di definizione'],['si','Sì — documentate']]} />
+      <TextArea label="Note biodiversità (facoltativo)" value={biod.noteBiod} onChange={(v) => u('noteBiod', v)} rows={3}
+        placeholder="Specie protette presenti, piani di rimboschimento, corridoi ecologici..." />
+    </div>
+  );
+}
+
 function StepEnElec({ data, onUpdate }) {
   const en = data?.en || {};
   const u = (f, v) => onUpdate('en', f, v);
@@ -246,10 +307,13 @@ function StepGovCorr({ data, onUpdate }) {
 }
 
 const STEP_COMPONENTS = {
+  'ana':     StepAna,
   'en-elec': StepEnElec,
   'en-fuel': StepEnFuel,
   'ac':      StepAcqua,
   'ri':      StepRifiuti,
+  'inq':     StepInq,
+  'biod':    StepBiod,
   'pe-org':  StepPeOrg,
   'pe-hs':   StepPeHs,
   'pe-ret':  StepPeRet,
@@ -274,8 +338,8 @@ export default function EsgWizard({ data, onUpdate, onClose }) {
   }, []);
 
   // Group steps by area for the progress sidebar
-  const areas = ['E', 'S', 'G'];
-  const areaLabels = { E: 'Ambiente', S: 'Sociale', G: 'Governance' };
+  const areas = ['C', 'E', 'S', 'G'];
+  const areaLabels = { C: 'Configurazione', E: 'Ambiente', S: 'Sociale', G: 'Governance' };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
