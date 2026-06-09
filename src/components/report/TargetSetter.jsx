@@ -101,8 +101,12 @@ export default function TargetSetter({ report, onSave, onClose }) {
         <DialogHeader>
           <DialogTitle className="font-heading flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
-            Imposta Obiettivi {report.year + 1}
+            Obiettivi ESG per {report.year + 1}
           </DialogTitle>
+          <p className="text-xs text-muted-foreground pt-1">
+            Definisci i target che vuoi raggiungere <strong>nell'anno {report.year + 1}</strong>.<br />
+            I valori <em>Attuale</em> mostrati sotto sono lo score calcolato dal report <strong>{report.year}</strong> in corso.
+          </p>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -112,7 +116,7 @@ export default function TargetSetter({ report, onSave, onClose }) {
             className="bg-blue-50 border border-blue-200 rounded-lg p-3"
           >
             <p className="text-xs text-blue-800">
-              💡 <strong>Suggerimento:</strong> Imposta obiettivi ambiziosi ma realistici. Un miglioramento di 5-10 punti per pilastro è considerato buono.
+              💡 <strong>Come funziona:</strong> Gli avvisi nella campanella si attivano automaticamente quando lo score attuale è lontano dall'obiettivo impostato qui. Un miglioramento di 5–10 punti per pilastro è considerato buono.
             </p>
           </motion.div>
 

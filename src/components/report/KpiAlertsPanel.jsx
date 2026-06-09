@@ -121,9 +121,12 @@ export default function KpiAlertsPanel({ alerts, onNavigate }) {
               </div>
 
               {/* Footer */}
-              <div className="px-4 py-2.5 border-t border-border bg-muted/20">
+              <div className="px-4 py-2.5 border-t border-border bg-muted/20 space-y-1">
                 <p className="text-xs text-muted-foreground">
-                  {total} alert attivi · Correggi i KPI critici per migliorare il tuo score ESG
+                  {total} alert attivi · Gli avvisi si ricalcolano in tempo reale ad ogni modifica.
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  <strong>Soglia</strong> = valore fuori norma · <strong>Obiettivo</strong> = distanza dal target {'{'}anno+1{'}'} impostato in "Obiettivi"
                 </p>
               </div>
             </motion.div>

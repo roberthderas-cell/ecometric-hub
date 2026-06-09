@@ -219,7 +219,7 @@ export default function ReportEditor() {
                 {isSaving ? '⏳ Salvataggio...' : '✅ Salvato'}
               </span>
               <KpiAlertsPanel
-                alerts={getAllAlerts(reportData, report.esg_score)}
+                alerts={getAllAlerts(reportData, calcESGScore(reportData))}
                 onNavigate={handleNavigate}
               />
               <LiveEsgBadge esg={report.esg_score ? { ...report.esg_score } : null} compact />
