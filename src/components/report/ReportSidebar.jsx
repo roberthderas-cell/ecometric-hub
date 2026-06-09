@@ -2,6 +2,7 @@ import { SECTIONS, getSectionCompletion, getMissingMandatory, calcESGScore } fro
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, CheckCircle2, ChevronDown, CheckCheck, MinusCircle } from 'lucide-react';
 import { useState } from 'react';
+import DataQualityPanel from '@/components/report/DataQualityPanel';
 
 function EsgMiniBar({ label, value, color }) {
   return (
@@ -83,7 +84,7 @@ function SectionStatusPicker({ sectionId, value, onChange }) {
   );
 }
 
-export default function ReportSidebar({ data, activeSection, onNavigate, completion, onSectionStatusChange }) {
+export default function ReportSidebar({ data, activeSection, onNavigate, completion, onSectionStatusChange, snapshots = [] }) {
   const esg = calcESGScore(data);
   const modulo = data?.ana?.modulo || 'basic';
   
@@ -153,6 +154,11 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
             />
           </div>
         </div>
+      </div>
+
+      {/* Data Quality Panel */}
+      <div className="px-3 py-2 border-b border-sidebar-border">
+        <DataQualityPanel data={data} snapshots={snapshots} onNavigate={onNavigate} />
       </div>
 
       {/* Nav */}

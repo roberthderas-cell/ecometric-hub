@@ -96,6 +96,12 @@ export default function ReportEditor() {
     select: (d) => d?.[0],
   });
 
+  const { data: snapshots = [] } = useQuery({
+    queryKey: ['esg_snapshots', reportId],
+    queryFn: () => base44.entities.EsgSnapshot.filter({ report_id: reportId }, '-created_date', 50),
+    enabled: !!reportId,
+  });
+
   const updateMutation = useMutation({
     mutationFn: (updates) => base44.entities.Report.update(reportId, updates),
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['report', reportId] }); setIsSaving(false); },
@@ -240,6 +246,7 @@ export default function ReportEditor() {
         onNavigate={handleNavigate}
         completion={completion}
         onSectionStatusChange={handleSectionStatusChange}
+        snapshots={snapshots}
       />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
