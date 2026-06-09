@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
+import SectionIconAnimated from '@/components/report/SectionIconAnimated';
 
 function HeaderCanvas() {
   const canvasRef = useRef(null);
@@ -82,7 +83,7 @@ function HeaderCanvas() {
   );
 }
 
-export default function SectionHeader({ icon, title, description, reference }) {
+export default function SectionHeader({ icon, sectionId, title, description, reference }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -117,7 +118,9 @@ export default function SectionHeader({ icon, title, description, reference }) {
           transition={{ delay: 0.15, type: 'spring', stiffness: 280, damping: 18 }}
           className="shrink-0 drop-shadow-lg select-none"
         >
-          {typeof icon === 'string' && (icon.startsWith('http') || icon.endsWith('.gif')) ? (
+          {sectionId ? (
+            <SectionIconAnimated sectionId={sectionId} />
+          ) : typeof icon === 'string' && icon.startsWith('http') ? (
             <img src={icon} alt="" className="w-14 h-14 object-contain rounded-xl" />
           ) : (
             <span className="text-4xl">{icon}</span>

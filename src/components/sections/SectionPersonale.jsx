@@ -21,7 +21,7 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
 
   return (
     <div>
-      <SectionHeader icon="https://cdn.lordicon.com/dxjqoygy.gif" title="B8-B10 — Personale & H&S" description="Composizione forza lavoro, salute e sicurezza, retribuzioni e formazione." reference="VSME B8/B9/B10 | D.Lgs. 81/2008 | ESRS S1" />
+      <SectionHeader sectionId="pe" title="B8-B10 — Personale & H&S" description="Composizione forza lavoro, salute e sicurezza, retribuzioni e formazione." reference="VSME B8/B9/B10 | D.Lgs. 81/2008 | ESRS S1" />
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Composizione Forza Lavoro</h3>

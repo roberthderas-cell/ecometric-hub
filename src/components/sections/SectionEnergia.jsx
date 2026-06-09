@@ -31,7 +31,7 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
   return (
     <div>
       <SectionHeader
-        icon="https://cdn.lordicon.com/hbigeiix.gif"
+        sectionId="en"
         title="B3 — Energia e Emissioni GHG"
         description="Consumi energetici, combustibili Scope 1, elettricità Scope 2 (location-based o market-based)."
         reference="VSME B3 | GHG Protocol | Fattori ISPRA"

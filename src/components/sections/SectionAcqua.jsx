@@ -21,7 +21,7 @@ export default function SectionAcqua({ data, onUpdate, onNavigate }) {
 
   return (
     <div>
-      <SectionHeader icon="https://cdn.lordicon.com/srsgifbs.gif" title="B6 — Acqua" description="Prelievi idrici per fonte, scarichi, consumo netto e KPI per dipendente." reference="VSME B6 | Prelievo, stress idrico, consumo" />
+      <SectionHeader sectionId="ac" title="B6 — Acqua" description="Prelievi idrici per fonte, scarichi, consumo netto e KPI per dipendente." reference="VSME B6 | Prelievo, stress idrico, consumo" />
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Prelievi Idrici per Fonte</h3>
