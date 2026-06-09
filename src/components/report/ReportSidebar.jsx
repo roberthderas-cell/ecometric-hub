@@ -1,6 +1,7 @@
 import { SECTIONS, getSectionCompletion, getMissingMandatory, calcESGScore } from '@/lib/vsmeDefaults';
-import { motion } from 'framer-motion';
-import { AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertTriangle, CheckCircle2, ChevronDown, CheckCheck, MinusCircle } from 'lucide-react';
+import { useState } from 'react';
 
 function EsgMiniBar({ label, value, color }) {
   return (
@@ -20,7 +21,69 @@ function EsgMiniBar({ label, value, color }) {
   );
 }
 
-export default function ReportSidebar({ data, activeSection, onNavigate, completion }) {
+const STATUS_OPTIONS = [
+  { value: 'completato', label: 'Completato', icon: CheckCheck, color: 'text-green-400', bg: 'bg-green-400/15 border-green-400/30' },
+  { value: 'non_applica', label: 'Non applica', icon: MinusCircle, color: 'text-slate-400', bg: 'bg-slate-400/15 border-slate-400/30' },
+];
+
+function SectionStatusPicker({ sectionId, value, onChange }) {
+  const [open, setOpen] = useState(false);
+  const current = STATUS_OPTIONS.find(o => o.value === value);
+  const Icon = current?.icon;
+
+  return (
+    <div className="relative" onClick={e => e.stopPropagation()}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={`flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded-full border transition-all ${
+          current ? current.bg + ' ' + current.color : 'bg-white/5 border-white/10 text-white/30 hover:border-white/20'
+        }`}
+        title="Imposta stato sezione"
+      >
+        {Icon ? <Icon className="w-2.5 h-2.5" /> : <ChevronDown className="w-2.5 h-2.5" />}
+        {current ? current.label : 'Stato'}
+        <ChevronDown className={`w-2 h-2 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+            transition={{ duration: 0.12 }}
+            className="absolute right-0 top-full mt-1 z-50 bg-sidebar-accent border border-sidebar-border rounded-lg shadow-xl overflow-hidden min-w-[130px]"
+          >
+            {value && (
+              <button
+                onClick={() => { onChange(null); setOpen(false); }}
+                className="w-full flex items-center gap-2 px-3 py-2 text-[10px] text-white/30 hover:bg-white/5 hover:text-white/60 transition-colors border-b border-sidebar-border"
+              >
+                Rimuovi stato
+              </button>
+            )}
+            {STATUS_OPTIONS.map(opt => {
+              const OptIcon = opt.icon;
+              return (
+                <button
+                  key={opt.value}
+                  onClick={() => { onChange(opt.value); setOpen(false); }}
+                  className={`w-full flex items-center gap-2 px-3 py-2 text-[10px] font-semibold transition-colors hover:bg-white/5 ${opt.color} ${value === opt.value ? 'bg-white/5' : ''}`}
+                >
+                  <OptIcon className="w-3 h-3" />
+                  {opt.label}
+                  {value === opt.value && <CheckCheck className="w-2.5 h-2.5 ml-auto" />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function ReportSidebar({ data, activeSection, onNavigate, completion, onSectionStatusChange }) {
   const esg = calcESGScore(data);
   const modulo = data?.ana?.modulo || 'basic';
   
@@ -113,37 +176,49 @@ export default function ReportSidebar({ data, activeSection, onNavigate, complet
                   <div className="flex-1 h-px bg-green-400/10" />
                 </div>
               )}
-              <button
-                onClick={() => onNavigate(sec.id)}
-                className={`w-full flex items-center gap-2 px-4 py-2 text-[12px] transition-all relative group ${
-                  isActive
-                    ? 'bg-green-400/15 text-green-400 font-semibold'
-                    : 'text-sidebar-foreground/55 hover:bg-white/5 hover:text-white'
-                }`}
-              >
-                {isActive && (
-                  <motion.div
-                    layoutId="sidebar-active"
-                    className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-green-400 to-emerald-500 rounded-r"
-                  />
+              <div className={`relative group ${isActive ? 'bg-green-400/15' : ''}`}>
+                <button
+                  onClick={() => onNavigate(sec.id)}
+                  className={`w-full flex items-center gap-2 px-4 py-2 text-[12px] transition-all relative ${
+                    isActive
+                      ? 'text-green-400 font-semibold'
+                      : 'text-sidebar-foreground/55 hover:bg-white/5 hover:text-white'
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="sidebar-active"
+                      className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-green-400 to-emerald-500 rounded-r"
+                    />
+                  )}
+                  <span className="text-sm w-5 text-center shrink-0">{sec.icon}</span>
+                  <span className="flex-1 text-left leading-tight truncate">{sec.label}</span>
+                  <div className="flex items-center gap-1 shrink-0">
+                    {missing.length > 0 && (
+                      <AlertTriangle className="w-3 h-3 text-amber-400" title={`Mancante: ${missing.join(', ')}`} />
+                    )}
+                    {isCalc && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-400/15 text-indigo-300">auto</span>}
+                    {!isComp && !isDash && !isCalc && isDone && (
+                      <CheckCircle2 className="w-3 h-3 text-green-400" />
+                    )}
+                    {!isDash && !isCalc && !isComp && !isDone && comp.total > 0 && comp.pct > 0 && (
+                      <span className="text-[9px] font-bold text-yellow-400">{comp.pct}%</span>
+                    )}
+                    {isDash && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-400/15 text-blue-400">KPI</span>}
+                  </div>
+                </button>
+
+                {/* Status picker — only for MODULO COMPLETO sections */}
+                {isComp && onSectionStatusChange && (
+                  <div className="px-4 pb-1.5 -mt-0.5">
+                    <SectionStatusPicker
+                      sectionId={sec.id}
+                      value={data?.sectionStatus?.[sec.id] || null}
+                      onChange={(val) => onSectionStatusChange(sec.id, val)}
+                    />
+                  </div>
                 )}
-                <span className="text-sm w-5 text-center shrink-0">{sec.icon}</span>
-                <span className="flex-1 text-left leading-tight truncate">{sec.label}</span>
-                <div className="flex items-center gap-1 shrink-0">
-                  {missing.length > 0 && (
-                    <AlertTriangle className="w-3 h-3 text-amber-400" title={`Mancante: ${missing.join(', ')}`} />
-                  )}
-                  {isCalc && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-400/15 text-indigo-300">auto</span>}
-                  {isComp && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-orange-400/15 text-orange-300">C</span>}
-                  {!isDash && !isCalc && !isComp && isDone && (
-                    <CheckCircle2 className="w-3 h-3 text-green-400" />
-                  )}
-                  {!isDash && !isCalc && !isComp && !isDone && comp.total > 0 && comp.pct > 0 && (
-                    <span className="text-[9px] font-bold text-yellow-400">{comp.pct}%</span>
-                  )}
-                  {isDash && <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-blue-400/15 text-blue-400">KPI</span>}
-                </div>
-              </button>
+              </div>
             </div>
           );
         })}

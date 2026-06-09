@@ -176,6 +176,25 @@ export default function ReportEditor() {
 
   const handleNavigate = (secId) => navigate(`/report/${reportId}/${secId}`);
 
+  const handleSectionStatusChange = useCallback((sectionId, value) => {
+    const base = localDataRef.current || JSON.parse(JSON.stringify(DEFAULT_DATA));
+    const newData = JSON.parse(JSON.stringify(base));
+    if (!newData.sectionStatus) newData.sectionStatus = {};
+    if (value === null) {
+      delete newData.sectionStatus[sectionId];
+    } else {
+      newData.sectionStatus[sectionId] = value;
+    }
+    localDataRef.current = newData;
+    setLocalData(newData);
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setIsSaving(true);
+    saveTimer.current = setTimeout(() => {
+      const esg_score = calcESGScore(newData);
+      updateMutation.mutate({ data: newData, completion: calcCompletion(newData), esg_score });
+    }, 800);
+  }, [updateMutation, calcCompletion]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -204,6 +223,7 @@ export default function ReportEditor() {
         activeSection={activeSection}
         onNavigate={handleNavigate}
         completion={completion}
+        onSectionStatusChange={handleSectionStatusChange}
       />
       <div className="flex-1 flex flex-col min-w-0">
         {/* Topbar */}
