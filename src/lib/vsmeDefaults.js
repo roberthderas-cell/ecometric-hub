@@ -113,16 +113,46 @@ export function getMissingMandatory(data, sectionId) {
     .map(f => f.label);
 }
 
+// Sections with no required fields: considered "done" if any meaningful value exists
+const SECTION_DATA_KEYS = {
+  ac: ['scaricoN', 'dipAcquaN', 'ricN'],
+  inq: ['noteInq'],
+  biod: ['supTot', 'supImp', 'natM2'],
+  b1: ['omissioni', 'noteB1'],
+  b2: ['descPrat', 'politiche'],
+};
+
 export function getSectionCompletion(data, sectionId) {
   const fields = REQUIRED_FIELDS[sectionId];
-  if (!fields || !fields.length) return { pct: 0, filled: 0, total: 0 };
-  const secData = data?.[sectionId] || {};
-  let filled = 0;
-  fields.forEach(f => {
-    const v = secData[f];
-    if (v && v !== '' && v !== '0' && v !== 'no') filled++;
-  });
-  return { pct: Math.round((filled / fields.length) * 100), filled, total: fields.length };
+
+  // Sections with explicit required fields
+  if (fields && fields.length) {
+    const secData = data?.[sectionId] || {};
+    let filled = 0;
+    fields.forEach(f => {
+      const v = secData[f];
+      if (v && v !== '' && v !== '0' && v !== 'no') filled++;
+    });
+    return { pct: Math.round((filled / fields.length) * 100), filled, total: fields.length };
+  }
+
+  // Sections with no required fields: check if user has filled any meaningful value
+  const checkKeys = SECTION_DATA_KEYS[sectionId];
+  if (checkKeys) {
+    const secData = data?.[sectionId] || {};
+    const hasData = checkKeys.some(k => {
+      const v = secData[k];
+      return v && v !== '' && v !== '0' && v !== 'no';
+    });
+    // Also check acfonti for water section
+    if (sectionId === 'ac') {
+      const fontiData = (data?.acfonti?.fonti || []).some(f => parseFloat(f.prelievo) > 0);
+      return { pct: (hasData || fontiData) ? 100 : 0, filled: hasData || fontiData ? 1 : 0, total: 1 };
+    }
+    return { pct: hasData ? 100 : 0, filled: hasData ? 1 : 0, total: 1 };
+  }
+
+  return { pct: 0, filled: 0, total: 0 };
 }
 
 export function calcEnergy(data) {
