@@ -147,13 +147,13 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
         <Card className="p-5">
           <h4 className="font-heading text-sm font-bold text-primary mb-3">GHG per Scope (tCO₂eq)</h4>
           <ResponsiveContainer width="100%" height={160}>
-            <BarChart data={ghgData}><XAxis dataKey="name" fontSize={11} /><YAxis fontSize={10} tickFormatter={v => v.toFixed(2)} /><Tooltip formatter={(v) => [`${Number(v).toFixed(2)} tCO₂eq`]} /><Bar dataKey="value" radius={[6,6,0,0]}>{ghgData.map((d,i) => <Cell key={i} fill={d.fill} />)}</Bar></BarChart>
+            <BarChart data={ghgData}><XAxis dataKey="name" fontSize={11} /><YAxis fontSize={10} tickFormatter={v => v.toFixed(2)} /><Tooltip formatter={(v) => [`${Number(v).toFixed(1)} tCO₂eq`]} /><Bar dataKey="value" radius={[6,6,0,0]}>{ghgData.map((d,i) => <Cell key={i} fill={d.fill} />)}</Bar></BarChart>
           </ResponsiveContainer>
         </Card>
         <Card className="p-5">
           <h4 className="font-heading text-sm font-bold text-primary mb-3">Mix Energetico (kWh)</h4>
           <ResponsiveContainer width="100%" height={160}>
-            <PieChart><Pie data={mixData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(2)}%`} fontSize={10}>
+            <PieChart><Pie data={mixData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`} fontSize={10}>
               {mixData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
             </Pie><Tooltip /></PieChart>
           </ResponsiveContainer>

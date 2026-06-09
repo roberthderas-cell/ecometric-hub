@@ -66,7 +66,7 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
         <Card className="p-5 mb-5">
           <h4 className="font-heading text-sm font-bold text-primary mb-3">Composizione per Genere</h4>
           <ResponsiveContainer width="100%" height={160}>
-            <PieChart><Pie data={genData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(2)}%`}>
+            <PieChart><Pie data={genData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={55} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}>
               <Cell fill="#EC4899" /><Cell fill="#2563EB" />
             </Pie><Tooltip /></PieChart>
           </ResponsiveContainer>
