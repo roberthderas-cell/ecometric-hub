@@ -4,7 +4,7 @@ export const DEFAULT_DATA = {
   sedi: { lista: [] },
   en: { elReteN: '', elReteN1: '', elFVN: '', elFVN1: '', kWpFV: '', ispra: '0.211', annoIspra: '2023', scopeMetodo: 'location', goKWhN: '', goEFN: '0', noteEn: '' },
   ac: { scaricoN: '', scaricoN1: '', dipAcquaN: '', dipAcquaN1: '', ricN: '', ricN1: '', noteAc: '' },
-  ri: { totN: '', totN1: '', periN: '', periN1: '', recN: '', recN1: '', noteRi: '' },
+  ri: { totN: '', totN1: '', periN: '', periN1: '', recN: '', recN1: '', noteRi: '', cerRows: [] },
   inq: { regol: 'no', noteInq: '' },
   biod: { supTot: '', supImp: '', natM2: '', sigillM2: '', noteBiod: '' },
   pe: { hc: '', hcN1: '', fte: '', fteN1: '', donne: '', donneN1: '', uomini: '', uominiN1: '', indet: '', det: '', pt: '', nd: '', infort: '0', ggPersi: '0', malProf: '0', oreLav: '', assentGg: '', retMedia: '', retUom: '', retDon: '', oreForm: '', percVal: '', disab: '', ccnl: '', percCCNL: '', matN: '', promN: '', notePe: '' },
@@ -138,13 +138,26 @@ export function calcEnergy(data) {
   const elRete = parseFloat(en.elReteN) || 0;
   const ispra = parseFloat(en.ispra) || 0.211;
   const elFV = parseFloat(en.elFVN) || 0;
+  const goKWh = parseFloat(en.goKWhN) || 0; // kWh coperti da GO/contratti rinnovabili
+  const goEF = parseFloat(en.goEFN) || 0;   // fattore emissione market-based (kgCO2/kWh)
+
+  // Scope 2 location-based: usa fattore ISPRA sulla rete
   const s2LB = (elRete * ispra) / 1000;
+
+  // Scope 2 market-based: kWh con GO a fattore goEF + kWh residui a fattore ISPRA
+  const elWithGO = Math.min(goKWh, elRete);
+  const elResidual = Math.max(0, elRete - elWithGO);
+  const s2MB = ((elWithGO * goEF) + (elResidual * ispra)) / 1000;
+
+  const metodo = en.scopeMetodo || 'location';
+  const s2 = metodo === 'market' ? s2MB : s2LB;
+
   const avoided = (elFV * ispra) / 1000;
   const totKwh = elRete + elFV + fuelKwh;
   const pRen = totKwh > 0 ? (elFV / totKwh) * 100 : 0;
   const fatt = parseFloat(data?.ana?.fatturato) || 0;
-  const intensity = fatt > 0 ? ((s1 + s2LB) / fatt) * 1000000 : 0;
-  return { s1, s2LB, tot: s1 + s2LB, avoided, fuelKwh, totKwh, pRen, intensity };
+  const intensity = fatt > 0 ? ((s1 + s2) / fatt) * 1000000 : 0;
+  return { s1, s2LB, s2MB, s2, tot: s1 + s2, avoided, fuelKwh, totKwh, pRen, intensity, metodo };
 }
 
 export function calcWaste(data) {

@@ -4,11 +4,10 @@ import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertTriangle, Info } from 'lucide-react';
 import KPICard from '@/components/report/KPICard';
 import EsgAlerts from '@/components/report/EsgAlerts';
 import { calcEnergy, getMissingMandatory } from '@/lib/vsmeDefaults';
-import { AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigate }) {
@@ -16,10 +15,11 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
   const u = (field, value) => onUpdate('en', field, value);
   const g = calcEnergy(data);
   const missing = getMissingMandatory(data, 'en');
+  const metodo = en.scopeMetodo || 'location';
 
   const ghgData = [
     { name: 'Scope 1', value: parseFloat(g.s1.toFixed(2)), fill: '#D97706' },
-    { name: 'Scope 2 LB', value: parseFloat(g.s2LB.toFixed(2)), fill: '#2563EB' },
+    { name: metodo === 'market' ? 'Scope 2 MB' : 'Scope 2 LB', value: parseFloat(g.s2.toFixed(2)), fill: '#2563EB' },
   ];
   const mixData = [
     { name: 'Rete', value: parseFloat(en.elReteN) || 0 },
@@ -33,7 +33,7 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
       <SectionHeader
         icon="⚡"
         title="B3 — Energia e Emissioni GHG"
-        description="Consumi energetici, combustibili Scope 1, elettricità Scope 2. Fattori di emissione ISPRA location-based."
+        description="Consumi energetici, combustibili Scope 1, elettricità Scope 2 (location-based o market-based)."
         reference="VSME B3 | GHG Protocol | Fattori ISPRA"
       />
 
@@ -48,6 +48,54 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
           </div>
         </div>
       )}
+
+      {/* Metodo Scope 2 */}
+      <Card className="p-6 mb-5">
+        <h3 className="font-heading font-bold text-primary text-sm mb-2">Metodo Scope 2</h3>
+        <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-xs text-blue-800">
+          <Info className="w-4 h-4 shrink-0 mt-0.5 text-blue-500" />
+          <div>
+            <p className="font-semibold mb-1">Location-based vs Market-based (GHG Protocol)</p>
+            <p><strong>Location-based:</strong> usa il fattore emissivo medio della rete elettrica nazionale (ISPRA). È il metodo più semplice e conservativo.</p>
+            <p className="mt-1"><strong>Market-based:</strong> usa il fattore del contratto di fornitura (GO — Garanzie d'Origine, PPA, ecc.). Permette di valorizzare l'acquisto di energia rinnovabile certificata. Se non si hanno contratti GO, il fattore residuale coincide con quello ISPRA.</p>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <SelectField
+            label="Metodo dichiarato"
+            value={metodo}
+            onChange={(v) => u('scopeMetodo', v)}
+            options={[
+              { value: 'location', label: 'Location-based (ISPRA)' },
+              { value: 'market', label: 'Market-based (GO/contratto)' },
+            ]}
+          />
+          {metodo === 'market' && (
+            <>
+              <TextInput
+                label="kWh coperti da GO / contratto rinnovabile"
+                type="number"
+                value={en.goKWhN}
+                onChange={(v) => u('goKWhN', v)}
+                hint="Max = elettricità da rete"
+              />
+              <TextInput
+                label="Fattore emissione contrattuale (kgCO₂/kWh)"
+                type="number"
+                value={en.goEFN}
+                onChange={(v) => u('goEFN', v)}
+                hint="0 se GO 100% rinnovabile"
+              />
+            </>
+          )}
+        </div>
+        {metodo === 'market' && (
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <ComputedValue label="Scope 2 Location-based (tCO₂eq)" value={g.s2LB.toFixed(3)} />
+            <ComputedValue label="Scope 2 Market-based (tCO₂eq)" value={g.s2MB.toFixed(3)} color={g.s2MB < g.s2LB ? 'green' : 'default'} />
+          </div>
+        )}
+      </Card>
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Elettricità da Rete e Fotovoltaico</h3>
@@ -89,7 +137,7 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
       {/* KPI Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <KPICard label="Scope 1" value={g.s1.toFixed(2)} unit="tCO₂eq" color="amber" delay={0} />
-        <KPICard label="Scope 2 LB" value={g.s2LB.toFixed(2)} unit="tCO₂eq" color="blue" delay={0.05} />
+        <KPICard label={metodo === 'market' ? 'Scope 2 MB' : 'Scope 2 LB'} value={g.s2.toFixed(2)} unit="tCO₂eq" color="blue" delay={0.05} />
         <KPICard label="% Rinnovabile" value={g.pRen.toFixed(1) + '%'} unit="FV sul totale" color="green" delay={0.1} />
         <KPICard label="Intensità GHG" value={g.intensity > 0 ? g.intensity.toFixed(2) : '—'} unit="tCO₂eq/M€" delay={0.15} />
       </div>
@@ -112,15 +160,12 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
         </Card>
       </div>
 
-      {/* ESG Validation Alerts */}
       <div className="mb-5">
         <EsgAlerts data={data} sections={['energia']} />
       </div>
-
       <div className="mb-5">
         <CongruenceAlerts data={data} section="en" />
       </div>
-
       <div className="mb-5">
         <NotesField value={en.noteEn} onChange={(v) => u('noteEn', v)} section="en" />
       </div>
