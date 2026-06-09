@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -130,19 +130,23 @@ function PillarTargetCard({ pillar, currentScore, targetN, targetN1, onChangeN, 
 }
 
 export default function SectionObiettivi({ data, onUpdate, onNavigate, report }) {
-  const esg = calcESGScore(data);
+  // Recalculate live from data every render
+  const esg = useMemo(() => calcESGScore(data), [data]);
   const year = report?.year || data?.ana?.anno || new Date().getFullYear();
 
   const saved = data?.obiettivi || {};
-  const [targets, setTargets] = useState({
-    E_N: saved.E_N ?? Math.min(100, esg.E + 8),
-    S_N: saved.S_N ?? Math.min(100, esg.S + 8),
-    G_N: saved.G_N ?? Math.min(100, esg.G + 8),
-    tot_N: saved.tot_N ?? Math.min(100, esg.tot + 8),
-    E_N1: saved.E_N1 ?? Math.min(100, esg.E + 18),
-    S_N1: saved.S_N1 ?? Math.min(100, esg.S + 18),
-    G_N1: saved.G_N1 ?? Math.min(100, esg.G + 18),
-    tot_N1: saved.tot_N1 ?? Math.min(100, esg.tot + 18),
+  const [targets, setTargets] = useState(() => {
+    const e = calcESGScore(data);
+    return {
+      E_N:   saved.E_N   ?? Math.min(100, e.E   + 8),
+      S_N:   saved.S_N   ?? Math.min(100, e.S   + 8),
+      G_N:   saved.G_N   ?? Math.min(100, e.G   + 8),
+      tot_N: saved.tot_N ?? Math.min(100, e.tot + 8),
+      E_N1:   saved.E_N1   ?? Math.min(100, e.E   + 18),
+      S_N1:   saved.S_N1   ?? Math.min(100, e.S   + 18),
+      G_N1:   saved.G_N1   ?? Math.min(100, e.G   + 18),
+      tot_N1: saved.tot_N1 ?? Math.min(100, e.tot + 18),
+    };
   });
 
   const handleChange = (key, val) => {
@@ -190,16 +194,26 @@ export default function SectionObiettivi({ data, onUpdate, onNavigate, report })
           </div>
           <div className="flex gap-3 flex-wrap">
             {PILLARS.filter(p => p.key !== 'tot').map(p => {
-              const reached = esg[p.key] >= targets[p.key + '_N'];
+              const current = esg[p.key] ?? 0;
+              const tN = targets[p.key + '_N'] ?? 0;
+              const reached = current >= tN;
+              const pct = tN > 0 ? Math.min(100, Math.round((current / tN) * 100)) : 100;
               const Icon = p.icon;
               return (
                 <div key={p.key} className="flex items-center gap-1.5 text-xs font-semibold">
                   {reached
                     ? <CheckCircle2 className="w-4 h-4 text-green-500" />
-                    : <Circle className="w-4 h-4 text-muted-foreground" />
+                    : <span className="w-4 h-4 relative flex items-center justify-center">
+                        <svg viewBox="0 0 20 20" className="w-4 h-4 -rotate-90">
+                          <circle cx="10" cy="10" r="8" fill="none" stroke="#e5e7eb" strokeWidth="2.5" />
+                          <circle cx="10" cy="10" r="8" fill="none" stroke={p.color} strokeWidth="2.5"
+                            strokeDasharray={`${(pct / 100) * 50.27} 50.27`} strokeLinecap="round" />
+                        </svg>
+                      </span>
                   }
                   <Icon className="w-3.5 h-3.5" style={{ color: p.color }} />
-                  <span style={{ color: reached ? '#16a34a' : undefined }}>{p.label}</span>
+                  <span style={{ color: reached ? '#16a34a' : p.color }}>{p.label}</span>
+                  {!reached && <span className="text-muted-foreground font-normal">{pct}%</span>}
                 </div>
               );
             })}
