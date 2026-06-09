@@ -12,6 +12,7 @@ import CompletionChecklist from '@/components/report/CompletionChecklist';
 import HistoryPanel from '@/components/report/HistoryPanel';
 import AnomalyDetector from '@/components/report/AnomalyDetector';
 import KpiAlertsPanel from '@/components/report/KpiAlertsPanel';
+import AlertBanner from '@/components/report/AlertBanner';
 import { getAllAlerts } from '@/lib/kpiAlerts';
 import ReportSidebar from '@/components/report/ReportSidebar';
 import LiveEsgBadge from '@/components/report/LiveEsgBadge';
@@ -84,6 +85,7 @@ export default function ReportEditor() {
   const [showHistory, setShowHistory] = useState(false);
   const [showAnomalies, setShowAnomalies] = useState(false);
   const [showExcelImport, setShowExcelImport] = useState(false);
+  const alertsToastFired = useRef(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   useOnboardingGuard(user);
@@ -108,6 +110,20 @@ export default function ReportEditor() {
       const d = JSON.parse(JSON.stringify(report.data));
       localDataRef.current = d;
       setLocalData(d);
+      // Toast proattivo all'apertura se ci sono alert critici
+      if (!alertsToastFired.current) {
+        alertsToastFired.current = true;
+        const esg = report.esg_score || {};
+        const criticals = getAllAlerts(d, esg).filter(a => a.severity === 'critical');
+        if (criticals.length > 0) {
+          setTimeout(() => {
+            toast.error(
+              `⚠️ ${criticals.length} alert critico${criticals.length > 1 ? 'i' : ''} rilevato${criticals.length > 1 ? 'i' : ''} in questo report`,
+              { description: criticals[0].description, duration: 6000 }
+            );
+          }, 1000);
+        }
+      }
     }
   }, [report?.data]);
 
@@ -314,6 +330,10 @@ export default function ReportEditor() {
           <SectionProgress data={reportData} activeSection={activeSection} onNavigate={handleNavigate} />
         </header>
 
+        <AlertBanner
+          alerts={getAllAlerts(reportData, calcESGScore(reportData))}
+          onNavigate={handleNavigate}
+        />
         <EsgMilestone score={report.esg_score?.tot ?? 0} />
 
         {/* Content */}
