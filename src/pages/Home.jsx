@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap, Building2, MapPin, ExternalLink } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap, Building2, MapPin, ExternalLink, Activity } from 'lucide-react';
 import YearComparisonChart from '@/components/report/YearComparisonChart';
 import { TemplatePicker } from '@/components/report/TemplateManager';
 import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
@@ -92,6 +92,11 @@ function StatPill({ icon: Icon, value, label, color }) {
   );
 }
 
+function AnimatedScore({ value }) {
+  const { count, ref } = useAnimatedCount(value, 900);
+  return <span ref={ref}>{count}</span>;
+}
+
 function ReportCard({ report, onDelete, index }) {
   const score = report.esg_score;
   const rating = score?.rating;
@@ -101,20 +106,36 @@ function ReportCard({ report, onDelete, index }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, y: 32, scale: 0.97 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.93 }}
       viewport={{ once: true, margin: '-30px' }}
-      whileHover={{ y: -6, boxShadow: '0 20px 40px -12px rgba(0,0,0,0.15)' }}
-      transition={{ delay: index * 0.05, duration: 0.35 }}
+      whileHover={{ y: -8, boxShadow: '0 24px 48px -12px rgba(0,0,0,0.18)' }}
+      transition={{ delay: index * 0.06, duration: 0.38, type: 'spring', stiffness: 260, damping: 22 }}
       className="group relative rounded-xl"
     >
       <Link to={`/report/${report.id}/ana`}>
-        <Card className="relative overflow-hidden p-0 cursor-pointer border-border group-hover:border-primary/30 transition-colors duration-300">
-          {/* Top accent bar */}
-          {cfg && (
-            <div className={`h-1 w-full bg-gradient-to-r ${cfg.bg}`} />
-          )}
+        <Card className="relative overflow-hidden p-0 cursor-pointer border-border group-hover:border-primary/40 transition-all duration-300">
+          {/* Top accent bar animated on hover */}
+          {cfg ? (
+            <motion.div
+              className={`h-1.5 w-full bg-gradient-to-r ${cfg.bg}`}
+              initial={{ scaleX: 0.6, originX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.06 + 0.1 }}
+            />
+          ) : <div className="h-1.5 w-full bg-muted" />}
+
+          {/* Shimmer overlay on hover */}
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-xl">
+            <motion.div
+              className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/5 to-transparent skew-x-12"
+              initial={{ x: '-100%' }}
+              whileHover={{ x: '400%' }}
+              transition={{ duration: 0.7, ease: 'easeInOut' }}
+            />
+          </div>
 
           <div className="p-5">
             {/* Header */}
@@ -123,50 +144,90 @@ function ReportCard({ report, onDelete, index }) {
                 <h3 className="font-heading font-bold text-base group-hover:text-primary transition-colors truncate">{report.name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">Anno {report.year} · {report.module === 'comprehensive' ? 'Modulo Completo' : 'Modulo Base'}</p>
               </div>
-              <span className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ml-2 ${st.bg}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${st.dot}`} />
+              <motion.span
+                whileHover={{ scale: 1.08 }}
+                className={`flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full border shrink-0 ml-2 ${st.bg}`}
+              >
+                <motion.span
+                  animate={{ scale: [1, 1.4, 1], opacity: [1, 0.6, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className={`w-1.5 h-1.5 rounded-full ${st.dot}`}
+                />
                 {st.label}
-              </span>
+              </motion.span>
             </div>
 
             {/* Completion bar */}
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[11px] text-muted-foreground">Completamento</span>
-                <span className="text-[11px] font-bold text-foreground">{completion}%</span>
+                <motion.span
+                  key={completion}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[11px] font-bold text-foreground"
+                >
+                  {completion}%
+                </motion.span>
               </div>
               <div className="h-2 bg-muted rounded-full overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${completion}%` }}
-                  transition={{ duration: 0.8, delay: index * 0.06 + 0.2, ease: 'easeOut' }}
-                  className="h-full bg-gradient-to-r from-green-500 to-green-400 rounded-full"
-                />
+                  transition={{ duration: 1, delay: index * 0.06 + 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-400 rounded-full relative overflow-hidden"
+                >
+                  <motion.div
+                    animate={{ x: ['0%', '200%'] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'linear', delay: index * 0.1 }}
+                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  />
+                </motion.div>
               </div>
             </div>
 
             {/* ESG Score */}
             {score?.tot ? (
-              <div className={`flex items-center gap-3 bg-gradient-to-r ${cfg?.bg || 'from-slate-500 to-slate-400'} rounded-xl px-4 py-3`}>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                transition={{ type: 'spring', stiffness: 400 }}
+                className={`flex items-center gap-3 bg-gradient-to-r ${cfg?.bg || 'from-slate-500 to-slate-400'} rounded-xl px-4 py-3`}
+              >
                 <div>
                   <p className="text-[9px] text-white/70 uppercase tracking-widest">ESG Score</p>
-                  <p className="font-heading font-extrabold text-2xl text-white leading-none">{score.tot}</p>
+                  <p className="font-heading font-extrabold text-2xl text-white leading-none">
+                    <AnimatedScore value={score.tot} />
+                  </p>
                 </div>
                 <div className="flex-1 grid grid-cols-3 text-center gap-1">
-                  {[['E', score.E], ['S', score.S], ['G', score.G]].map(([l, v]) => (
-                    <div key={l} className="bg-white/15 rounded-lg py-1">
+                  {[['E', score.E], ['S', score.S], ['G', score.G]].map(([l, v], pi) => (
+                    <motion.div
+                      key={l}
+                      initial={{ opacity: 0, scale: 0.7 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: index * 0.06 + pi * 0.08 + 0.3, type: 'spring', stiffness: 300 }}
+                      className="bg-white/15 rounded-lg py-1"
+                    >
                       <p className="text-[8px] text-white/60 uppercase">{l}</p>
                       <p className="text-xs font-bold text-white">{v}</p>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-                <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white group-hover:translate-x-1 transition-all" />
-              </div>
+                <motion.div
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <ArrowRight className="w-4 h-4 text-white/60 group-hover:text-white transition-colors" />
+                </motion.div>
+              </motion.div>
             ) : (
               <div className="flex items-center gap-2 bg-muted rounded-xl px-4 py-3 text-xs text-muted-foreground">
                 <BarChart3 className="w-4 h-4" />
                 Inizia a compilare per calcolare lo score ESG
-                <ArrowRight className="w-3.5 h-3.5 ml-auto group-hover:translate-x-1 transition-transform" />
+                <motion.div animate={{ x: [0, 3, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                  <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+                </motion.div>
               </div>
             )}
           </div>
@@ -174,12 +235,14 @@ function ReportCard({ report, onDelete, index }) {
       </Link>
 
       {/* Delete button */}
-      <button
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDelete(report.id); }}
         className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 flex items-center justify-center rounded-lg bg-background/80 backdrop-blur-sm border border-border hover:border-destructive hover:text-destructive text-muted-foreground z-10"
       >
         <Trash2 className="w-3.5 h-3.5" />
-      </button>
+      </motion.button>
     </motion.div>
   );
 }
@@ -300,10 +363,20 @@ export default function Home() {
         <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-20">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
             <div className="flex flex-wrap items-center gap-2 mb-6">
-              <span className="inline-flex items-center gap-1.5 bg-green-400/12 border border-green-400/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full">
+              <motion.span
+                animate={{ opacity: [1, 0.7, 1] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className="inline-flex items-center gap-1.5 bg-green-400/12 border border-green-400/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-full"
+              >
                 <Leaf className="w-3.5 h-3.5" /> VSME Standard · EFRAG 2024
-              </span>
-
+              </motion.span>
+              <motion.span
+                animate={{ scale: [1, 1.04, 1], boxShadow: ['0 0 0px #4ade8033', '0 0 12px #4ade8066', '0 0 0px #4ade8033'] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+                className="inline-flex items-center gap-1.5 bg-emerald-400/10 border border-emerald-400/30 text-emerald-300 text-xs font-bold px-3 py-1.5 rounded-full"
+              >
+                <Activity className="w-3 h-3" /> Live ESG Engine
+              </motion.span>
             </div>
 
             <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight mb-5">
@@ -353,7 +426,7 @@ export default function Home() {
       <div className="border-b border-border bg-card/50">
         <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
           {[
-            { icon: '⚡', title: 'Score ESG Live', desc: 'Ricalcolo automatico ad ogni modifica' },
+            { icon: '⚡', title: 'Score ESG Live', desc: 'Ricalcolo automatico ad ogni modifica', pulse: true },
             { icon: '🎯', title: 'Validazione Intelligente', desc: 'Alert critici e azioni correttive' },
             { icon: '📊', title: 'Dashboard Avanzata', desc: 'Trend, radar chart e 45 KPI' },
             { icon: '🗺️', title: 'Mappe Territoriali', desc: 'Natura 2000, WDPA e profilo ESG locale', link: true },
@@ -364,12 +437,13 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
-              whileHover={{ x: 4 }}
-              className={`flex items-center gap-3 ${f.link ? 'cursor-pointer' : 'cursor-default'}`}
+              whileHover={{ x: 4, backgroundColor: 'rgba(22,163,74,0.04)' }}
+              className={`flex items-center gap-3 rounded-xl p-2 -mx-2 transition-colors ${f.link ? 'cursor-pointer' : 'cursor-default'}`}
             >
               <motion.span
-                whileHover={{ scale: 1.3, rotate: -5 }}
-                transition={{ type: 'spring', stiffness: 400 }}
+                animate={f.pulse ? { scale: [1, 1.15, 1] } : {}}
+                transition={f.pulse ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
+                whileHover={{ scale: 1.35, rotate: -8 }}
                 className="text-2xl select-none"
               >
                 {f.icon}
@@ -488,15 +562,21 @@ export default function Home() {
             <div className="w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin" />
           </div>
         ) : reports.length === 0 ? (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24">
-            <div className="w-20 h-20 bg-muted rounded-3xl flex items-center justify-center mx-auto mb-5">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="text-center py-24">
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="w-20 h-20 bg-muted rounded-3xl flex items-center justify-center mx-auto mb-5"
+            >
               <Leaf className="w-10 h-10 text-primary/40" />
-            </div>
+            </motion.div>
             <p className="text-lg font-heading font-bold text-foreground mb-2">Inizia la tua journey ESG</p>
             <p className="text-sm text-muted-foreground mb-6 max-w-xs mx-auto">Crea il primo report VSME e scopri il tuo score ESG in pochi minuti</p>
-            <Button onClick={() => setShowNew(true)} className="gap-2 bg-primary px-6">
-              <Plus className="w-4 h-4" /> Crea il primo report
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.96 }}>
+              <Button onClick={() => setShowNew(true)} className="gap-2 bg-primary px-6">
+                <Plus className="w-4 h-4" /> Crea il primo report
+              </Button>
+            </motion.div>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

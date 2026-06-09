@@ -1,10 +1,29 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { Link } from 'react-router-dom';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
-import { Target, TrendingUp, Zap, Users, Shield, ArrowRight, CheckCircle2, AlertTriangle, Circle } from 'lucide-react';
+import { Target, TrendingUp, Zap, Users, Shield, ArrowRight, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { calcESGScore } from '@/lib/vsmeDefaults';
+
+function useCountUp(target, duration = 1100) {
+  const [count, setCount] = useState(0);
+  const started = useRef(false);
+  useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+    let startTs = null;
+    const step = (ts) => {
+      if (!startTs) startTs = ts;
+      const p = Math.min((ts - startTs) / duration, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      setCount(Math.round(eased * target));
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [target, duration]);
+  return count;
+}
 
 const PILLAR_CFG = {
   E: { label: 'Ambiente',    icon: Zap,       color: '#16A34A', bg: 'bg-green-50',  border: 'border-green-200',  text: 'text-green-700'  },
@@ -93,6 +112,11 @@ function PillarCard({ pillarKey, score, target, index }) {
   );
 }
 
+function AnimatedTot({ value }) {
+  const c = useCountUp(value);
+  return <>{c}</>;
+}
+
 export default function EsgSummaryDashboard({ reports }) {
   // Pick the most recent report with ESG data
   const latest = useMemo(() => {
@@ -165,11 +189,18 @@ export default function EsgSummaryDashboard({ reports }) {
         <div className="lg:col-span-1 flex flex-col gap-4">
           {/* Global score */}
           <Card className={`p-5 bg-gradient-to-br ${ratingCfg.gradient} text-white relative overflow-hidden`}>
-            <div className="absolute -right-6 -top-6 w-28 h-28 bg-white/10 rounded-full" />
+            {/* Pulsing glow ring */}
+            <motion.div
+              animate={{ scale: [1, 1.25, 1], opacity: [0.15, 0.06, 0.15] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute -right-8 -top-8 w-36 h-36 bg-white rounded-full pointer-events-none"
+            />
             <div className="absolute -right-2 bottom-0 w-16 h-16 bg-white/5 rounded-full" />
             <p className="text-[11px] font-bold uppercase tracking-widest text-white/70 mb-1">Score ESG Complessivo</p>
             <div className="flex items-end gap-3 mb-3">
-              <p className="font-heading font-extrabold text-6xl text-white leading-none">{esg.tot}</p>
+              <p className="font-heading font-extrabold text-6xl text-white leading-none">
+                <AnimatedTot value={esg.tot} />
+              </p>
               <div className="mb-1">
                 <p className="text-white/80 text-xs">su 100</p>
                 <p className="font-bold text-base">{ratingCfg.emoji} {esg.rating}</p>
