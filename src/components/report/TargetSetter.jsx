@@ -101,11 +101,11 @@ export default function TargetSetter({ report, onSave, onClose }) {
         <DialogHeader>
           <DialogTitle className="font-heading flex items-center gap-2">
             <Target className="w-5 h-5 text-primary" />
-            Obiettivi ESG per {report.year + 1}
+            Obiettivi ESG — Anno {report.year}
           </DialogTitle>
           <p className="text-xs text-muted-foreground pt-1">
-            Definisci i target che vuoi raggiungere <strong>nell'anno {report.year + 1}</strong>.<br />
-            I valori <em>Attuale</em> mostrati sotto sono lo score calcolato dal report <strong>{report.year}</strong> in corso.
+            Definisci i target da raggiungere <strong>entro la chiusura dell'anno {report.year}</strong>.<br />
+            Gli avvisi nella campanella si attivano quando lo score attuale è distante dal target qui impostato.
           </p>
         </DialogHeader>
 

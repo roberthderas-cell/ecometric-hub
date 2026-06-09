@@ -126,7 +126,7 @@ export default function KpiAlertsPanel({ alerts, onNavigate }) {
                   {total} alert attivi · Gli avvisi si ricalcolano in tempo reale ad ogni modifica.
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  <strong>Soglia</strong> = valore fuori norma · <strong>Obiettivo</strong> = distanza dal target {'{'}anno+1{'}'} impostato in "Obiettivi"
+                  <strong>Soglia</strong> = valore fuori norma · <strong>Obiettivo</strong> = distanza dal target dell'anno in corso impostato in "Obiettivi"
                 </p>
               </div>
             </motion.div>

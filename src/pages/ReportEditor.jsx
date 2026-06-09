@@ -284,7 +284,7 @@ export default function ReportEditor() {
                 className="gap-1 hidden sm:flex"
               >
                 <TargetIcon className="w-3 h-3" />
-                Obiettivi {report.year + 1}
+                Obiettivi {report.year}
               </Button>
             </div>
           </div>
