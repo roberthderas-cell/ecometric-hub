@@ -111,14 +111,18 @@ export default function SectionHeader({ icon, title, description, reference }) {
 
       {/* Content */}
       <div className="flex items-start gap-4 relative z-10">
-        <motion.span
+        <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.15, type: 'spring', stiffness: 280, damping: 18 }}
-          className="text-4xl drop-shadow-lg select-none"
+          className="shrink-0 drop-shadow-lg select-none"
         >
-          {icon}
-        </motion.span>
+          {typeof icon === 'string' && (icon.startsWith('http') || icon.endsWith('.gif')) ? (
+            <img src={icon} alt="" className="w-14 h-14 object-contain rounded-xl" />
+          ) : (
+            <span className="text-4xl">{icon}</span>
+          )}
+        </motion.div>
         <div>
           <motion.h2
             initial={{ opacity: 0, x: -10 }}

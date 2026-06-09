@@ -36,7 +36,7 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
   return (
     <div>
       <SectionHeader
-        icon="🏢"
+        icon="https://cdn.lordicon.com/puvaffet.gif"
         title="Anagrafica Impresa"
         description="Inserisci i dati identificativi, le sedi aziendali e i dati dimensionali. Le sedi vengono usate automaticamente nella verifica Biodiversità."
         reference="VSME B1 — Basi per la preparazione"

@@ -42,7 +42,7 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
 
   return (
     <div>
-      <SectionHeader icon="♻️" title="B7 — Rifiuti" description="Dati dal Registro di Carico/Scarico (D.Lgs. 152/2006) e portale RENTRI. Dettaglio per codice CER." reference="VSME B7 | D.Lgs. 152/2006 | RENTRI" />
+      <SectionHeader icon="https://cdn.lordicon.com/bpwdqzlq.gif" title="B7 — Rifiuti" description="Dati dal Registro di Carico/Scarico (D.Lgs. 152/2006) e portale RENTRI. Dettaglio per codice CER." reference="VSME B7 | D.Lgs. 152/2006 | RENTRI" />
 
       {missing.length > 0 && (
         <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 mb-5">

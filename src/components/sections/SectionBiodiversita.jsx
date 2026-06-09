@@ -22,7 +22,7 @@ export default function SectionBiodiversita({ data, onUpdate, onNavigate, report
 
   return (
     <div>
-      <SectionHeader icon="🌿" title="B5 — Biodiversità" description="Verifica automatica della prossimità delle sedi aziendali ad aree Natura 2000 e WDPA. Le sedi vengono lette dall'Anagrafica." reference="VSME B5 | ESRS E4 | Dir. Habitat 92/43/CEE" />
+      <SectionHeader icon="https://cdn.lordicon.com/slduhdil.gif" title="B5 — Biodiversità" description="Verifica automatica della prossimità delle sedi aziendali ad aree Natura 2000 e WDPA. Le sedi vengono lette dall'Anagrafica." reference="VSME B5 | ESRS E4 | Dir. Habitat 92/43/CEE" />
 
       {/* AVVISO SE MANCANO SEDI */}
       {!hasSedi && (

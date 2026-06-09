@@ -13,7 +13,7 @@ export default function SectionGovernance({ data, onUpdate, onNavigate }) {
 
   return (
     <div>
-      <SectionHeader icon="⚖️" title="B11 — Governance e Integrità" description="Struttura di governo, strumenti di compliance, corruzione e pagamenti." reference="VSME B11 | D.Lgs. 231/2001 | Whistleblowing" />
+      <SectionHeader icon="https://cdn.lordicon.com/dqxvnmgi.gif" title="B11 — Governance e Integrità" description="Struttura di governo, strumenti di compliance, corruzione e pagamenti." reference="VSME B11 | D.Lgs. 231/2001 | Whistleblowing" />
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Organo di Governo</h3>
