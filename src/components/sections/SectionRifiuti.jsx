@@ -189,9 +189,9 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
         <Card className="p-5 mb-5">
           <h4 className="font-heading text-sm font-bold text-primary mb-3">Destino Rifiuti</h4>
           <ResponsiveContainer width="100%" height={180}>
-            <PieChart><Pie data={destData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label>
+            <PieChart><Pie data={destData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={60} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`} fontSize={11}>
               <Cell fill="#16A34A" /><Cell fill="#9CA3AF" />
-            </Pie><Tooltip /></PieChart>
+            </Pie><Tooltip formatter={(v) => [`${Number(v).toFixed(2)} t`]} /></PieChart>
           </ResponsiveContainer>
         </Card>
       )}
