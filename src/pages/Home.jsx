@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { DEFAULT_DATA } from '@/lib/vsmeDefaults';
 import HeroParticles from '@/components/home/HeroParticles';
 import VisuraWithAnalysis from '../components/home/VisuraWithAnalysis.jsx';
+import EsgSummaryDashboard from '@/components/home/EsgSummaryDashboard';
 
 const ratingConfig = {
   Leader:        { color: '#059669', bg: 'from-emerald-500 to-green-400', label: '🏆 Leader' },
@@ -460,6 +461,11 @@ export default function Home() {
             </Button>
           </motion.div>
         </motion.div>
+
+        {/* ESG Summary Dashboard — shown when at least one report has data */}
+        {reports.filter(r => r.data).length >= 1 && (
+          <EsgSummaryDashboard reports={reports} />
+        )}
 
         {/* Multi-site ESG ranking (shown when ≥2 reports with ESG scores exist) */}
         <MultiSiteDashboard reports={reports} />
