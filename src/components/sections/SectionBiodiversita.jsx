@@ -3,7 +3,7 @@ import { TextInput, SelectField } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import BiodiversitaMap from '@/components/report/BiodiversitaMap';
 import { Link } from 'react-router-dom';
 
@@ -40,13 +40,33 @@ export default function SectionBiodiversita({ data, onUpdate, onNavigate, report
 
       {/* MAPPA INTEGRATA */}
       <Card className="p-5 mb-5">
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-1 flex-wrap gap-2">
           <h3 className="font-heading font-bold text-primary text-sm">🗺️ Mappa Aree Protette — Verifica Sedi Aziendali</h3>
-          {hasSedi && (
-            <button onClick={() => onNavigate('ana')} className="text-xs text-primary hover:underline">
-              ✏️ Modifica sedi →
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {data?.ana?.sede && (
+              <a
+                href={`https://www.openstreetmap.org/search?query=${encodeURIComponent(data.ana.sede)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+              >
+                <ExternalLink className="w-3 h-3" /> Apri su OpenStreetMap
+              </a>
+            )}
+            <a
+              href="https://natura2000.eea.europa.eu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 text-xs font-semibold text-green-700 hover:underline"
+            >
+              <ExternalLink className="w-3 h-3" /> Portale Natura 2000
+            </a>
+            {hasSedi && (
+              <button onClick={() => onNavigate('ana')} className="text-xs text-primary hover:underline">
+                ✏️ Modifica sedi →
+              </button>
+            )}
+          </div>
         </div>
         <p className="text-xs text-muted-foreground mb-3">
           Le sedi inserite in Anagrafica vengono geolocalizzate automaticamente. Attiva/disattiva i layer Natura 2000 e WDPA per verificare la prossimità alle aree protette (buffer 5 km).

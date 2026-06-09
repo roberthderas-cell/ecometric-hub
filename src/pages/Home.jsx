@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap, Building2 } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Leaf, Trash2, Sparkles, ArrowRight, BarChart3, Shield, Zap, Building2, MapPin, ExternalLink } from 'lucide-react';
 import YearComparisonChart from '@/components/report/YearComparisonChart';
 import { TemplatePicker } from '@/components/report/TemplateManager';
 import MultiSiteDashboard from '@/components/report/MultiSiteDashboard';
@@ -199,6 +199,13 @@ export default function Home() {
     queryFn: () => base44.entities.Report.list('-updated_date', 50),
   });
 
+  const { data: aziendaProfiles = [] } = useQuery({
+    queryKey: ['azienda-profilo'],
+    queryFn: () => base44.entities.AziendaProfilo.list('-created_date', 1),
+    enabled: !!user,
+  });
+  const azienda = aziendaProfiles?.[0];
+
   const createMutation = useMutation({
     mutationFn: (d) => base44.entities.Report.create(d),
     onSuccess: () => {
@@ -342,11 +349,12 @@ export default function Home() {
 
       {/* ── FEATURES STRIP ───────────────────────────────── */}
       <div className="border-b border-border bg-card/50">
-        <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="max-w-6xl mx-auto px-6 py-5 grid grid-cols-1 sm:grid-cols-4 gap-4">
           {[
             { icon: '⚡', title: 'Score ESG Live', desc: 'Ricalcolo automatico ad ogni modifica' },
             { icon: '🎯', title: 'Validazione Intelligente', desc: 'Alert critici e azioni correttive' },
             { icon: '📊', title: 'Dashboard Avanzata', desc: 'Trend, radar chart e 45 KPI' },
+            { icon: '🗺️', title: 'Mappe Territoriali', desc: 'Natura 2000, WDPA e profilo ESG locale', link: true },
           ].map((f, i) => (
             <motion.div
               key={f.title}
@@ -355,7 +363,7 @@ export default function Home() {
               viewport={{ once: true, margin: '-40px' }}
               transition={{ delay: i * 0.1, duration: 0.4 }}
               whileHover={{ x: 4 }}
-              className="flex items-center gap-3 cursor-default"
+              className={`flex items-center gap-3 ${f.link ? 'cursor-pointer' : 'cursor-default'}`}
             >
               <motion.span
                 whileHover={{ scale: 1.3, rotate: -5 }}
@@ -364,14 +372,74 @@ export default function Home() {
               >
                 {f.icon}
               </motion.span>
-              <div>
+              <div className="flex-1">
                 <p className="text-sm font-bold text-foreground">{f.title}</p>
                 <p className="text-xs text-muted-foreground">{f.desc}</p>
               </div>
+              {f.link && azienda?.lat && azienda?.lng && (
+                <a
+                  href={`https://www.openstreetmap.org/?mlat=${azienda.lat}&mlon=${azienda.lng}#map=14/${azienda.lat}/${azienda.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={e => e.stopPropagation()}
+                  className="flex items-center gap-1 text-[10px] text-primary font-bold hover:underline shrink-0"
+                >
+                  <ExternalLink className="w-3 h-3" /> Apri
+                </a>
+              )}
             </motion.div>
           ))}
         </div>
       </div>
+
+      {/* ── PROFILO TERRITORIALE ESG ─────────────────────── */}
+      {azienda?.profilo_territoriale && azienda.lat && (
+        <div className="max-w-6xl mx-auto px-6 py-6">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="bg-card border border-border rounded-2xl p-5 flex flex-wrap items-center gap-5"
+          >
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wide">Profilo Territoriale ESG</p>
+                <p className="text-sm font-bold text-foreground">{azienda.comune || azienda.ragione_sociale}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3 flex-1">
+              {azienda.profilo_territoriale.zona_climatica && (
+                <span className="bg-muted rounded-lg px-3 py-1.5 text-xs"><strong>Zona</strong> {azienda.profilo_territoriale.zona_climatica}</span>
+              )}
+              {azienda.profilo_territoriale.temp_media != null && (
+                <span className="bg-muted rounded-lg px-3 py-1.5 text-xs"><strong>Temp.</strong> {Number(azienda.profilo_territoriale.temp_media).toFixed(1)}°C</span>
+              )}
+              {azienda.profilo_territoriale.pm25_medio != null && (
+                <span className="bg-muted rounded-lg px-3 py-1.5 text-xs"><strong>PM2.5</strong> {Number(azienda.profilo_territoriale.pm25_medio).toFixed(1)} µg/m³</span>
+              )}
+              <span className={`rounded-lg px-3 py-1.5 text-xs font-bold ${azienda.profilo_territoriale.stress_idrico ? 'bg-amber-100 text-amber-700' : 'bg-green-100 text-green-700'}`}>
+                {azienda.profilo_territoriale.stress_idrico ? '⚠️ Stress idrico alto' : '✅ Stress idrico normale'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <a
+                href={`https://www.openstreetmap.org/?mlat=${azienda.lat}&mlon=${azienda.lng}#map=14/${azienda.lat}/${azienda.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-xs font-bold text-primary border border-primary/30 rounded-lg px-3 py-1.5 hover:bg-primary/5 transition-colors"
+              >
+                <ExternalLink className="w-3.5 h-3.5" /> Mappa OSM
+              </a>
+              <Link to="/onboarding" className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2">
+                Aggiorna analisi
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
       {/* ── REPORT LIST ──────────────────────────────────── */}
       <div className="max-w-6xl mx-auto px-6 py-10">

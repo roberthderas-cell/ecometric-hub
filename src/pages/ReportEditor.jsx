@@ -4,7 +4,7 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical, FileSpreadsheet } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical, FileSpreadsheet, Map } from 'lucide-react';
 import TargetSetter from '@/components/report/TargetSetter';
 import ExcelImportModal from '@/components/report/ExcelImportModal';
 import EsgWizard from '@/components/report/EsgWizard';
@@ -223,6 +223,15 @@ export default function ReportEditor() {
                 onNavigate={handleNavigate}
               />
               <LiveEsgBadge esg={report.esg_score ? { ...report.esg_score } : null} compact />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleNavigate('biod')}
+                className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
+              >
+                <Map className="w-3 h-3" />
+                Mappa
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
