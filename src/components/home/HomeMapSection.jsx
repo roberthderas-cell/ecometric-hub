@@ -91,11 +91,11 @@ export default function HomeMapSection({ azienda, reports = [] }) {
     const list = [];
 
     // Use lat/lng from AziendaProfilo if available (no geocoding needed)
-    if (azienda?.lat && azienda?.lng) {
+    if (Number.isFinite(parseFloat(azienda?.lat)) && Number.isFinite(parseFloat(azienda?.lng))) {
       const latestReport = reports.find(r => r.data);
       const esg = latestReport ? calcESGScore(latestReport.data) : null;
       list.push({
-        coords: [azienda.lat, azienda.lng],
+        coords: [parseFloat(azienda.lat), parseFloat(azienda.lng)],
         nome: azienda.ragione_sociale || 'Sede principale',
         tipo: 'Sede Legale',
         indirizzo: [azienda.indirizzo, azienda.comune, azienda.provincia].filter(Boolean).join(', '),
@@ -222,8 +222,8 @@ export default function HomeMapSection({ azienda, reports = [] }) {
         {/* Map */}
         <div style={{ height: 380 }}>
           <MapContainer
-            center={azienda?.lat ? [azienda.lat, azienda.lng] : [42.5, 12.5]}
-            zoom={azienda?.lat ? 12 : 6}
+            center={(Number.isFinite(parseFloat(azienda?.lat)) && Number.isFinite(parseFloat(azienda?.lng))) ? [parseFloat(azienda.lat), parseFloat(azienda.lng)] : [42.5, 12.5]}
+            zoom={(Number.isFinite(parseFloat(azienda?.lat))) ? 12 : 6}
             style={{ height: '100%', width: '100%' }}
             scrollWheelZoom={false}
           >
