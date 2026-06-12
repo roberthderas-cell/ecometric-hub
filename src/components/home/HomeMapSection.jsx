@@ -46,10 +46,15 @@ function FitBounds({ markers }) {
   const map = useMap();
   useEffect(() => {
     if (!markers.length) return;
-    if (markers.length === 1) {
-      map.flyTo(markers[0].coords, 13, { duration: 1.2 });
+    const valid = markers.filter(m => {
+      const [lat, lng] = m.coords || [];
+      return Number.isFinite(lat) && Number.isFinite(lng);
+    });
+    if (!valid.length) return;
+    if (valid.length === 1) {
+      map.flyTo(valid[0].coords, 13, { duration: 1.2 });
     } else {
-      const bounds = L.latLngBounds(markers.map(m => m.coords));
+      const bounds = L.latLngBounds(valid.map(m => m.coords));
       map.fitBounds(bounds, { padding: [60, 60], maxZoom: 13 });
     }
   }, [markers.length]);
@@ -227,7 +232,10 @@ export default function HomeMapSection({ azienda, reports = [] }) {
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            {markers.map((m, i) => (
+            {markers.filter(m => {
+              const [lat, lng] = m.coords || [];
+              return Number.isFinite(lat) && Number.isFinite(lng);
+            }).map((m, i) => (
               <Marker
                 key={i}
                 position={m.coords}
