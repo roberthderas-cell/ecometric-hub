@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import SectionHeader from '@/components/report/SectionHeader';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,38 @@ import SectorBenchmark from '@/components/report/SectorBenchmark';
 import EsgPriorityOverview from '@/components/report/EsgPriorityOverview';
 import EsgWizard from '@/components/report/EsgWizard';
 import { AnimatePresence } from 'framer-motion';
+
+function AnimatedScoreValue({ value, color, heroMode }) {
+  const prevRef = useRef(value);
+  const [displayed, setDisplayed] = useState(value);
+  const rafRef = useRef(null);
+  useEffect(() => {
+    const from = prevRef.current;
+    const to = value;
+    prevRef.current = to;
+    if (from === to) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    let start = null;
+    const step = (ts) => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / 700, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      setDisplayed(Math.round(from + (to - from) * e));
+      if (p < 1) rafRef.current = requestAnimationFrame(step);
+    };
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [value]);
+  return heroMode ? (
+    <p className="font-heading text-6xl font-extrabold leading-none" style={{ color }}>
+      {displayed}<span className="text-sm font-normal opacity-50 ml-1">/ 100</span>
+    </p>
+  ) : (
+    <p className="font-heading text-3xl font-extrabold mt-2" style={{ color }}>
+      {displayed}<span className="text-base text-muted-foreground">/100</span>
+    </p>
+  );
+}
 
 export default function SectionDashboard({ data, reportId, report, onNavigate, onUpdate, onBulkUpdate }) {
   const [exporting, setExporting] = useState(false);
@@ -129,8 +161,7 @@ export default function SectionDashboard({ data, reportId, report, onNavigate, o
           className={`md:col-span-1 rounded-2xl bg-gradient-to-br ${ratingBg[esg.rating] || ratingBg.Base} p-6 text-white text-center shadow-xl`}
         >
           <p className="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-2">ESG Score</p>
-          <p className="font-heading text-6xl font-extrabold leading-none">{esg.tot}</p>
-          <p className="text-sm opacity-70 mt-1">/ 100</p>
+          <AnimatedScoreValue value={esg.tot} color="white" heroMode />
           <div className="mt-3 bg-white/20 rounded-lg py-2 px-4 text-sm font-bold">{esg.rIcon} {esg.rating}</div>
         </motion.div>
 
@@ -148,14 +179,11 @@ export default function SectionDashboard({ data, reportId, report, onNavigate, o
               className={`bg-gradient-to-br ${area.gradient} border rounded-xl p-5`}
             >
               <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wide">{area.label}</p>
-              <p className="font-heading text-3xl font-extrabold mt-2" style={{ color: area.color }}>
-                {area.value}<span className="text-base text-muted-foreground">/100</span>
-              </p>
+              <AnimatedScoreValue value={area.value} color={area.color} />
               <div className="h-1.5 bg-white rounded-full mt-3 overflow-hidden">
                 <motion.div
-                  initial={{ width: 0 }}
                   animate={{ width: `${area.value}%` }}
-                  transition={{ duration: 1, delay: 0.3 + i * 0.1 }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
                   className="h-full rounded-full"
                   style={{ backgroundColor: area.color }}
                 />
@@ -167,10 +195,10 @@ export default function SectionDashboard({ data, reportId, report, onNavigate, o
 
       {/* Charts grid — wrapped for PDF capture */}
       <div id="esg-pdf-charts" className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-        <RadarEsg esg={esg} />
-        <GhgBarChart g={g} />
-        <EnergyMixBar g={g} />
-        <WasteDonut w={w} />
+        <RadarEsg key={`radar-${esg.E}-${esg.S}-${esg.G}`} esg={esg} />
+        <GhgBarChart key={`ghg-${g.s1.toFixed(1)}-${g.s2LB.toFixed(1)}`} g={g} />
+        <EnergyMixBar key={`mix-${g.totKwh.toFixed(0)}`} g={g} />
+        <WasteDonut key={`waste-${w.tot.toFixed(2)}`} w={w} />
       </div>
 
       {/* KPI Cards grid */}
@@ -237,7 +265,7 @@ export default function SectionDashboard({ data, reportId, report, onNavigate, o
         ))}
       </div>
 
-      <GenderDonut pe={pe} />
+      <GenderDonut key={`gender-${pe.donne}-${pe.uomini}`} pe={pe} />
     </div>
   );
 }

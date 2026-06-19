@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Info, X, TrendingUp } from 'lucide-react';
@@ -96,26 +96,31 @@ function KPIDrawer({ label, value, unit, description, color, onClose }) {
 }
 
 function AnimatedNumber({ value }) {
-  // Parse numeric portion for animation
   const raw = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
   const suffix = String(value).replace(/^[0-9.\-]+/, '');
-  const [displayed, setDisplayed] = useState(0);
-  const started = useRef(false);
+  const prevRef = useRef(0);
+  const [displayed, setDisplayed] = useState(isNaN(raw) ? 0 : raw);
+  const rafRef = useRef(null);
 
-  // Trigger count-up on mount
-  useState(() => {
+  useEffect(() => {
     if (isNaN(raw)) return;
+    const from = prevRef.current;
+    const to = raw;
+    prevRef.current = to;
+    if (from === to) return;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
     let start = null;
-    const duration = 900;
+    const duration = 650;
     const step = (ts) => {
       if (!start) start = ts;
       const progress = Math.min((ts - start) / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayed(eased * raw);
-      if (progress < 1) requestAnimationFrame(step);
+      setDisplayed(from + (to - from) * eased);
+      if (progress < 1) rafRef.current = requestAnimationFrame(step);
     };
-    requestAnimationFrame(step);
-  });
+    rafRef.current = requestAnimationFrame(step);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [raw]);
 
   if (isNaN(raw)) return <>{value}</>;
 
