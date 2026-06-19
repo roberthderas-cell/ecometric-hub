@@ -41,19 +41,26 @@ export function TextArea({ label, hint, value, onChange, rows = 4, placeholder =
   );
 }
 
-export function SelectField({ label, hint, value, onChange, options }) {
+export function SelectField({ label, hint, value, onChange, options, placeholder = 'Seleziona...' }) {
+  const normalizedOptions = (options || []).map((opt) => ({
+    val: Array.isArray(opt) ? opt[0] : opt.value,
+    txt: Array.isArray(opt) ? opt[1] : opt.label,
+  }));
+
+  // Separate the "empty" option (used as placeholder) from real options
+  const emptyOpt = normalizedOptions.find((o) => o.val === '');
+  const validOptions = normalizedOptions.filter((o) => o.val !== '');
+
   return (
     <FieldGroup label={label} hint={hint}>
       <Select value={value || ''} onValueChange={onChange}>
         <SelectTrigger className="border-green-200 focus:border-primary focus:ring-primary/10">
-          <SelectValue />
+          <SelectValue placeholder={emptyOpt ? emptyOpt.txt : placeholder} />
         </SelectTrigger>
         <SelectContent>
-          {(options || []).map((opt) => {
-            const val = Array.isArray(opt) ? opt[0] : opt.value;
-            const txt = Array.isArray(opt) ? opt[1] : opt.label;
-            return <SelectItem key={val} value={val}>{txt}</SelectItem>;
-          })}
+          {validOptions.map(({ val, txt }) => (
+            <SelectItem key={val} value={val}>{txt}</SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </FieldGroup>
