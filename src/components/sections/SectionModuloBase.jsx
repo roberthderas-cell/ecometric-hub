@@ -1,4 +1,5 @@
 import { calcEnergy, calcWaste, calcWater, calcPersonnel } from '@/lib/vsmeDefaults';
+import EfragReference from '@/components/report/EfragReference';
 
 function Table({ children }) {
   return (
@@ -20,16 +21,19 @@ function AutoBadge() {
 }
 function SectionHeader({ id, title, reference, badge }) {
   return (
-    <div className="flex items-start justify-between mb-4">
-      <div>
-        <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
-          <span className="text-xs font-extrabold px-2 py-1 rounded bg-primary/10 text-primary">{id}</span>
-          {title}
-        </h2>
-        {reference && <p className="text-xs text-muted-foreground mt-1">{reference}</p>}
+    <>
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h2 className="font-heading text-lg font-bold text-foreground flex items-center gap-2">
+            <span className="text-xs font-extrabold px-2 py-1 rounded bg-primary/10 text-primary">{id}</span>
+            {title}
+          </h2>
+          {reference && <p className="text-xs text-muted-foreground mt-1">{reference}</p>}
+        </div>
+        {badge}
       </div>
-      {badge}
-    </div>
+      <EfragReference reference={reference} />
+    </>
   );
 }
 function NarrativeBox({ text, placeholder }) {
@@ -75,7 +79,9 @@ export function SectionB3({ data }) {
             {rows.filter(r => parseFloat(r.quantita) > 0).map((r, i) => (
               <tr key={i}><Td>{r.combustibile}</Td><Td>{r.rinnovabile === 'Si' ? 'Rinnovabile ✓' : 'Non rinnovabile'}</Td><Td bold>{r.quantita} {r.unita}</Td><Td>—</Td></tr>
             ))}
-            <tr className="bg-muted/30"><Td bold>TOTALE (MWh equivalenti)</Td><Td></Td><Td bold>{(g.totKwh / 1000).toFixed(1)} MWh — {g.pRen.toFixed(1)}% rinn.</Td><Td>—</Td></tr>
+            <tr className="bg-muted/30"><Td bold>TOTALE (MWh equivalenti)</Td><Td></Td><Td bold>{(g.totKwh / 1000).toFixed(1)} MWh — {g.pRenTot.toFixed(1)}% rinn.</Td><Td>—</Td></tr>
+            <tr><Td bold>di cui Rinnovabile</Td><Td>Rinnovabile ✓</Td><Td bold>{(g.renKwh / 1000).toFixed(1)} MWh</Td><Td>—</Td></tr>
+            <tr><Td bold>di cui Non rinnovabile</Td><Td>Non rinnovabile</Td><Td bold>{(g.nonRenKwh / 1000).toFixed(1)} MWh</Td><Td>—</Td></tr>
           </tbody>
         </Table>
       </Card>
@@ -321,6 +327,8 @@ export function SectionB10({ data }) {
             <tr><Td>di cui Donne</Td><Td bold>{fmtE(pe.retDon)}</Td></tr>
             <tr className="bg-muted/30"><Td bold>Gender Pay Gap</Td><Td bold>{calc.gpg}%</Td></tr>
             <tr><Td>Ore medie formazione / dip. / anno</Td><Td bold>{pe.oreForm ? pe.oreForm + ' h' : '—'}</Td></tr>
+            <tr><Td>di cui Donne (ore medie form.)</Td><Td bold>{pe.oreFormDonne ? pe.oreFormDonne + ' h' : '—'}</Td></tr>
+            <tr><Td>di cui Uomini (ore medie form.)</Td><Td bold>{pe.oreFormUomini ? pe.oreFormUomini + ' h' : '—'}</Td></tr>
             <tr><Td>% con valutazione performance</Td><Td bold>{pe.percVal ? pe.percVal + '%' : '—'}</Td></tr>
             <tr><Td>Promozioni interne</Td><Td bold>{pe.promN || '—'}</Td></tr>
           </tbody>

@@ -134,6 +134,17 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
         </div>
       </Card>
 
+      {/* Energia totale MWh — VSME B3 */}
+      <Card className="p-6 mb-5">
+        <h3 className="font-heading font-bold text-primary text-sm mb-1">Energia Totale (MWh) — richiesto da VSME B3</h3>
+        <p className="text-xs text-muted-foreground mb-4">Consumo energetico totale suddiviso tra fonti rinnovabili e non rinnovabili, come richiesto dallo standard EFRAG.</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <ComputedValue label="Energia totale" value={(g.totKwh / 1000).toFixed(1)} unit="MWh" variant="blue" />
+          <ComputedValue label="di cui Rinnovabile" value={(g.renKwh / 1000).toFixed(1)} unit={`MWh · ${g.pRenTot.toFixed(1)}%`} />
+          <ComputedValue label="di cui Non rinnovabile" value={(g.nonRenKwh / 1000).toFixed(1)} unit="MWh" />
+        </div>
+      </Card>
+
       {/* KPI Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <KPICard label="Scope 1" value={g.s1.toFixed(2)} unit="tCO₂eq" color="amber" delay={0} />

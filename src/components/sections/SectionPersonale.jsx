@@ -57,7 +57,9 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
           <TextInput label="CCNL Applicato" value={pe.ccnl} onChange={(v) => u('ccnl', v)} placeholder="Es. Metalmeccanici" />
           <TextInput label="Retrib. Media Uomini (€)" type="number" value={pe.retUom} onChange={(v) => u('retUom', v)} />
           <TextInput label="Retrib. Media Donne (€)" type="number" value={pe.retDon} onChange={(v) => u('retDon', v)} />
-          <TextInput label="Ore formazione/dip./anno" type="number" value={pe.oreForm} onChange={(v) => u('oreForm', v)} />
+          <TextInput label="Ore formazione/dip./anno" type="number" value={pe.oreForm} onChange={(v) => u('oreForm', v)} hint="Media totale" />
+          <TextInput label="Ore formazione — Donne" type="number" value={pe.oreFormDonne} onChange={(v) => u('oreFormDonne', v)} hint="VSME B10" />
+          <TextInput label="Ore formazione — Uomini" type="number" value={pe.oreFormUomini} onChange={(v) => u('oreFormUomini', v)} hint="VSME B10" />
           <ComputedValue label="Gender Pay Gap" value={p.gpg + '%'} unit="(uom−don)/uom" variant={parseFloat(p.gpg) > 15 ? '' : 'blue'} />
         </div>
       </Card>

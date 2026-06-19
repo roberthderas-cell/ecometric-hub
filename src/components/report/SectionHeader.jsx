@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
 import SectionIconAnimated from '@/components/report/SectionIconAnimated';
+import EfragReference from '@/components/report/EfragReference';
 
 function HeaderCanvas() {
   const canvasRef = useRef(null);
@@ -85,6 +86,7 @@ function HeaderCanvas() {
 
 export default function SectionHeader({ icon, sectionId, title, description, reference }) {
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
@@ -156,5 +158,7 @@ export default function SectionHeader({ icon, sectionId, title, description, ref
         </div>
       </div>
     </motion.div>
+    <EfragReference reference={reference} />
+    </>
   );
 }

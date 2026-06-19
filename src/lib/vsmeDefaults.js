@@ -7,7 +7,7 @@ export const DEFAULT_DATA = {
   ri: { totN: '', totN1: '', periN: '', periN1: '', recN: '', recN1: '', noteRi: '', cerRows: [] },
   inq: { regol: 'no', noteInq: '' },
   biod: { supTot: '', supImp: '', natM2: '', sigillM2: '', noteBiod: '' },
-  pe: { hc: '', hcN1: '', fte: '', fteN1: '', donne: '', donneN1: '', uomini: '', uominiN1: '', indet: '', det: '', pt: '', nd: '', infort: '0', ggPersi: '0', malProf: '0', oreLav: '', assentGg: '', retMedia: '', retUom: '', retDon: '', oreForm: '', percVal: '', disab: '', ccnl: '', percCCNL: '', matN: '', promN: '', notePe: '' },
+  pe: { hc: '', hcN1: '', fte: '', fteN1: '', donne: '', donneN1: '', uomini: '', uominiN1: '', indet: '', det: '', pt: '', nd: '', infort: '0', ggPersi: '0', malProf: '0', oreLav: '', assentGg: '', retMedia: '', retUom: '', retDon: '', oreForm: '', oreFormDonne: '', oreFormUomini: '', percVal: '', disab: '', ccnl: '', percCCNL: '', matN: '', promN: '', notePe: '' },
   gov: { compCDA: '', donneCDA: '', codEtico: 'no', mog231: 'no', iso14001: 'no', sa8000: 'no', iso45001: 'no', pariGen: 'no', policy: 'no', wb: 'no', rESG: 'no', cond: '0', san: '0', tempiPag: '', altreCert: '', noteGov: '' },
   b1: { omissioni: 'Nessuna omissione materiale.', subsidiary: '', noteB1: '' },
   b2: { descPrat: '', politiche: '', inizFuture: '', target: '', noteB2: '' },
@@ -188,7 +188,20 @@ export function calcEnergy(data) {
   const pRen = totKwh > 0 ? (elFV / totKwh) * 100 : 0;
   const fatt = parseFloat(data?.ana?.fatturato) || 0;
   const intensity = fatt > 0 ? ((s1 + s2) / fatt) * 1000000 : 0;
-  return { s1, s2LB, s2MB, s2, tot: s1 + s2, avoided, fuelKwh, totKwh, pRen, intensity, metodo };
+
+  // Energia rinnovabile vs non rinnovabile (VSME B3): FV autoconsumato + combustibili rinnovabili + elettricità coperta da GO (market-based)
+  let fuelRenKwh = 0;
+  rows.forEach(r => {
+    if (String(r.rinnovabile).toLowerCase() === 'si') {
+      fuelRenKwh += (parseFloat(r.quantita) || 0) * (parseFloat(r.fattoreKwh) || 0);
+    }
+  });
+  const goRenKwh = metodo === 'market' ? Math.min(goKWh, elRete) : 0;
+  const renKwh = elFV + fuelRenKwh + goRenKwh;
+  const nonRenKwh = Math.max(0, totKwh - renKwh);
+  const pRenTot = totKwh > 0 ? (renKwh / totKwh) * 100 : 0;
+
+  return { s1, s2LB, s2MB, s2, tot: s1 + s2, avoided, fuelKwh, totKwh, pRen, intensity, metodo, renKwh, nonRenKwh, pRenTot };
 }
 
 export function calcWaste(data) {
