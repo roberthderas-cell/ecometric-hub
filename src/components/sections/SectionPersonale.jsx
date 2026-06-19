@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, ComputedValue, SelectField, TextArea } from '@/components/report/FormField';
+import PmiBancheReference from '@/components/report/PmiBancheReference';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -76,6 +77,8 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
           </ResponsiveContainer>
         </Card>
       )}
+
+      <PmiBancheReference sectionKey="pe" />
 
       {/* Iniziative FL e Comunità — DP.36-37 Banche */}
       <Card className="p-6 mb-5">

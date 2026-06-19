@@ -1,4 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
+import PmiBancheReference from '@/components/report/PmiBancheReference';
 import { TextInput, SelectField } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
@@ -42,6 +43,8 @@ export default function SectionInquinamento({ data, onUpdate, onNavigate }) {
   return (
     <div>
       <SectionHeader sectionId="inq" title="B4 — Inquinamento" description="Matrice aspetti-impatti, inventario inquinanti monitorati, metodi di misura e limiti autorizzativi (AIA/AUA)." reference="VSME B4 | D.Lgs. 152/2006 Parte V | D.P.R. 59/2013 (AUA)" />
+
+      <PmiBancheReference sectionKey="inq" />
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-2">Applicabilità B4</h3>

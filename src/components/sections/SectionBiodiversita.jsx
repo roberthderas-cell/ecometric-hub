@@ -1,4 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
+import PmiBancheReference from '@/components/report/PmiBancheReference';
 import { TextInput, SelectField } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
@@ -23,6 +24,8 @@ export default function SectionBiodiversita({ data, onUpdate, onNavigate, report
   return (
     <div>
       <SectionHeader sectionId="biod" title="B5 — Biodiversità" description="Verifica automatica della prossimità delle sedi aziendali ad aree Natura 2000 e WDPA. Le sedi vengono lette dall'Anagrafica." reference="VSME B5 | ESRS E4 | Dir. Habitat 92/43/CEE" />
+
+      <PmiBancheReference sectionKey="biod" />
 
       {/* AVVISO SE MANCANO SEDI */}
       {!hasSedi && (

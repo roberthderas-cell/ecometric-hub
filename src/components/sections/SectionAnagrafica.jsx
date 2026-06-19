@@ -1,4 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
+import PmiBancheReference from '@/components/report/PmiBancheReference';
 import { TextInput, SelectField, ComputedValue } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import { Card } from '@/components/ui/card';
@@ -41,6 +42,8 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
         description="Inserisci i dati identificativi, le sedi aziendali e i dati dimensionali. Le sedi vengono usate automaticamente nella verifica Biodiversità."
         reference="VSME B1 — Basi per la preparazione"
       />
+
+      <PmiBancheReference sectionKey="ana" />
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Dati Identificativi</h3>

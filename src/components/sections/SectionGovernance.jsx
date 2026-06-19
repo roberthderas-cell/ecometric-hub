@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, SelectField } from '@/components/report/FormField';
+import PmiBancheReference from '@/components/report/PmiBancheReference';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -14,6 +15,8 @@ export default function SectionGovernance({ data, onUpdate, onNavigate }) {
   return (
     <div>
       <SectionHeader sectionId="gov" title="B11 — Governance e Integrità" description="Struttura di governo, strumenti di compliance, corruzione e pagamenti." reference="VSME B11 | D.Lgs. 231/2001 | Whistleblowing" />
+
+      <PmiBancheReference sectionKey="gov" />
 
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Organo di Governo</h3>

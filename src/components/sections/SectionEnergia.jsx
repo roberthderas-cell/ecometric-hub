@@ -1,5 +1,6 @@
 import SectionHeader from '@/components/report/SectionHeader';
 import { TextInput, SelectField, ComputedValue, TextArea } from '@/components/report/FormField';
+import PmiBancheReference from '@/components/report/PmiBancheReference';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -36,6 +37,8 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
         description="Consumi energetici, combustibili Scope 1, elettricità Scope 2 (location-based o market-based)."
         reference="VSME B3 | GHG Protocol | Fattori ISPRA"
       />
+
+      <PmiBancheReference sectionKey="en" />
 
       {missing.length > 0 && (
         <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-300 rounded-xl px-4 py-3 mb-5">
