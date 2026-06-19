@@ -4,7 +4,8 @@ import { useOnboardingGuard } from '@/hooks/useOnboardingGuard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical, FileSpreadsheet, Map } from 'lucide-react';
+import { Home, ChevronRight, Target as TargetIcon, ClipboardList, ListChecks, History, FlaskConical, FileSpreadsheet, Map, FileCode2 } from 'lucide-react';
+import XbrlExportModal from '@/components/report/XbrlExportModal';
 import TargetSetter from '@/components/report/TargetSetter';
 import ExcelImportModal from '@/components/report/ExcelImportModal';
 import EsgWizard from '@/components/report/EsgWizard';
@@ -85,6 +86,7 @@ export default function ReportEditor() {
   const [showHistory, setShowHistory] = useState(false);
   const [showAnomalies, setShowAnomalies] = useState(false);
   const [showExcelImport, setShowExcelImport] = useState(false);
+  const [showXbrlExport, setShowXbrlExport] = useState(false);
   const alertsToastFired = useRef(false);
 
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
@@ -289,6 +291,15 @@ export default function ReportEditor() {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => setShowXbrlExport(true)}
+                className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
+              >
+                <FileCode2 className="w-3 h-3" />
+                Export XBRL
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowAnomalies(true)}
                 className="gap-1 hidden md:flex text-muted-foreground hover:text-foreground"
               >
@@ -360,6 +371,14 @@ export default function ReportEditor() {
           )}
         </main>
       </div>
+
+      {showXbrlExport && (
+        <XbrlExportModal
+          reportData={reportData}
+          reportMeta={{ name: report.name, year: report.year }}
+          onClose={() => setShowXbrlExport(false)}
+        />
+      )}
 
       {showExcelImport && (
         <ExcelImportModal
