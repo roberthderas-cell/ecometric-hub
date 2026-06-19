@@ -42,9 +42,12 @@ export default function SectionAcqua({ data, onUpdate, onNavigate }) {
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Scarichi e Denominatore</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextInput label="Scarico idrico N (m³)" type="number" value={ac.scaricoN} onChange={(v) => u('scaricoN', v)} />
-          <TextInput label="Scarico idrico N-1 (m³)" type="number" value={ac.scaricoN1} onChange={(v) => u('scaricoN1', v)} />
-          <TextInput label="Dipendenti medi N (per KPI acqua)" type="number" value={ac.dipAcquaN} onChange={(v) => u('dipAcquaN', v)} />
+          <TextInput label="Scarico idrico N (m³)" type="number" value={ac.scaricoN} onChange={(v) => u('scaricoN', v)}
+            tooltip={{ label: 'Scarichi idrici (m³)', desc: 'Volume totale di acqua scaricata nell\'anno, verso rete fognaria, acque superficiali o suolo. Il consumo netto = Prelievo − Scarico.', source: 'Autorizzazione allo scarico (AUA), misuratori, o stima: tipicamente 60–80% del prelievo per uffici/servizi.', tip: 'Se non hai misuratori di scarico, usa la stima del 70% del prelievo totale e documentalo nelle Note.', warning: 'Lo scarico in acque superficiali richiede autorizzazione specifica (AUA). Se presente, compila anche la sezione B4 Inquinamento.', efrag: 'VSME B6-2 — Scarichi idrici' }} />
+          <TextInput label="Scarico idrico N-1 (m³)" type="number" value={ac.scaricoN1} onChange={(v) => u('scaricoN1', v)}
+            tooltip={{ label: 'Scarichi idrici Anno precedente', desc: 'Volume scaricato nell\'anno N-1 per confronto YoY.', source: 'Storico autorizzazioni o stime anno precedente.', efrag: 'VSME B6 — Confronto temporale' }} />
+          <TextInput label="Dipendenti medi N (per KPI acqua)" type="number" value={ac.dipAcquaN} onChange={(v) => u('dipAcquaN', v)}
+            tooltip={{ label: 'Dipendenti per KPI idrico', desc: 'Numero medio di dipendenti usato come denominatore per calcolare il KPI "m³ per dipendente". Usa lo stesso valore dell\'Headcount medio della sezione Personale.', tip: 'KPI benchmark: uffici ≈ 10–20 m³/dip/anno | manifattura: molto variabile. Inserisci lo stesso valore HC della sezione Personale per coerenza.', efrag: 'VSME B6 — Intensità idrica' }} />
         </div>
       </Card>
 

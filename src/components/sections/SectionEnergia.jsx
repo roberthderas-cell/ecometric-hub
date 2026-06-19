@@ -72,6 +72,7 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
               { value: 'location', label: 'Location-based (ISPRA)' },
               { value: 'market', label: 'Market-based (GO/contratto)' },
             ]}
+            tooltip={{ label: 'Metodo Scope 2 — GHG Protocol', desc: 'Il metodo "Location-based" usa il fattore emissivo medio della rete elettrica nazionale (ISPRA). È obbligatorio dichiararlo. Il metodo "Market-based" si usa solo se hai contratti con Garanzie d\'Origine (GO) o PPA che coprono energia rinnovabile certificata.', source: 'Contratto di fornitura elettrica o certificati GO dall\'Energy Service Company.', tip: 'Se non hai contratti GO, usa sempre Location-based. Entrambi i metodi vanno dichiarati nel report se si usa Market-based.', efrag: 'VSME B3 | GHG Protocol Scope 2 Guidance' }}
           />
           {metodo === 'market' && (
             <>
@@ -81,6 +82,7 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
                 value={en.goKWhN}
                 onChange={(v) => u('goKWhN', v)}
                 hint="Max = elettricità da rete"
+                tooltip={{ label: 'Garanzie di Origine (GO)', desc: 'Indica i kWh di elettricità coperti da Garanzie d\'Origine o da un PPA (Power Purchase Agreement) con fornitore rinnovabile. Non può superare il totale da rete.', source: 'Certificati GO rilasciati dal GSE (Gestore Servizi Energetici) o dal tuo fornitore.', warning: 'I GO devono essere stati "cancellati" (utilizzati) nello stesso anno di rendicontazione per essere validi.', efrag: 'GHG Protocol — Market-based Method' }}
               />
               <TextInput
                 label="Fattore emissione contrattuale (kgCO₂/kWh)"
@@ -88,6 +90,7 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
                 value={en.goEFN}
                 onChange={(v) => u('goEFN', v)}
                 hint="0 se GO 100% rinnovabile"
+                tooltip={{ label: 'Fattore emissivo contrattuale', desc: 'Il fattore del contratto di fornitura (residual mix factor). Se i kWh sono coperti al 100% da GO rinnovabili, il fattore è 0. Altrimenti usa il residual mix nazionale RECS.', source: 'Fornito dall\'energy service company nel contratto o disponibile su AIB (Association of Issuing Bodies).', efrag: 'GHG Protocol — Market-based Scope 2' }}
               />
             </>
           )}
@@ -103,12 +106,18 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Elettricità da Rete e Fotovoltaico</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <TextInput label="Elettricità da rete Anno N (kWh)" type="number" value={en.elReteN} onChange={(v) => u('elReteN', v)} />
-          <TextInput label="Anno N-1 (kWh)" type="number" value={en.elReteN1} onChange={(v) => u('elReteN1', v)} />
-          <TextInput label="Fattore ISPRA (kgCO₂eq/kWh)" type="number" value={en.ispra} onChange={(v) => u('ispra', v)} hint="Valore 2023 = 0.211" />
-          <TextInput label="Potenza FV installata (kWp)" type="number" value={en.kWpFV} onChange={(v) => u('kWpFV', v)} />
-          <TextInput label="FV autoconsumata Anno N (kWh)" type="number" value={en.elFVN} onChange={(v) => u('elFVN', v)} />
-          <TextInput label="FV Anno N-1 (kWh)" type="number" value={en.elFVN1} onChange={(v) => u('elFVN1', v)} />
+          <TextInput label="Elettricità da rete Anno N (kWh)" type="number" value={en.elReteN} onChange={(v) => u('elReteN', v)}
+            tooltip={{ label: 'Elettricità da rete (kWh)', desc: 'Totale dei kWh prelevati dalla rete elettrica pubblica nell\'anno di riferimento. Include tutti i POD (punti di prelievo) dell\'azienda.', source: 'Bollette elettriche annuali o lettura dei contatori. Somma tutti i POD dell\'azienda.', tip: 'Puoi richiedere un estratto annuale cumulato al tuo fornitore di energia.', efrag: 'VSME B3-1 — Consumo energetico totale' }} />
+          <TextInput label="Anno N-1 (kWh)" type="number" value={en.elReteN1} onChange={(v) => u('elReteN1', v)}
+            tooltip={{ label: 'Elettricità da rete Anno precedente', desc: 'Stesso dato dell\'anno precedente. Necessario per calcolare la variazione % YoY e abilitare i grafici di trend nella Dashboard.', source: 'Bollette Anno N-1 o report ESG dell\'anno precedente.', efrag: 'VSME B3 — Confronto temporale' }} />
+          <TextInput label="Fattore ISPRA (kgCO₂eq/kWh)" type="number" value={en.ispra} onChange={(v) => u('ispra', v)} hint="Valore 2023 = 0.211"
+            tooltip={{ label: 'Fattore emissivo rete elettrica (ISPRA)', desc: 'Il fattore di emissione medio della rete elettrica italiana, pubblicato annualmente da ISPRA nel Rapporto sui fattori di emissione. Usato per calcolare lo Scope 2 location-based.', source: 'ISPRA — "Fattori di emissione atmosferica di gas a effetto serra nel settore elettrico". Aggiornamento annuale.', tip: '2023 = 0,211 | 2022 = 0,233 | 2021 = 0,228 kgCO₂eq/kWh. Usa sempre il valore dell\'anno di rendicontazione.', warning: 'Non usare fattori di anni diversi da quello di riferimento del report.', efrag: 'VSME B3 | GHG Protocol Location-based', link: 'https://www.isprambiente.gov.it/it/pubblicazioni/rapporti/fattori-di-emissione-in-atmosfera-di-gas-a-effetto-serra-nel-settore-elettrico' }} />
+          <TextInput label="Potenza FV installata (kWp)" type="number" value={en.kWpFV} onChange={(v) => u('kWpFV', v)}
+            tooltip={{ label: 'Potenza fotovoltaico (kWp)', desc: 'La potenza di picco dell\'impianto fotovoltaico installato, in kilowatt di picco. Serve per stimare la produzione attesa e verificare la coerenza con i kWh dichiarati.', source: 'Progetto impianto, certificato di collaudo GSE, o visura catastale dell\'impianto.', tip: 'Stima produzione: kWpFV × 1.200–1.400 h/anno = kWh/anno tipici per l\'Italia centro-settentrionale.', efrag: 'VSME B3 — Energia rinnovabile autoprodotta' }} />
+          <TextInput label="FV autoconsumata Anno N (kWh)" type="number" value={en.elFVN} onChange={(v) => u('elFVN', v)}
+            tooltip={{ label: 'Energia fotovoltaica autoconsumata (kWh)', desc: 'Quota di energia prodotta dal FV e consumata direttamente in azienda (autoconsumo istantaneo + da accumulo). Non include l\'energia ceduta alla rete.', source: 'Sistema di monitoraggio dell\'impianto FV (es. portale Solaredge, Fronius, SCADA) o contatore bidirezionale.', tip: 'Autoconsumo = Produzione totale FV − Energia immessa in rete (da bolletta GSE Ritiro Dedicato).', warning: 'Non includere l\'energia venduta al GSE: conta solo quella autoconsumata.', efrag: 'VSME B3 — Energia rinnovabile autoprodotta' }} />
+          <TextInput label="FV Anno N-1 (kWh)" type="number" value={en.elFVN1} onChange={(v) => u('elFVN1', v)}
+            tooltip={{ label: 'FV autoconsumata Anno precedente', desc: 'Autoconsumo fotovoltaico dell\'anno N-1 per il confronto YoY.', source: 'Storico del sistema di monitoraggio FV o report anno precedente.', efrag: 'VSME B3 — Confronto temporale' }} />
         </div>
       </Card>
 
