@@ -1,5 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput } from '@/components/report/FormField';
+import { TextInput, SelectField, TextArea } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -43,6 +43,20 @@ export default function SectionAcqua({ data, onUpdate, onNavigate }) {
           <TextInput label="Scarico idrico N-1 (m³)" type="number" value={ac.scaricoN1} onChange={(v) => u('scaricoN1', v)} />
           <TextInput label="Dipendenti medi N (per KPI acqua)" type="number" value={ac.dipAcquaN} onChange={(v) => u('dipAcquaN', v)} />
         </div>
+      </Card>
+
+      {/* Obiettivi Idrici — DP.17 Banche */}
+      <Card className="p-5 mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="font-heading font-bold text-primary text-sm">Obiettivi di Riduzione Idrica</h3>
+          <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Dialogo PMI-Banche — DP.17</span>
+        </div>
+        <SelectField label="Sono stati definiti target di riduzione consumi idrici? (DP.17)" value={ac.targetAcqua} onChange={(v) => u('targetAcqua', v)} options={[['no','No'],['si','Sì']]} />
+        {ac.targetAcqua === 'si' && (
+          <div className="mt-3">
+            <TextArea label="Descrizione obiettivi idrici" value={ac.targetAcquaDesc} onChange={(v) => u('targetAcquaDesc', v)} rows={2} placeholder="Es. Riduzione prelievo da acquedotto del 15% entro 2026 tramite installazione sistema recupero acque piovane." />
+          </div>
+        )}
       </Card>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">

@@ -178,6 +178,18 @@ export default function SectionRifiuti({ data, onUpdate, onNavigate }) {
         )}
       </Card>
 
+      {/* Economia Circolare — Prodotti e Imballaggi — DP.23, 24 Banche */}
+      <Card className="p-5 mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="font-heading font-bold text-primary text-sm">Economia Circolare — Prodotti e Imballaggi</h3>
+          <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Dialogo PMI-Banche — DP.23, 24</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextInput label="% contenuto riciclato/recuperato nei prodotti (DP.23)" type="number" value={ri.percRiciclatoProdotti} onChange={(v) => u('percRiciclatoProdotti', v)} hint="Materiale riciclato/sottoprodotto su totale materiale usato" placeholder="0–100" />
+          <TextInput label="% contenuto riciclabile negli imballaggi (DP.24)" type="number" value={ri.percRiciclabileImballaggi} onChange={(v) => u('percRiciclabileImballaggi', v)} hint="Imballaggi riciclabili su totale imballaggi utilizzati" placeholder="0–100" />
+        </div>
+      </Card>
+
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <KPICard label="Totale" value={w.tot.toFixed(2)} unit="tonnellate" color="default" />
         <KPICard label="Pericolosi" value={w.per.toFixed(2)} unit="t" color={parseFloat(w.per) > 0 ? 'amber' : 'default'} />

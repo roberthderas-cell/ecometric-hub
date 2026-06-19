@@ -35,17 +35,24 @@ export default function SectionGovernance({ data, onUpdate, onNavigate }) {
           <SelectField label="Policy Anti-Corruzione" value={gov.policy} onChange={(v) => u('policy', v)} options={yn} />
           <SelectField label="Rating ESG esterno" value={gov.rESG} onChange={(v) => u('rESG', v)} options={yn} />
           <TextInput label="Altre certificazioni" value={gov.altreCert} onChange={(v) => u('altreCert', v)} placeholder="ISO 9001, EMAS..." />
+          <SelectField label="Procedure segnalazione pericoli H&S (DP.39)" value={gov.procSegnHS} onChange={(v) => u('procSegnHS', v)} options={[['no','No'],['si','Sì — procedura formale attiva']]} hint="D.Lgs. 81/2008 — near-miss e pericoli" />
         </div>
       </Card>
 
       <Card className="p-6 mb-5">
-        <h3 className="font-heading font-bold text-primary text-sm mb-4">Corruzione e Pagamenti</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <TextInput label="Condanne corruzione (3 anni)" type="number" value={gov.cond} onChange={(v) => u('cond', v)} />
-          <TextInput label="Sanzioni (€)" type="number" value={gov.san} onChange={(v) => u('san', v)} />
+        <h3 className="font-heading font-bold text-primary text-sm mb-4">Sanzioni — Corruzione e Ambiente</h3>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 mb-4">
+          ℹ️ Indicare il numero e l'ammontare di sanzioni pecuniarie e interdittive ricevute negli ultimi 3 esercizi (DP.40).
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <TextInput label="N. condanne corruzione (3 anni)" type="number" value={gov.cond} onChange={(v) => u('cond', v)} />
+          <TextInput label="Sanzioni corruzione (€)" type="number" value={gov.san} onChange={(v) => u('san', v)} />
+          <TextInput label="Sanzioni per violazioni norme ambientali (€) (DP.40)" type="number" value={gov.sanAmb} onChange={(v) => u('sanAmb', v)} hint="Sanzioni D.Lgs. 152/2006 o norme ambientali" />
           <TextInput label="Tempi medi pagamento (gg)" type="number" value={gov.tempiPag} onChange={(v) => u('tempiPag', v)} />
         </div>
       </Card>
+
+
 
       <div className="mb-5">
         <CongruenceAlerts data={data} section="gov" />

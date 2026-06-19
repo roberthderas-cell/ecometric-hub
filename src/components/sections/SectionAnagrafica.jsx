@@ -52,6 +52,9 @@ export default function SectionAnagrafica({ data, onUpdate, onNavigate }) {
           <SelectField label="Perimetro" value={ana.perimetro} onChange={(v) => u('perimetro', v)} options={[['individuale','Individuale'],['consolidato','Consolidato (Gruppo)']]} hint="Consolidato se il report copre più società" />
           <TextInput label="Paesi di Operatività" value={ana.paesi} onChange={(v) => u('paesi', v)} placeholder="Es. Italia, Germania" />
           <TextInput label="Certificazioni ESG" value={ana.cert} onChange={(v) => u('cert', v)} placeholder="Nessuna se non applicabile" />
+          <SelectField label="Info sostenibilità rese pubbliche? (DP.3)" value={ana.sostPubblica || 'no'} onChange={(v) => u('sostPubblica', v)} options={[['no','No'],['si','Sì — report/sito web'],['pianif','In pianificazione']]} hint="Sito web, report ESG, banche dati pubbliche" />
+          <TextInput label="% Fatturato allineato Tassonomia UE (DP.11)" type="number" value={ana.pctFattTassonomia} onChange={(v) => u('pctFattTassonomia', v)} hint="Stima. 0 se nessuna attività eleggibile" placeholder="0–100" />
+          <TextInput label="% CapEx allineata Tassonomia UE (DP.12)" type="number" value={ana.pctCapexTassonomia} onChange={(v) => u('pctCapexTassonomia', v)} hint="Stima spesa in conto capitale allineata" placeholder="0–100" />
         </div>
       </Card>
 

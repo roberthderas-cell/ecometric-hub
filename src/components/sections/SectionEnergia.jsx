@@ -1,5 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, SelectField, ComputedValue } from '@/components/report/FormField';
+import { TextInput, SelectField, ComputedValue, TextArea } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -142,6 +142,27 @@ export default function SectionEnergia({ data, onUpdate, onBulkUpdate, onNavigat
           <ComputedValue label="Energia totale" value={(g.totKwh / 1000).toFixed(1)} unit="MWh" variant="blue" />
           <ComputedValue label="di cui Rinnovabile" value={(g.renKwh / 1000).toFixed(1)} unit={`MWh · ${g.pRenTot.toFixed(1)}%`} />
           <ComputedValue label="di cui Non rinnovabile" value={(g.nonRenKwh / 1000).toFixed(1)} unit="MWh" />
+        </div>
+      </Card>
+
+      {/* Rischio Climatico & Tassonomia UE — DP 4, 8, 9, 10 Banche */}
+      <Card className="p-6 mb-5">
+        <div className="flex items-center gap-2 mb-4">
+          <h3 className="font-heading font-bold text-primary text-sm">Rischio Climatico e Tassonomia UE</h3>
+          <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Dialogo PMI-Banche — DP 4, 8, 9, 10</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SelectField label="Classe energetica immobili (DP.4)" value={en.classeEnergetica} onChange={(v) => u('classeEnergetica', v)} hint="Certificazione APE per immobili in garanzia" options={[['','Non noto / Non applicabile'],['A4','A4 (massima effic.)'],['A3','A3'],['A2','A2'],['A1','A1'],['B','B'],['C','C'],['D','D'],['E','E'],['F','F'],['G','G (minima effic.)']]} />
+          <SelectField label="Target riduzione emissioni GHG fissati? (DP.8)" value={en.targetGHG} onChange={(v) => u('targetGHG', v)} options={[['no','No'],['si','Sì']]} hint="Es. −30% Scope 1+2 entro 2030" />
+        </div>
+        {en.targetGHG === 'si' && (
+          <div className="mt-3">
+            <TextArea label="Descrizione target GHG (DP.8)" value={en.targetGHGDesc} onChange={(v) => u('targetGHGDesc', v)} rows={2} placeholder="Es. Riduzione Scope 1+2 del 30% entro 2030 rispetto alla baseline 2022, tramite efficienza e rinnovabili." />
+          </div>
+        )}
+        <div className="grid grid-cols-1 gap-4 mt-4">
+          <TextArea label="Investimenti per riduzione rischio fisico e di transizione (DP.9)" value={en.invRischioCC} onChange={(v) => u('invRischioCC', v)} rows={2} placeholder="Es. Investimento €150.000 in pompe di calore (2024), piano efficienza energetica 2025-2027." />
+          <TextArea label="Copertura assicurativa contro rischi fisici/calamità (DP.10)" value={en.assicRischioCC} onChange={(v) => u('assicRischioCC', v)} rows={2} placeholder="Es. Polizza multirischio copertura alluvione e grandine, valore coperto €1,2M, validità 2024–2025." />
         </div>
       </Card>
 

@@ -1,5 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, ComputedValue, SelectField } from '@/components/report/FormField';
+import { TextInput, ComputedValue, SelectField, TextArea } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -76,6 +76,18 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
           </ResponsiveContainer>
         </Card>
       )}
+
+      {/* Iniziative FL e Comunità — DP.36-37 Banche */}
+      <Card className="p-6 mb-5">
+        <div className="flex items-center gap-2 mb-4">
+          <h3 className="font-heading font-bold text-primary text-sm">Impatto su Lavoratori, Comunità e Territorio</h3>
+          <span className="text-[10px] bg-blue-100 text-blue-700 font-semibold px-2 py-0.5 rounded-full">Dialogo PMI-Banche — DP.36, 37</span>
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          <TextArea label="Iniziative per la forza lavoro (DP.36)" value={pe.iniziativeFL} onChange={(v) => u('iniziativeFL', v)} rows={3} placeholder="Es. Piano welfare, smart working, formazione continua, assunzioni stabili, CCNL migliorativo..." />
+          <TextArea label="Iniziative per la comunità e il territorio (DP.37)" value={pe.iniziativeCT} onChange={(v) => u('iniziativeCT', v)} rows={3} placeholder="Es. Sponsorizzazioni sportive locali, volontariato aziendale, partnership scuole, donazioni enti no-profit..." />
+        </div>
+      </Card>
 
       <div className="mb-5">
         <CongruenceAlerts data={data} section="pe" />
