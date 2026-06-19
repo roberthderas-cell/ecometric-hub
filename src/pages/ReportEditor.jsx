@@ -364,7 +364,7 @@ export default function ReportEditor() {
               onNavigate={handleNavigate}
               reportId={reportId}
               report={report}
-              {...(activeSection === 'consigli' ? { report } : {})}
+              {...(activeSection === 'consigli' ? { data: reportData } : {})}
             />
           ) : (
             <p className="text-muted-foreground">Sezione non trovata</p>
