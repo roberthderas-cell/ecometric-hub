@@ -1,5 +1,5 @@
 import SectionHeader from '@/components/report/SectionHeader';
-import { TextInput, ComputedValue } from '@/components/report/FormField';
+import { TextInput, ComputedValue, SelectField } from '@/components/report/FormField';
 import NotesField from '@/components/report/NotesField';
 import CongruenceAlerts from '@/components/report/CongruenceAlerts';
 import { Card } from '@/components/ui/card';
@@ -44,6 +44,7 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
           <TextInput label="Giorni persi" type="number" value={pe.ggPersi} onChange={(v) => u('ggPersi', v)} />
           <TextInput label="Ore lavorate totali" type="number" value={pe.oreLav} onChange={(v) => u('oreLav', v)} hint="Da LUL" />
           <TextInput label="Giorni assenteismo" type="number" value={pe.assentGg} onChange={(v) => u('assentGg', v)} />
+          <TextInput label="Decessi correlati al lavoro" type="number" value={pe.decessi} onChange={(v) => u('decessi', v)} hint="VSME B9 — infortuni/malattie mortali" />
         </div>
         <div className="grid grid-cols-2 gap-4 mt-4">
           <ComputedValue label="Tasso Frequenza IF" value={p.IF} unit="(n.inf × 1M) / ore" />
@@ -54,6 +55,7 @@ export default function SectionPersonale({ data, onUpdate, onNavigate }) {
       <Card className="p-6 mb-5">
         <h3 className="font-heading font-bold text-primary text-sm mb-4">Retribuzione e Formazione</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <SelectField label="Tutti retribuiti ≥ salario minimo?" value={pe.salarioMin} onChange={(v) => u('salarioMin', v)} hint="VSME B10 — salario minimo applicabile" options={[['si', 'Sì — tutti ≥ minimo'], ['no', 'No — alcuni sotto'], ['na', 'Non applicabile']]} />
           <TextInput label="CCNL Applicato" value={pe.ccnl} onChange={(v) => u('ccnl', v)} placeholder="Es. Metalmeccanici" />
           <TextInput label="Retrib. Media Uomini (€)" type="number" value={pe.retUom} onChange={(v) => u('retUom', v)} />
           <TextInput label="Retrib. Media Donne (€)" type="number" value={pe.retDon} onChange={(v) => u('retDon', v)} />

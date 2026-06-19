@@ -297,6 +297,7 @@ export function SectionB9({ data }) {
             <tr><Td>Infortuni (assenza &gt; 0 gg)</Td><Td bold>{pe.infort || '0'}</Td><Td>Fonte INAIL</Td></tr>
             <tr><Td>Giorni persi per infortuni</Td><Td bold>{pe.ggPersi || '0'}</Td><Td></Td></tr>
             <tr><Td>Malattie professionali riconosciute</Td><Td bold>{pe.malProf || '0'}</Td><Td></Td></tr>
+            <tr><Td>Decessi correlati al lavoro</Td><Td bold>{pe.decessi || '0'}</Td><Td>Infortuni/malattie mortali</Td></tr>
             <tr><Td>Ore lavorate totali</Td><Td bold>{fmtN(pe.oreLav)}</Td><Td>Da LUL</Td></tr>
             <tr><Td>Giorni assenteismo</Td><Td bold>{pe.assentGg || '—'}</Td><Td>Esclusi congedi obbligatori</Td></tr>
             <tr className="bg-muted/30"><Td bold>Tasso Frequenza Infortuni (IF)</Td><Td bold>{calc.IF}</Td><Td>(n.inf × 1.000.000) / ore lavorate</Td></tr>
@@ -320,6 +321,7 @@ export function SectionB10({ data }) {
         <Table>
           <thead><tr><Th>Indicatore</Th><Th>Anno N</Th></tr></thead>
           <tbody>
+            <tr><Td>Dipendenti retribuiti ≥ salario minimo</Td><Td bold>{pe.salarioMin === 'si' ? '✅ Sì — tutti' : pe.salarioMin === 'no' ? '⚠️ No' : pe.salarioMin === 'na' ? 'Non applicabile' : '—'}</Td></tr>
             <tr><Td>CCNL applicato</Td><Td bold>{pe.ccnl || '—'}</Td></tr>
             <tr><Td>% Dipendenti coperti da CCNL</Td><Td bold>{pe.percCCNL ? pe.percCCNL + '%' : '—'}</Td></tr>
             <tr><Td>Retribuzione lorda media annua</Td><Td bold>{fmtE(pe.retMedia)}</Td></tr>
