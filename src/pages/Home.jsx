@@ -395,6 +395,11 @@ export default function Home() {
               >
                 <Plus className="w-4 h-4" /> Nuovo Report
               </Button>
+              <Link to="/manuale">
+                <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 gap-2 bg-white/5 font-extrabold px-6 py-2.5 rounded-xl shadow-sm">
+                  <FileText className="w-4 h-4" /> Manuale App
+                </Button>
+              </Link>
               {reports.length > 0 && (
                 <>
                   <Link to="/relazione-banca">
