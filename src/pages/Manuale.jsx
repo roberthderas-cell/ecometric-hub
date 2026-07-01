@@ -1,11 +1,44 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { base44 } from '@/api/base44Client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookOpen, Users, Database, Layers, CheckCircle2, Shield, Settings } from 'lucide-react';
+import { ArrowLeft, BookOpen, Users, Database, Layers, CheckCircle2, Shield, Settings, Download } from 'lucide-react';
 
 export default function Manuale() {
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportWord = async () => {
+    try {
+      setIsExporting(true);
+      const res = await base44.functions.invoke('exportManualWord', {});
+      if (res.data && res.data.base64) {
+        const byteCharacters = atob(res.data.base64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Manuale_VSME_Builder.docx';
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        alert('Errore: formato risposta non valido.');
+      }
+    } catch (e) {
+      console.error("Export error", e);
+      alert("Errore durante l'esportazione: " + (e.response?.data?.error || e.message));
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const images = {
     cover: 'https://media.base44.com/images/public/6a207a6e28a8f0aa0202cca9/28af46590_generated_image.png',
     arch: 'https://media.base44.com/images/public/6a207a6e28a8f0aa0202cca9/37718efe0_generated_image.png',
@@ -29,6 +62,10 @@ export default function Manuale() {
               Manuale Utente VSME Builder
             </h1>
           </div>
+          <Button onClick={handleExportWord} disabled={isExporting} className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shadow-md">
+            {isExporting ? <span className="animate-spin w-4 h-4 border-2 border-white/40 border-t-white rounded-full"/> : <Download className="w-4 h-4" />}
+            Scarica in Word
+          </Button>
         </div>
       </div>
 
